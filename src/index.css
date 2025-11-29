@@ -1,1 +1,401 @@
+/* Font - HARUS DI PALING ATAS */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
 @import "tailwindcss";
+
+/* ==============================
+   CSS VARIABLES (easy theming)
+   ============================== */
+:root {
+  --color-bg-body: #f0f4ff;          /* Body background */
+  --color-text-base: #1f2937;
+  --color-bottom-bar-bg: #06111C;
+  --color-bottom-bar-border: #142233;
+  --color-bottom-bar-text: #c9d1d9;
+  --color-scrollbar-track: #f0f3f5;
+  --color-scrollbar-thumb: #c5ced6;
+  --color-scrollbar-thumb-hover: #aab5bf;
+
+  /* content card width used for centered card */
+  --content-card-width: 880px;
+}
+
+html, body {
+  width: 100%;
+  min-height: 100%;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  font-family: 'Inter', sans-serif;
+  background: var(--color-bg-body);
+  color: var(--color-text-base);
+}
+
+body {
+  overscroll-behavior-y: none;
+}
+
+/* ==============================
+   SCROLLBAR (WebKit)
+   ============================== */
+body::-webkit-scrollbar {
+  width: 10px;
+}
+body::-webkit-scrollbar-track {
+  background: var(--color-scrollbar-track);
+}
+body::-webkit-scrollbar-thumb {
+  background: var(--color-scrollbar-thumb);
+  border-radius: 5px;
+  border: 2px solid var(--color-scrollbar-track);
+}
+body::-webkit-scrollbar-thumb:hover {
+  background: var(--color-scrollbar-thumb-hover);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-scrollbar-thumb) var(--color-scrollbar-track);
+}
+
+/* ==============================
+   ANIMATIONS
+   ============================== */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fadeIn { animation: fadeIn 0.3s ease-in; }
+.animate-slideUp { animation: slideUp 0.28s ease-out; }
+
+/* ==============================
+   TAILWIND COMPONENT HELPERS
+   ============================== */
+@layer components {
+  .bottom-bar {
+    @apply fixed bottom-0 left-0 right-0 z-40 flex items-center;
+    height: 56px;
+    background: var(--color-bottom-bar-bg);
+    border-top: 1px solid var(--color-bottom-bar-border);
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  .bottom-bar-inner {
+    @apply w-full max-w-7xl mx-auto flex justify-between items-center;
+  }
+
+  .bottom-bar-btn {
+    @apply flex items-center gap-1 text-sm font-medium transition-colors;
+    color: var(--color-bottom-bar-text);
+  }
+
+  .bottom-bar-btn:hover {
+    color: #3b82f6;
+  }
+
+  .sidebar-toggle {
+    @apply w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center shadow-lg transition;
+  }
+
+  .panel {
+    @apply bg-white rounded-xl shadow;
+    animation: fadeIn 0.25s ease;
+  }
+}
+
+/* ==============================
+   HELPERS
+   ============================== */
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.has-bottom-bar { padding-bottom: 80px; }
+
+/* ==============================
+   PATTERN / BACKGROUND (LayoutWrapper)
+   ============================== */
+.pattern-container {
+  position: relative;
+  z-index: 0;
+  overflow: visible;
+  width: 100%;
+}
+.pattern-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-repeat: no-repeat;
+  background-position: center top;
+  background-size: cover;
+  pointer-events: none;
+  image-rendering: auto;
+  -webkit-backface-visibility: hidden;
+}
+.pattern-container::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background: rgba(255,255,255,0.78);
+  transition: background 160ms ease;
+}
+
+/* ==============================
+   QUIZ INTRO / HERO LAYOUT — COMBINED BAR + CARD
+   ============================== */
+
+/* outer wrapper for spacing */
+.quiz-intro-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding-top: 56px; /* leave space for header */
+  padding-bottom: 56px;
+  box-sizing: border-box;
+}
+
+/* main hero container: the blue bar and white body are inside this single box */
+.quiz-hero {
+  width: 100%;
+  max-width: calc(var(--content-card-width) + 80px);
+  margin: 0 auto;
+  position: relative;
+  border-radius: 16px; /* full container rounded */
+  overflow: hidden;     /* ensure no gap and that blue/top and body are clipped into one shape */
+  box-shadow: 0 14px 50px rgba(16,24,40,0.06);
+  background: linear-gradient(180deg, #2d6df6 0%, #2563eb 100%); /* fall-back so top shows if needed */
+}
+
+/* blue strip area implemented as pseudo element so card and bar are one visual unit */
+.quiz-hero::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px; /* controls height of blue area */
+  background: linear-gradient(180deg,#2d6df6 0%,#2563eb 100%);
+  z-index: 6;
+}
+
+/* place the three dots in the left corner of the blue area */
+.quiz-hero .window-controls {
+  position: absolute;
+  left: 18px;
+  top: 24px; 
+  display: flex;
+  gap: 8px;
+  z-index: 12;
+}
+
+/* small dot styles */
+.window-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  display: inline-block;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.06) inset;
+  border: 1px solid rgba(255,255,255,0.25);
+}
+.window-dot.dot-red { background: #ff5f56; }
+.window-dot.dot-yellow { background: #ffbd2e; }
+.window-dot.dot-green { background: #27c93f; }
+
+/* badge centered overlapping the blue bar and the white body */
+.quiz-badge {
+  display: inline-block;
+  margin: 0 auto;
+  margin-top: 10px; /* slight lift so overlap looks natural */
+  background: #2563eb;
+  color: #fff;
+  padding: 10px 28px;
+  border-radius: 9999px;
+  box-shadow: 0 10px 24px rgba(37,99,235,0.18);
+  font-weight: 600;
+  z-index: 14;
+}
+
+/* hero body (white) — placed inside the same container but visually below the blue gradient */
+.quiz-hero-body {
+  background: #ffffff;
+  padding: 40px 32px;
+  text-align: center;
+  color: var(--color-text-base);
+  /* attached look: top radius is handled by .quiz-hero container */
+  border-radius: 0 0 16px 16px;
+  position: relative;
+  z-index: 1;
+  margin-top: 36px; /* start below the blue strip */
+}
+
+/* title styling */
+.quiz-hero-body h1 {
+  font-size: 2.25rem;
+  line-height: 1.05;
+  margin-bottom: 6px;
+  color: #0b1220;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+/* subtitle / quote */
+.quiz-hero-body p.lead {
+  color: #475569;
+  margin-bottom: 20px;
+  font-style: italic;
+}
+
+/* inner info card (single card) */
+.quiz-info-card {
+  background: #ffffff;
+  border: 1px solid rgba(15,23,42,0.06);
+  border-radius: 12px;
+  padding: 22px 20px;
+  margin: 18px auto 28px;
+  max-width: 820px;
+  box-shadow: 0 6px 18px rgba(16,24,40,0.04);
+  text-align: left;
+}
+
+/* info card title centered */
+.quiz-info-card h2 {
+  text-align: center;
+  margin-bottom: 14px;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+/* info rows */
+.info-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+.info-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.icon-circle {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f8ff;
+  color: #2563eb;
+  border: 1px solid rgba(37,99,235,0.06);
+}
+
+/* CTA button (centered below info card) */
+.quiz-cta {
+  display: inline-block;
+  background: linear-gradient(180deg,#2d6df6,#2563eb);
+  color: #fff;
+  padding: 12px 36px;
+  border-radius: 999px;
+  font-weight: 700;
+  box-shadow: 0 16px 34px rgba(37,99,235,0.18);
+  margin-top: 6px;
+}
+
+/* ==============================
+   Responsive tweaks
+   ============================== */
+@media (max-width: 768px) {
+  .quiz-hero {
+    max-width: calc(100% - 32px);
+    margin: 0 16px;
+  }
+  .quiz-hero::before { height: 56px; }
+  .quiz-hero .window-controls { top: 12px; left: 12px; }
+  .quiz-badge { padding: 8px 20px; margin-top: -16px; font-size: 14px; }
+  .quiz-hero-body { padding: 28px 18px; margin-top: 28px; }
+  .quiz-info-card { padding: 16px; margin: 14px auto 20px; }
+  .quiz-hero-body h1 { font-size: 1.75rem; }
+}
+
+/* ==============================
+   SMALL VISUAL TWEAKS FOR LEARNING PAGE (content helpers)
+   ============================== */
+.material-foreground .breadcrumb { margin-bottom: 1rem; }
+.material-foreground h1, .material-foreground h2 { color: #0b4ee6; }
+.material-foreground a { color: #1d4ed8; text-decoration: underline; }
+.material-foreground img { max-width: 100%; height: auto; display: block; }
+.material-foreground pre, .material-foreground code {
+  background: rgba(250,250,250,0.9);
+  padding: 0.5rem;
+  border-radius: 6px;
+  overflow: auto;
+}
+
+/* Accessibility focus outline adjustments for keyboard users */
+:focus {
+  outline: 3px solid rgba(59,130,246,0.30);
+  outline-offset: 2px;
+}
+
+/* ==============================
+   FEEDBACK (ditambahkan agar halaman scroll ke feedback ketika user menjawab)
+   - Styling untuk .feedback yang digunakan di Quiz components
+   ============================== */
+.feedback {
+  width: 100%;
+  max-width: 820px;
+  margin: 18px auto;
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid rgba(15,23,42,0.06);
+  box-shadow: 0 8px 24px rgba(16,24,40,0.04);
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 240ms cubic-bezier(.2,.9,.28,1), transform 280ms cubic-bezier(.2,.9,.28,1);
+  pointer-events: auto;
+  outline: none;
+}
+
+/* tipe feedback */
+.feedback.correct { border-left: 4px solid #16a34a; }   /* hijau */
+.feedback.incorrect { border-left: 4px solid #ef4444; } /* merah */
+.feedback.neutral { border-left: 4px solid transparent; }
+
+/* inner content layout */
+.feedback .feedback-inner {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  color: #0f172a;
+  font-size: 0.98rem;
+  line-height: 1.4;
+}
+
+/* icon area kecil */
+.feedback .feedback-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid rgba(37,99,235,0.06);
+}
+
+/* make sure feedback can be focused (used by JS to focus for accessibility) */
+.feedback[tabindex] { outline: none; }
+
+/* small screens */
+@media (max-width: 768px) {
+  .feedback { padding: 12px 14px; margin: 14px auto; border-radius: 10px; }
+  .feedback .feedback-inner { font-size: 0.95rem; }
+}

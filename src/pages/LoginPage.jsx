@@ -21,7 +21,7 @@ const LoginPage = () => {
     setError("");
 
     try {
-      const response = await fetch("https://capstone.yapp.web.id/login", {
+      const response = await fetch("https://api.capstone.web.id/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -60,7 +60,7 @@ const LoginPage = () => {
         />
       </div>
 
-      <div className="flex-1 lg:w-1/2 bg-white p-8 flex flex-col justify-center max-w-lg mx-auto">
+      <div className="flex-1 lg:w-1/2 bg-white p-12 flex flex-col justify-center max-w-lg mx-auto">
         <div className="flex flex-col items-center justify-center gap-1 mb-5">
           <img
             src="/assets/images/logo-login.jpg"

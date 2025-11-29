@@ -1,11 +1,11 @@
 import React from "react";
 
-import NavbarHomePage from "../components/NavbarHomePage";
-import HeaderHomePage from "../components/HeaderHomePage";
-import BenefitsHomePage from "../components/BenefitsHomePage";
-import SilabusPage from "../components/SilabusPage";
-import DeskripsiPage from "../components/DeskripsiPage";
-import RekomendasiPage from "../components/RekomendasiPage";
+import NavbarHomePage from "../components/Topic/NavbarHomePage";
+import HeaderHomePage from "../components/Topic/HeaderHomePage";
+import BenefitsHomePage from "../components/Topic/BenefitsHomePage";
+import SilabusPage from "../components/Topic/SilabusPage";
+import DeskripsiPage from "../components/Topic/DeskripsiPage";
+import RekomendasiPage from "../components/Topic/RekomendasiPage";
 
 const HomePage = () => {
   return (

@@ -1,6 +1,9 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
+
 
 const HeaderHomePage = () => {
+  const navigate = useNavigate();
   return (
     <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-20">
       <div className="flex flex-col md:flex-row items-center mb-8 gap-10 p-8 bg-blue-50 rounded-lg shadow-md transition-all duration-500 ease-in-out">
@@ -76,7 +79,7 @@ const HeaderHomePage = () => {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 mt-2">
-            <button className="bg-blue-500 text-white hover:bg-blue-600 px-7 py-2 rounded-xl w-full sm:w-auto transition-colors duration-300 ease-in-out">
+            <button onClick={() => navigate('/material')} className="bg-blue-500 text-white hover:bg-blue-600 px-7 py-2 rounded-xl w-full sm:w-auto transition-colors duration-300 ease-in-out">
               Belajar Sekarang
             </button>
             <button className="border-2 border-blue-400 hover:text-white hover:bg-blue-500 text-blue-400 px-7 py-1.5 rounded-xl w-full sm:w-auto transition-colors duration-300 ease-in-out">

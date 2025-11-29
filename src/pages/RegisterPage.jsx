@@ -36,7 +36,7 @@ const RegisterPage = () => {
 
     try {
       // Mengirimkan data registrasi ke API
-      const response = await fetch("https://capstone.yapp.web.id/register", {
+      const response = await fetch("https://api.capstone.web.id/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
