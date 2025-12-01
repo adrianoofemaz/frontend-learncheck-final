@@ -1,87 +1,101 @@
-import React from "react";
-// HAPUS import BrowserRouter/Router dari sini kalau ada
-import { Routes, Route, Navigate } from "react-router-dom";
-import "./index.css";
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import './index.css';
 
-// Contexts / Providers (jika diperlukan)
-import { LearningProvider } from "./context/LearningContext";
-import { QuizProvider } from "./context/QuizContext";
+// Providers/Contexts
+import { AuthProvider } from './context/AuthContext';
+import { UserProvider } from './context/UserContext';
+import { LearningProvider } from './context/LearningContext';
+import { QuizProvider } from './context/QuizContext';
+import { ProgressProvider } from './context/ProgressContext';
 
 // Layout
-import LayoutWrapper from "./components/Layout/LayoutWrapper";
+import LayoutWrapper from './components/layout/LayoutWrapper';
 
-// Data
-import mockTopics from "./data/mockTopics";
+// Pages - Auth
+import LoginPage from './pages/auth/LoginPage';
+import RegisterPage from './pages/auth/RegisterPage';
 
-// Pages (hi-dem)
-import Learning from "./pages/Learning";
-import Quiz from "./pages/Quiz";
-import Feedback from "./pages/Feedback";
-import QuizIntroPage from "./pages/QuizIntroPage";
-import LoadingPage from "./pages/LoadingPage";
+// Pages - Main
+import HomePage from './pages/HomePage';
+import LearningPage from './pages/LearningPage';
+import QuizPage from './pages/QuizPage';
+import QuizIntroPage from './pages/QuizIntroPage';
+import ResultsPage from './pages/ResultsPage';
+import NotFoundPage from './pages/NotFoundPage';
 
-// Pages (adrianoofemaz)
-import RegisterPage from "./pages/RegisterPage";
-import LoginPage from "./pages/LoginPage";
-import HomePage from "./pages/HomePage";
+// Routes
+import { ROUTES } from './constants/routes';
 
 function App() {
-  const quiz = mockTopics[0]?.modules?.[0]?.submodules?.[0]?.quiz;
-
   return (
-    // Pastikan App hanya mengandung Routes (TANPA <BrowserRouter> di sini)
-    <LearningProvider>
-      <QuizProvider>
-        <Routes>
-          <Route path="/" element={<Navigate to="/register" replace />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/HomePage" element={<HomePage />} />
+    <AuthProvider>
+      <UserProvider>
+        <ProgressProvider>
+          <LearningProvider>
+            <QuizProvider>
+              <Routes>
+                {/* Auth Routes */}
+                <Route path={ROUTES. REGISTER} element={<RegisterPage />} />
+                <Route path={ROUTES.LOGIN} element={<LoginPage />} />
 
-          <Route
-            path="/results-test"
-            element={
-              <LayoutWrapper showBottomNav prevLabel="Beranda" prevPath="/" nextLabel="Modul Berikutnya" nextPath="/material">
-                <Feedback />
-              </LayoutWrapper>
-            }
-          />
+                {/* Redirect root to home */}
+                <Route path="/" element={<Navigate to={ROUTES.HOME} replace />} />
 
-          <Route
-            path="/material"
-            element={
-              <LayoutWrapper showBottomNav prevLabel="Beranda" prevPath="/HomePage" nextLabel="Quiz Submodul" nextPath="/quiz-intro" nextState={{ quiz }} requiresCompletion>
-                <Learning />
-              </LayoutWrapper>
-            }
-          />
+                {/* Main Routes */}
+                <Route
+                  path={ROUTES.HOME}
+                  element={
+                    <LayoutWrapper>
+                      <HomePage />
+                    </LayoutWrapper>
+                  }
+                />
 
-          <Route path="/quiz-intro" element={
-            <LayoutWrapper showBottomNav prevLabel="Penerangan AI" prevPath="/material" nextLabel="Mulai Kuis" nextPath="/loading" nextState={{ quiz }} fixedBackground>
-              <QuizIntroPage />
-            </LayoutWrapper>
-          }/>
+                <Route
+                  path={ROUTES.LEARNING}
+                  element={
+                    <LayoutWrapper showBottomNav>
+                      <LearningPage />
+                    </LayoutWrapper>
+                  }
+                />
 
-          <Route path="/loading" element={
-            <LayoutWrapper showBottomNav={false} showSidebar={false} fixedBackground>
-              <LoadingPage />
-            </LayoutWrapper>
-          }/>
+                <Route
+                  path={ROUTES.QUIZ_INTRO}
+                  element={
+                    <LayoutWrapper showBottomNav>
+                      <QuizIntroPage />
+                    </LayoutWrapper>
+                  }
+                />
 
-          <Route path="/quiz" element={
-            <LayoutWrapper showBottomNav={false} showSidebar={false}>
-              <Quiz />
-            </LayoutWrapper>
-          }/>
+                <Route
+                  path={ROUTES.QUIZ}
+                  element={
+                    <LayoutWrapper showBottomNav={false} showSidebar={false}>
+                      <QuizPage />
+                    </LayoutWrapper>
+                  }
+                />
 
-          <Route path="/results" element={
-            <LayoutWrapper showBottomNav prevLabel="Submodul 1" prevPath="/material" nextLabel="Modul Berikutnya" nextPath="/material">
-              <Feedback />
-            </LayoutWrapper>
-          }/>
-        </Routes>
-      </QuizProvider>
-    </LearningProvider>
+                <Route
+                  path={ROUTES. QUIZ_RESULTS}
+                  element={
+                    <LayoutWrapper showBottomNav>
+                      <ResultsPage />
+                    </LayoutWrapper>
+                  }
+                />
+
+                {/* 404 - Not Found */}
+                <Route path={ROUTES.NOT_FOUND} element={<NotFoundPage />} />
+              </Routes>
+            </QuizProvider>
+          </LearningProvider>
+        </ProgressProvider>
+      </UserProvider>
+    </AuthProvider>
   );
 }
 

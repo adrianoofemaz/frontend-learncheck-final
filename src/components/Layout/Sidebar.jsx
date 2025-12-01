@@ -1,42 +1,62 @@
-import React from 'react';
-import { ChevronRightIcon, ListBulletIcon } from '@heroicons/react/24/solid';
-import ModuleList from '../Navigation/ModuleList';
+/**
+ * Sidebar Component
+ * Left sidebar navigation
+ */
 
-const Sidebar = ({ isOpen, onToggle }) => {
-  if (!isOpen) {
-    return (
-      <button
-        onClick={onToggle}
-        className="fixed right-0 top-20 w-12 h-12 rounded-l-2xl bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center shadow-lg transition z-30"
-        aria-label="Buka Sidebar"
-      >
-        <ListBulletIcon className="w-6 h-6" />
-      </button>
-    );
-  }
+import React from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { BookOpenIcon, HomeIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { useProgress } from '../../context/ProgressContext';
+
+const Sidebar = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { getCompletionPercentage } = useProgress();
+
+  const menuItems = [
+    { label: 'Beranda', path: '/home', icon: HomeIcon },
+    { label: 'Materi', path: '/learning', icon: BookOpenIcon },
+  ];
+
+  const completionPercentage = getCompletionPercentage();
 
   return (
-    <aside
-      className="bg-white border-l border-gray-200 shadow-sm flex flex-col"
-      style={{
-        height: 'calc(100vh - 64px)',
-        width: '320px'
-      }}
-    >
-      {/* Toggle Button - Same size as show button */}
-      <div className="flex justify-start p-3">
-        <button
-          onClick={onToggle}
-          className="w-12 h-12 rounded-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center shadow-lg transition"
-          aria-label="Tutup Sidebar"
-        >
-          <ChevronRightIcon className="w-6 h-6" />
-        </button>
-      </div>
-      
-      {/* Module List */}
-      <div className="flex-1 overflow-y-auto pb-20">
-        <ModuleList />
+    <aside className="hidden lg:block w-64 bg-white border-r border-gray-200 sticky top-16 h-[calc(100vh-64px)] overflow-y-auto">
+      <div className="p-6">
+        {/* Progress Widget */}
+        <div className="mb-8 p-4 bg-blue-50 rounded-lg">
+          <h3 className="text-sm font-semibold text-gray-900 mb-3">Progress Belajar</h3>
+          <div className="text-3xl font-bold text-blue-600 mb-2">{completionPercentage}%</div>
+          <div className="w-full bg-gray-300 rounded-full h-2">
+            <div
+              className="bg-blue-600 h-2 rounded-full transition-all"
+              style={{ width: `${completionPercentage}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Menu */}
+        <nav className="space-y-2">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = location.pathname === item. path;
+
+            return (
+              <button
+                key={item.path}
+                onClick={() => navigate(item.path)}
+                className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg transition ${
+                  isActive
+                    ? 'bg-blue-100 text-blue-600 font-semibold'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                <Icon className="w-5 h-5" />
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
+        </nav>
       </div>
     </aside>
   );

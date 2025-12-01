@@ -1,0 +1,23 @@
+/**
+ * Auth Pages Styles
+ */
+
+.auth-page {
+  background: var(--color-bg-body);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-card {
+  animation: slideUp 0.3s ease-out;
+}
+
+. auth-card input {
+  transition: all 0.2s ease;
+}
+
+.auth-card input:focus {
+  transform: translateY(-2px);
+}

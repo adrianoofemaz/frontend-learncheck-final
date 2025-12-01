@@ -1,94 +1,77 @@
+/**
+ * QuizIntroPage
+ * Quiz introduction/info page
+ */
+
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ClipboardDocumentCheckIcon, ClockIcon } from '@heroicons/react/24/solid';
-import Button from '../components/Common/Button';
+import Button from '../components/common/Button';
+import Card from '../components/common/Card';
 
 const QuizIntroPage = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const { quiz } = location.state || {};
 
-  if (!quiz) {
-    return (
-      <div className="min-h-screen w-full flex items-center justify-center p-6">
-        <div className="bg-white rounded-xl shadow p-6 text-center">
-          <p className="text-gray-600 mb-4">Quiz data tidak ditemukan</p>
-          <Button onClick={() => navigate('/')} variant="primary">
-            Kembali ke Beranda
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  const quizInfo = {
+    title: 'Kuis AI Basics',
+    totalQuestions: 10,
+    timePerQuestion: 30, // seconds
+    description: 'Tes pemahaman Anda tentang materi pembelajaran yang telah dipelajari',
+  };
 
   const handleStartQuiz = () => {
-    navigate('/loading', { state: { quiz } });
+    navigate('/quiz');
   };
 
   return (
-    <div className="quiz-hero-wrapper min-h-screen w-full flex items-start justify-center p-6">
-      <div className="quiz-hero w-full max-w-4xl mx-auto">
-        {/* Browser-like top bar */}
-        <div className="quiz-window-bar rounded-t-2xl flex items-center px-4">
-          <div className="window-controls flex items-center gap-3">
-            <span className="window-dot dot-red" />
-            <span className="window-dot dot-yellow" />
-            <span className="window-dot dot-green" />
+    <div className="container mx-auto px-4 py-8 max-w-2xl">
+      <Card className="text-center">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">{quizInfo.title}</h1>
+          <p className="text-gray-600 text-lg">{quizInfo.description}</p>
+        </div>
+
+        {/* Info Grid */}
+        <div className="grid grid-cols-2 gap-6 mb-8 py-8 border-y border-gray-200">
+          <div className="flex flex-col items-center">
+            <div className="flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 mb-4">
+              <ClipboardDocumentCheckIcon className="w-8 h-8 text-blue-600" />
+            </div>
+            <p className="text-sm text-gray-600 mb-1">Jumlah Soal</p>
+            <p className="text-2xl font-bold text-gray-900">{quizInfo.totalQuestions}</p>
+          </div>
+
+          <div className="flex flex-col items-center">
+            <div className="flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 mb-4">
+              <ClockIcon className="w-8 h-8 text-blue-600" />
+            </div>
+            <p className="text-sm text-gray-600 mb-1">Waktu per Soal</p>
+            <p className="text-2xl font-bold text-gray-900">{quizInfo.timePerQuestion}s</p>
           </div>
         </div>
 
-        {/* Hero body */}
-        <div className="quiz-hero-body bg-white rounded-b-2xl shadow-lg p-8 text-center">
-          <div className="mb-6">
-            <div className="inline-block badge-hero bg-blue-600 text-white px-6 py-2 rounded-full font-medium">
-              Quiz Submodul
-            </div>
-          </div>
-
-          <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-2">LearnCheck!</h1>
-          <p className="text-lg text-gray-600 mb-8 italic">
-            “Let's have some fun and test your understanding!”
-          </p>
-
-          {/* Inner info card */}
-          <div className="quiz-info-card mx-auto rounded-xl p-6 mb-8">
-            <h2 className="text-xl md:text-2xl font-semibold text-gray-800 mb-4">{quiz.title}</h2>
-
-            <div className="flex flex-col sm:flex-row sm:justify-center gap-6 sm:gap-12">
-              <div className="flex items-center gap-3">
-                <div className="icon-circle bg-blue-50 text-blue-600">
-                  <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                </div>
-                <div className="text-left">
-                  <p className="text-sm text-gray-600">Jumlah Soal:</p>
-                  <p className="text-md font-semibold text-gray-900">{quiz.totalQuestions} Soal</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="icon-circle bg-blue-50 text-blue-600">
-                  <ClockIcon className="w-5 h-5" />
-                </div>
-                <div className="text-left">
-                  <p className="text-sm text-gray-600">Durasi:</p>
-                  <p className="text-md font-semibold text-gray-900">{quiz.durationPerQuestion} detik/soal</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* CTA */}
-          <div className="mx-auto" style={{ maxWidth: 420 }}>
-            <Button
-              onClick={handleStartQuiz}
-              variant="primary"
-              className="w-full py-3 text-base font-bold btn-hero"
-            >
-              Mulai Kuis
-            </Button>
-          </div>
+        {/* Rules */}
+        <div className="text-left mb-8 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+          <h3 className="font-semibold text-gray-900 mb-3">Peraturan Kuis:</h3>
+          <ul className="space-y-2 text-sm text-gray-700">
+            <li>✓ Jawab semua pertanyaan sebelum submit</li>
+            <li>✓ Jangan refresh halaman saat mengerjakan</li>
+            <li>✓ Setiap pertanyaan hanya bisa dijawab sekali</li>
+            <li>✓ Waktu tidak dapat di-pause</li>
+          </ul>
         </div>
-      </div>
+
+        {/* Start Button */}
+        <div className="flex gap-4 flex-col sm:flex-row">
+          <Button onClick={() => navigate(-1)} variant="secondary" fullWidth>
+            Kembali
+          </Button>
+          <Button onClick={handleStartQuiz} variant="primary" fullWidth>
+            Mulai Kuis →
+          </Button>
+        </div>
+      </Card>
     </div>
   );
 };

@@ -1,82 +1,109 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import * as progressTracker from '../utils/progressTracker';
+/**
+ * ProgressContext
+ * Manage user learning progress
+ */
 
-const ProgressContext = createContext();
+import React, { createContext, useState, useCallback, useEffect } from 'react';
+import { APP_CONFIG } from '../constants/config';
+
+export const ProgressContext = createContext();
 
 export const ProgressProvider = ({ children }) => {
-  const [progress, setProgress] = useState(null);
-  const [currentSubmodule, setCurrentSubmodule] = useState(1);
-  const [loading, setLoading] = useState(true);
+  const [progress, setProgress] = useState(
+    JSON.parse(localStorage.getItem(APP_CONFIG.storage.progress)) || {}
+  );
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // Load progress on mount
-  useEffect(() => {
-    const loadProgress = () => {
-      try {
-        const savedProgress = progressTracker.getProgress();
-        setProgress(savedProgress);
-        setCurrentSubmodule(savedProgress. currentSubmodule);
-      } catch (error) {
-        console.error('Error loading progress:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadProgress();
+  /**
+   * Update progress untuk tutorial tertentu
+   */
+  const updateTutorialProgress = useCallback((tutorialId, status = true) => {
+    try {
+      setProgress((prev) => {
+        const updated = {
+          ...prev,
+          [tutorialId]: status,
+        };
+        // Save to localStorage
+        localStorage.setItem(
+          APP_CONFIG.storage.progress,
+          JSON.stringify(updated)
+        );
+        return updated;
+      });
+    } catch (err) {
+      setError(err.message);
+    }
   }, []);
 
-  // Update progress tracker when progress changes
-  const updateProgress = (submoduleId, updates) => {
-    const updated = progressTracker.updateSubmoduleProgress(submoduleId, updates);
-    setProgress(updated);
-  };
+  /**
+   * Get progress untuk tutorial tertentu
+   */
+  const getTutorialProgress = useCallback((tutorialId) => {
+    return progress[tutorialId] || false;
+  }, [progress]);
 
-  const markMaterialViewed = (submoduleId) => {
-    const updated = progressTracker.markMaterialViewed(submoduleId);
-    setProgress(updated);
-  };
+  /**
+   * Get completed count
+   */
+  const getCompletedCount = useCallback(() => {
+    return Object.values(progress).filter((status) => status === true).length;
+  }, [progress]);
 
-  const markQuizStarted = (submoduleId) => {
-    const updated = progressTracker.markQuizStarted(submoduleId);
-    setProgress(updated);
-  };
+  /**
+   * Get total count
+   */
+  const getTotalCount = useCallback(() => {
+    return Object.keys(progress).length;
+  }, [progress]);
 
-  const markQuizCompleted = (submoduleId, score) => {
-    const updated = progressTracker.markQuizCompleted(submoduleId, score);
-    setProgress(updated);
-  };
+  /**
+   * Get completion percentage
+   */
+  const getCompletionPercentage = useCallback(() => {
+    const total = getTotalCount();
+    if (total === 0) return 0;
+    const completed = getCompletedCount();
+    return Math.round((completed / total) * 100);
+  }, [getTotalCount, getCompletedCount]);
 
-  const switchSubmodule = (submoduleId) => {
-    progressTracker.setCurrentSubmodule(submoduleId);
-    setCurrentSubmodule(submoduleId);
-  };
+  /**
+   * Reset all progress
+   */
+  const resetProgress = useCallback(() => {
+    try {
+      const resetData = {};
+      Object.keys(progress). forEach((key) => {
+        resetData[key] = false;
+      });
+      setProgress(resetData);
+      localStorage.setItem(
+        APP_CONFIG.storage.progress,
+        JSON.stringify(resetData)
+      );
+    } catch (err) {
+      setError(err.message);
+    }
+  }, [progress]);
 
   const value = {
     progress,
-    currentSubmodule,
     loading,
-    updateProgress,
-    markMaterialViewed,
-    markQuizStarted,
-    markQuizCompleted,
-    switchSubmodule,
-    getProgress: progressTracker.getProgress,
-    isSubmoduleCompleted: progressTracker.isSubmoduleCompleted
+    error,
+    updateTutorialProgress,
+    getTutorialProgress,
+    getCompletedCount,
+    getTotalCount,
+    getCompletionPercentage,
+    resetProgress,
   };
 
   return (
     <ProgressContext.Provider value={value}>
       {children}
-    </ProgressContext.Provider>
+    </ProgressContext. Provider>
   );
-};
-
-export const useProgress = () => {
-  const context = useContext(ProgressContext);
-  if (! context) {
-    throw new Error('useProgress must be used within ProgressProvider');
-  }
-  return context;
 };
 
 export default ProgressContext;

@@ -1,65 +1,111 @@
+/**
+ * LearningContext
+ * Manage learning materials & state
+ */
+
 import React, { createContext, useState, useCallback } from 'react';
+import tutorialService from '../services/tutorialService';
 
 export const LearningContext = createContext();
 
 export const LearningProvider = ({ children }) => {
-  const [activeTopicId, setActiveTopicId] = useState(null);
-  const [activeModuleId, setActiveModuleId] = useState(null);
-  const [activeSubmoduleId, setActiveSubmoduleId] = useState(null);
-  const [submoduleProgress, setSubmoduleProgress] = useState({}); // {submoduleId: 0-100}
-  const [completedSubmodules, setCompletedSubmodules] = useState(new Set());
+  const [tutorials, setTutorials] = useState([]);
+  const [currentTutorial, setCurrentTutorial] = useState(null);
+  const [currentTutorialIndex, setCurrentTutorialIndex] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [completedTutorials, setCompletedTutorials] = useState([]);
 
-  const selectTopic = useCallback((topicId) => {
-    setActiveTopicId(topicId);
-    setActiveModuleId(null);
-    setActiveSubmoduleId(null);
-  }, []);
+  /**
+   * Fetch all tutorials
+   */
+  const fetchTutorials = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await tutorialService. getTutorials();
+      const tutorialList = response.data?. tutorials || [];
+      setTutorials(tutorialList);
 
-  const selectModule = useCallback((moduleId) => {
-    setActiveModuleId(moduleId);
-    setActiveSubmoduleId(null);
-  }, []);
-
-  const selectSubmodule = useCallback((submoduleId) => {
-    setActiveSubmoduleId(submoduleId);
-  }, []);
-
-  const updateSubmoduleProgress = useCallback((submoduleId, progress) => {
-    setSubmoduleProgress(prev => ({
-      ...prev,
-      [submoduleId]: Math.min(100, progress)
-    }));
-
-    // Mark as completed jika 100%
-    if (progress >= 100) {
-      setCompletedSubmodules(prev => new Set([...prev, submoduleId]));
+      // Set first tutorial as current
+      if (tutorialList.length > 0) {
+        setCurrentTutorial(tutorialList[0]);
+      }
+    } catch (err) {
+      setError(err. message || 'Failed to fetch tutorials');
+    } finally {
+      setLoading(false);
     }
   }, []);
 
-  const markSubmoduleCompleted = useCallback((submoduleId) => {
-    setCompletedSubmodules(prev => new Set([...prev, submoduleId]));
-    setSubmoduleProgress(prev => ({
-      ...prev,
-      [submoduleId]: 100
-    }));
+  /**
+   * Fetch tutorial detail by ID
+   */
+  const selectTutorial = useCallback(async (id) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await tutorialService. getTutorialDetail(id);
+      const tutorial = tutorials.find((t) => t.id === id);
+      
+      setCurrentTutorial({
+        ...tutorial,
+        ... response. data,
+      });
+
+      const index = tutorials.findIndex((t) => t.id === id);
+      setCurrentTutorialIndex(index);
+    } catch (err) {
+      setError(err.message || 'Failed to fetch tutorial');
+    } finally {
+      setLoading(false);
+    }
+  }, [tutorials]);
+
+  /**
+   * Mark tutorial as completed
+   */
+  const markTutorialCompleted = useCallback((tutorialId) => {
+    setCompletedTutorials((prev) => {
+      if (! prev.includes(tutorialId)) {
+        return [...prev, tutorialId];
+      }
+      return prev;
+    });
   }, []);
 
-  const isSubmoduleUnlocked = useCallback((submoduleId) => {
-    return completedSubmodules.has(submoduleId);
-  }, [completedSubmodules]);
+  /**
+   * Go to next tutorial
+   */
+  const goToNextTutorial = useCallback(() => {
+    if (currentTutorialIndex < tutorials.length - 1) {
+      const nextTutorial = tutorials[currentTutorialIndex + 1];
+      selectTutorial(nextTutorial.id);
+    }
+  }, [currentTutorialIndex, tutorials, selectTutorial]);
+
+  /**
+   * Go to previous tutorial
+   */
+  const goToPreviousTutorial = useCallback(() => {
+    if (currentTutorialIndex > 0) {
+      const prevTutorial = tutorials[currentTutorialIndex - 1];
+      selectTutorial(prevTutorial. id);
+    }
+  }, [currentTutorialIndex, tutorials, selectTutorial]);
 
   const value = {
-    activeTopicId,
-    activeModuleId,
-    activeSubmoduleId,
-    submoduleProgress,
-    completedSubmodules,
-    selectTopic,
-    selectModule,
-    selectSubmodule,
-    updateSubmoduleProgress,
-    markSubmoduleCompleted,
-    isSubmoduleUnlocked
+    tutorials,
+    currentTutorial,
+    currentTutorialIndex,
+    loading,
+    error,
+    completedTutorials,
+    fetchTutorials,
+    selectTutorial,
+    markTutorialCompleted,
+    goToNextTutorial,
+    goToPreviousTutorial,
   };
 
   return (

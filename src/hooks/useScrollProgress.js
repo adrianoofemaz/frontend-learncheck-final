@@ -1,58 +1,39 @@
-import { useRef, useState, useEffect, useCallback } from 'react';
+/**
+ * useScrollProgress Hook
+ * Track scroll progress pada learning material
+ */
 
-export const useScrollProgress = (threshold = 95) => {
-  const containerRef = useRef(null);
-  const [progress, setProgress] = useState(0);
-  const [isCompleted, setIsCompleted] = useState(false);
-  const [isScrollable, setIsScrollable] = useState(false);
+import { useState, useEffect, useRef, useCallback } from 'react';
 
-  const handleScroll = useCallback(() => {
-    if (! containerRef.current) return;
+export const useScrollProgress = (elementId) => {
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const elementRef = useRef(null);
 
-    const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
+  const calculateProgress = useCallback(() => {
+    const element = elementId 
+      ? document.getElementById(elementId) 
+      : elementRef.current;
+
+    if (!element) return;
+
+    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    const docHeight = element.scrollHeight - window.innerHeight;
     
-    // Check if content is scrollable
-    const contentHeight = scrollHeight - clientHeight;
-    const canScroll = contentHeight > 50; // Minimal 50px scroll area
-
-    setIsScrollable(canScroll);
-
-    if (canScroll) {
-      // Calculate progress based on scroll
-      const newProgress = Math.min((scrollTop / contentHeight) * 100, 100);
-      setProgress(newProgress);
-      
-      // Mark as completed if threshold reached
-      if (newProgress >= threshold) {
-        setIsCompleted(true);
-      }
-    } else {
-      // Content tidak scrollable = auto complete
-      setProgress(100);
-      setIsCompleted(true);
+    if (docHeight > 0) {
+      const progress = (scrollTop / docHeight) * 100;
+      setScrollProgress(Math.min(progress, 100));
     }
-  }, [threshold]);
+  }, [elementId]);
 
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    // Check initial state
-    handleScroll();
-
-    container.addEventListener('scroll', handleScroll);
-    window.addEventListener('resize', handleScroll);
-
-    return () => {
-      container.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleScroll);
-    };
-  }, [handleScroll]);
+    window.addEventListener('scroll', calculateProgress);
+    return () => window.removeEventListener('scroll', calculateProgress);
+  }, [calculateProgress]);
 
   return {
-    progress,
-    isCompleted,
-    containerRef,
-    isScrollable
+    scrollProgress,
+    elementRef,
   };
 };
+
+export default useScrollProgress;
