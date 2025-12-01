@@ -52,7 +52,7 @@ const LoginPage = () => {
 
   return (
     <div className="flex h-screen">
-      <div className="hidden md:block lg:w-1/2 w-2/5">
+      <div className="hidden flex-1 md:block bg-pink-900">
         <img
           src="/assets/images/Dicoding Login.png"
           alt="Dicoding Login"
@@ -60,7 +60,7 @@ const LoginPage = () => {
         />
       </div>
 
-      <div className="flex-1 lg:w-1/2 bg-white p-12 flex flex-col justify-center max-w-lg mx-auto">
+      <div className="flex-1  bg-white p-12 flex flex-col justify-center mx-auto">
         <div className="flex flex-col items-center justify-center gap-1 mb-5">
           <img
             src="/assets/images/logo-login.jpg"
