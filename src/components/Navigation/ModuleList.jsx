@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ChevronRightIcon, ChevronDownIcon, LockClosedIcon } from '@heroicons/react/24/solid';
 import mockTopics from '../../data/mockTopics';
@@ -11,6 +11,25 @@ const ModuleList = ({ onSelectModule }) => {
   const [activeItem, setActiveItem] = useState('submodule-1. 1');
 
   const topic = mockTopics[0];
+
+  useEffect(() => {
+    if(location.state) {
+      const  quizId  = location.state.quiz.id || 1;
+      console.log(quizId, 'quizId dari ModuleList', location.state);
+      if (quizId) {
+        setActiveItem(`quiz-1. ${quizId}`);  
+      }
+    } 
+              
+  }, []);
+
+  useEffect(() => {
+    if (location.pathname === '/quiz-intro') {
+          setActiveItem(`quiz-1. 1`);  
+    } else if (location.pathname === '/material') {
+          setActiveItem(`submodule-1. 1`);  
+    }
+  }, [location.pathname]);
 
   const toggleModuleExpand = (moduleId) => {
     setExpandedModules(prev => ({
