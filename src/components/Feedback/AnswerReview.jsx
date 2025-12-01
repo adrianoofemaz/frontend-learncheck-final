@@ -2,27 +2,57 @@ import React, { useState } from 'react';
 import { ChevronDownIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/solid';
 
 const AnswerReview = ({ quiz, answers }) => {
-  const [expandedQuestion, setExpandedQuestion] = useState(null);
+  const [expandedQuestions, setExpandedQuestions] = useState(new Set());
 
   if (!quiz || !quiz.questions) {
     return <div className="text-gray-600">No questions available</div>;
   }
 
-  return (
-    <div className="space-y-4">
+  // ✨ Fungsi toggle expand/collapse dengan direct scroll
+  const handleQuestionClick = (idx) => {
+    // Toggle expand/collapse untuk soal ini
+    setExpandedQuestions(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(idx)) {
+        newSet.delete(idx); // Jika sudah expand, tutup
+      } else {
+        newSet.add(idx); // Jika belum expand, buka
+      }
+      return newSet;
+    });
+    
+    // Direct scroll dengan delay cukup
+    setTimeout(() => {
+      const questionElement = document.querySelector(`[data-question-id="${idx}"]`);
+      if (questionElement) {
+        const elementPosition = questionElement.getBoundingClientRect(). top + window.scrollY;
+        const offsetPosition = elementPosition - 150; // Offset 150px ke atas
+        
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+      }
+    }, 300); // Delay 300ms cukup untuk render
+  };
+
+   return (
+    <div className="space-y-4 [&>*:last-child]:mb-10">
       <h2 className="text-2xl font-bold text-gray-800 mb-6">Detail Jawaban</h2>
 
       {quiz.questions.map((question, idx) => {
         const userAnswer = answers[idx];
         const isCorrect = userAnswer === question.correctAnswer;
+        const isExpanded = expandedQuestions.has(idx);
 
         return (
           <div
             key={idx}
+            data-question-id={idx}
             className="border-l-4 border-blue-500 bg-gray-50 rounded-lg overflow-hidden shadow-md"
           >
             <button
-              onClick={() => setExpandedQuestion(expandedQuestion === idx ? null : idx)}
+              onClick={() => handleQuestionClick(idx)}
               className="w-full text-left p-4 flex items-start justify-between hover:bg-gray-100 transition"
             >
               <div className="flex items-start gap-3 flex-1">
@@ -42,12 +72,12 @@ const AnswerReview = ({ quiz, answers }) => {
               </div>
               <ChevronDownIcon
                 className={`w-5 h-5 text-gray-500 flex-shrink-0 transition transform ${
-                  expandedQuestion === idx ? 'rotate-180' : ''
+                  isExpanded ?  'rotate-180' : ''
                 }`}
               />
             </button>
 
-            {expandedQuestion === idx && (
+            {isExpanded && (
               <div className="border-t border-gray-200 p-6 bg-white space-y-4">
                 {/* All Answer Options */}
                 <div>
@@ -78,7 +108,7 @@ const AnswerReview = ({ quiz, answers }) => {
                         >
                           <div className="flex items-start gap-2">
                             <span className="font-semibold min-w-fit">
-                              {String.fromCharCode(65 + ansIdx)}. 
+                              {String. fromCharCode(65 + ansIdx)}. 
                             </span>
                             <span>{answer}</span>
                             {isCorrectAnswer && (
@@ -86,7 +116,7 @@ const AnswerReview = ({ quiz, answers }) => {
                                 <CheckCircleIcon className="w-5 h-5 text-green-600" />
                               </span>
                             )}
-                            {isUserAnswer && !isCorrect && (
+                            {isUserAnswer && ! isCorrect && (
                               <span className="ml-auto">
                                 <XCircleIcon className="w-5 h-5 text-red-600" />
                               </span>
@@ -126,4 +156,4 @@ const AnswerReview = ({ quiz, answers }) => {
   );
 };
 
-export default AnswerReview;
+export default AnswerReview;  

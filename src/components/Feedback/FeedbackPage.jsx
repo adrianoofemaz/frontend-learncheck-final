@@ -17,7 +17,7 @@ const MOCK_STATE = {
     questions: [
       { 
         id: 1, 
-        question: 'Menurut laporan McKinsey 2022, berapa peningkatan penggunaan AI di industri dari tahun 2017 ke 2022? ', 
+        question: 'Menurut laporan McKinsey 2022, berapa peningkatan penggunaan AI di industri dari tahun 2017 ke 2022?  ', 
         correctAnswer: 'Dari 20% menjadi 50%',
         answers: [
           'Dari 10% menjadi 30%',
@@ -94,10 +94,10 @@ const FeedbackPage = () => {
     }
   }, [startTime, endTime, score]);
 
-  const hasQuizData = quiz && Array.isArray(quiz.questions) && quiz.questions.length > 0;
-  const isValidScore = typeof score === 'number' && score >= 0 && ! isNaN(score);
+  const hasQuizData = quiz && Array.isArray(quiz.questions) && quiz.questions. length > 0;
+  const isValidScore = typeof score === 'number' && score >= 0 && !isNaN(score);
 
-  if (!isValidScore || totalQuestions === 0 || !hasQuizData) {
+  if (!isValidScore || totalQuestions === 0 || ! hasQuizData) {
     return (
       <div className="text-center py-12">
         <div className="bg-white/95 p-12 rounded-2xl shadow-lg max-w-md mx-auto">
@@ -120,10 +120,23 @@ const FeedbackPage = () => {
     navigate('/quiz-intro', { state: { quiz } });
   };
 
+  const handleReviewClick = () => {
+    setShowReview(! showReview);
+    
+    if (! showReview) {
+      setTimeout(() => {
+        const reviewSection = document.querySelector('.answer-review-section');
+        if (reviewSection) {
+          reviewSection. scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Score Display Card with Shadow */}
-      <div className="shadow-md rounded-2xl overflow-hidden">
+      <div className="bg-white shadow-md rounded-2xl overflow-hidden">
         <ScoreDisplay
           score={score}
           totalQuestions={totalQuestions}
@@ -142,16 +155,16 @@ const FeedbackPage = () => {
           Coba Lagi
         </button>
         <button
-          onClick={() => setShowReview(!showReview)}
+          onClick={handleReviewClick}
           className="px-8 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-full transition shadow-md"
         >
           {showReview ? 'Tutup Review' : 'Review Soal'}
         </button>
       </div>
 
-      {/* Answer Review - With Shadow */}
-      {showReview && hasQuizData && quiz.questions && (
-        <div className=" rounded-2xl overflow-hidden">
+   {/* Answer Review - With Shadow */}
+      {showReview && hasQuizData && quiz. questions && (
+        <div className="answer-review-section bg-white rounded-2xl shadow-md overflow-hidden px-6 pt-3 pb-0">
           <AnswerReview
             quiz={quiz}
             answers={answers}
