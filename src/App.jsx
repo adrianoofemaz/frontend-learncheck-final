@@ -40,60 +40,60 @@ function App() {
                 <Route path={ROUTES.LOGIN} element={<LoginPage />} />
 
                 {/* Redirect root to home */}
-                <Route path="/" element={<Navigate to={ROUTES.HOME} replace />} />
+                <Route path="/" element={<Navigate to={ROUTES. HOME} replace />} />
 
-                {/* ✅ HOME - ClassDetailPage (Beranda dengan Module Detail) */}
+                {/* ✅ HOME - ClassDetailPage (dengan Footer) */}
                 <Route
                   path={ROUTES.HOME}
                   element={
-                    <LayoutWrapper>
+                    <LayoutWrapper showFooter={true}>
                       <ClassDetailPage />
                     </LayoutWrapper>
                   }
                 />
 
-                {/* LearningPage - Baca Materi */}
+                {/* ✅ LearningPage - TANPA Footer */}
                 <Route
                   path={ROUTES. LEARNING}
                   element={
-                    <LayoutWrapper showBottomNav={false}>
+                    <LayoutWrapper showFooter={false} showBottomNav={false}>
                       <LearningPage />
                     </LayoutWrapper>
                   }
                 />
 
-                {/* QuizIntroPage - Info Kuis */}
+                {/* ✅ QuizIntroPage - TANPA Footer */}
                 <Route
                   path="/quiz-intro/:tutorialId"
                   element={
-                    <LayoutWrapper showBottomNav={false}>
+                    <LayoutWrapper showFooter={false} showBottomNav={false}>
                       <QuizIntroPage />
                     </LayoutWrapper>
                   }
                 />
 
-                {/* QuizPage - Jawab Soal */}
+                {/* ✅ QuizPage - TANPA Footer */}
                 <Route
                   path="/quiz/:tutorialId"
                   element={
-                    <LayoutWrapper showBottomNav={false} showFooter={false}>
+                    <LayoutWrapper showFooter={false} showBottomNav={false}>
                       <QuizPage />
                     </LayoutWrapper>
                   }
                 />
 
-                {/* ResultsPage - Hasil Quiz */}
+                {/* ✅ ResultsPage - TANPA Footer */}
                 <Route
                   path={ROUTES.QUIZ_RESULTS}
                   element={
-                    <LayoutWrapper showBottomNav={false}>
+                    <LayoutWrapper showFooter={false} showBottomNav={false}>
                       <ResultsPage />
                     </LayoutWrapper>
                   }
                 />
 
                 {/* 404 - Not Found */}
-                <Route path={ROUTES.NOT_FOUND} element={<NotFoundPage />} />
+                <Route path={ROUTES. NOT_FOUND} element={<NotFoundPage />} />
               </Routes>
             </QuizProvider>
           </LearningProvider>

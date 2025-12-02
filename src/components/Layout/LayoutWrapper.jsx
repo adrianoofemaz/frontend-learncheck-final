@@ -20,7 +20,7 @@ const LayoutWrapper = ({
       {/* Navbar */}
       {showNavbar && <Navbar />}
 
-      {/* Main Content - FULL WIDTH */}
+      {/* Main Content - dengan padding bottom untuk fixed BottomNav */}
       <main className="flex-1">
         <div className="container mx-auto px-4 py-8">
           {children}
@@ -30,7 +30,7 @@ const LayoutWrapper = ({
       {/* Footer */}
       {showFooter && <Footer />}
 
-      {/* Bottom Navigation */}
+      {/* Bottom Navigation - FIXED */}
       {showBottomNav && <BottomNav />}
     </div>
   );
