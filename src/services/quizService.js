@@ -9,13 +9,11 @@ import { API_ENDPOINTS } from '../constants/apiEndpoints';
 export const quizService = {
   /**
    * Get questions untuk tutorial tertentu
-   * @param {number} tutorialId - Tutorial ID
    */
   getQuestions: async (tutorialId) => {
     try {
       console.log('Fetching questions for tutorial:', tutorialId);
       
-      // ✅ Gunakan ASSESSMENT endpoint dengan tutorial ID
       const url = API_ENDPOINTS.ASSESSMENT(tutorialId);
       console.log('Questions URL:', url);
       
@@ -25,30 +23,48 @@ export const quizService = {
       return response.data;
     } catch (error) {
       console.error('Error fetching questions:', error. message);
-      throw error. response?.  data || error;
+      throw error. response?.data || error;
     }
   },
 
   /**
    * Submit quiz answers
-   * @param {string|number} tutorialId - Tutorial ID
-   * @param {string} assessmentId - Assessment ID
-   * @param {array} answers - Array of answers
    */
   submitAnswers: async (tutorialId, assessmentId, answers) => {
     try {
-      console.log('Submitting answers:', { tutorialId, assessmentId, answers });
+      console.log('📤 SUBMITTING ANSWERS');
+      console.log('   tutorialId:', tutorialId, typeof tutorialId);
+      console. log('   assessmentId:', assessmentId, typeof assessmentId);
+      console.log('   answers count:', answers.length);
+
+      // ✅ EXTRACT assessment ID tanpa prefix
+      // assessmentId = "assessment:_J2LYB" → "_J2LYB"
+      const cleanAssessmentId = assessmentId.includes(':') 
+        ? assessmentId.split(':')[1] 
+        : assessmentId;
       
-      const url = API_ENDPOINTS.  SUBMIT_ASSESSMENT(tutorialId, assessmentId);
-      console.log('Submit URL:', url);
+      console.log('   cleanAssessmentId:', cleanAssessmentId);
+
+      const url = `/submit/tutorial/${tutorialId}/assessment/${cleanAssessmentId}`;
+      console.log('📍 Generated URL:', url);
+
+      const payload = { answers };
+      console.log('📦 Payload:', JSON.stringify(payload, null, 2));
+
+      console.log('🚀 Sending POST request...');
+      const response = await api.post(url, payload);
       
-      const response = await api.  post(url, { answers });
-      console.log('Submit response:', response.data);
+      console.log('✅ SUBMIT SUCCESS!');
+      console.log('   Response:', JSON.stringify(response. data, null, 2));
       
       return response.data;
     } catch (error) {
-      console.error('Error submitting answers:', error.message);
-      throw error.response?. data || error;
+      console.error('❌ SUBMIT FAILED! ');
+      console.error('   Status:', error.response?.status);
+      console.error('   URL:', error.config?.url);
+      console.error('   Error Data:', JSON.stringify(error.response?.data, null, 2));
+      
+      throw error.response?.data || error;
     }
   },
 
@@ -57,15 +73,15 @@ export const quizService = {
    */
   resetProgress: async () => {
     try {
-      console.  log('Resetting progress.. .');
+      console.log('Resetting progress.. .');
       
-      const response = await api.  get(API_ENDPOINTS.  PROGRESS_RESET);
-      console.  log('Reset response:', response.data);
+      const response = await api.get(API_ENDPOINTS.PROGRESS_RESET);
+      console.log('Reset response:', response.data);
       
-      return response.  data;
+      return response.data;
     } catch (error) {
-      console. error('Error resetting progress:', error.message);
-      throw error. response?. data || error;
+      console.error('Error resetting progress:', error.message);
+      throw error.response?.data || error;
     }
   },
 };
