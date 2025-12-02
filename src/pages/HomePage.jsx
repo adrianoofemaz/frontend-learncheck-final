@@ -14,15 +14,15 @@ import Card from '../components/common/Card';
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const { tutorials, loading, error, fetchTutorials } = useLearning();
+  const { modules, loading, error, fetchModules } = useLearning();
   const { getCompletionPercentage, getTutorialProgress } = useProgress();
 
   useEffect(() => {
-    fetchTutorials();
-  }, [fetchTutorials]);
+    fetchModules();
+  }, [fetchModules]);
 
-  const handleSelectClass = (classId) => {
-    navigate(`/class/${classId}`);
+  const handleSelectClass = (moduleId) => {
+    navigate(`/class/${moduleId}`);
   };
 
   if (loading) {
@@ -41,7 +41,7 @@ const HomePage = () => {
       <div className="flex items-center justify-center min-h-screen">
         <Card className="max-w-md text-center">
           <p className="text-red-600 mb-4">{error}</p>
-          <Button onClick={fetchTutorials} variant="primary">
+          <Button onClick={fetchModules} variant="primary">
             Coba Lagi
           </Button>
         </Card>
@@ -81,9 +81,9 @@ const HomePage = () => {
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-8">Pilih Kelas untuk Memulai</h2>
 
-        {tutorials && tutorials.length > 0 ? (
+        {modules && modules.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {tutorials.map((cls) => {
+            {modules. map((cls) => {
               const isCompleted = getTutorialProgress(cls.id);
               const classProgress = isCompleted ? 100 : 0;
 
@@ -161,7 +161,7 @@ const HomePage = () => {
         ) : (
           <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
             <p className="text-gray-600 text-lg mb-4">Belum ada kelas tersedia</p>
-            <Button onClick={fetchTutorials} variant="primary">
+            <Button onClick={fetchModules} variant="primary">
               Muat Ulang
             </Button>
           </div>

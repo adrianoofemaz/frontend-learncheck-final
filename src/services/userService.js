@@ -5,7 +5,7 @@
 
 import api from './api';
 import { API_ENDPOINTS } from '../constants/apiEndpoints';
-import { APP_CONFIG } from '../constants/config';
+import { STORAGE_KEYS } from '../constants/config';
 
 export const userService = {
   /**
@@ -16,7 +16,7 @@ export const userService = {
       const response = await api.get(API_ENDPOINTS.USER_PROFILE);
       return response.data;
     } catch (error) {
-      throw error. response?.data || error;
+      throw error.response?.data || error;
     }
   },
 
@@ -43,9 +43,9 @@ export const userService = {
         preferences
       );
       
-      // Update local storage
-      localStorage.setItem(
-        APP_CONFIG.storage.preferences,
+      // Update sessionStorage
+      sessionStorage.setItem(
+        STORAGE_KEYS.preferences,
         JSON.stringify(response.data. preference)
       );
       

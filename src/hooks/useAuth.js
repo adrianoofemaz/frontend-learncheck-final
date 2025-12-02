@@ -30,7 +30,7 @@ export const useAuth = () => {
       console.log('Login response:', response);
 
       // Extract user & token from response
-      // Token bisa di: response.user.token, response. token, atau response.data.token
+      // Token bisa di: response.user.token, response.token, atau response.data.token
       const userData = response.user || response.data?. user;
       const tokenData = response.user?.token || response.token || response.data?.token;
 
@@ -41,9 +41,9 @@ export const useAuth = () => {
         throw new Error('Token tidak ditemukan di response');
       }
 
-      // Save to localStorage
-      localStorage.setItem('token', tokenData);
-      localStorage. setItem('user', JSON.stringify(userData));
+      // Save to sessionStorage
+      sessionStorage.setItem('token', tokenData);
+      sessionStorage.setItem('user', JSON. stringify(userData));
 
       // Save to context
       setToken(tokenData);
@@ -62,8 +62,8 @@ export const useAuth = () => {
   }, [setUser, setToken]);
 
   const logout = useCallback(() => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
     setUser(null);
     setToken(null);
     navigate('/login');

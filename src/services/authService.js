@@ -30,7 +30,7 @@ export const authService = {
     try {
       console.log('Register attempt:', { name, username, passwordLength: password.length });
       
-      const response = await api.post(API_ENDPOINTS.REGISTER, {
+      const response = await api.post(API_ENDPOINTS. REGISTER, {
         name,
         username,
         password,
@@ -42,12 +42,12 @@ export const authService = {
       // But if token exists, save it
       if (response.data.user?. token) {
         sessionStorage. setItem(STORAGE_KEYS.authToken, response.data. user.token);
-        sessionStorage.setItem(STORAGE_KEYS.user, JSON. stringify(response.data.user));
+        sessionStorage.setItem(STORAGE_KEYS.user, JSON.stringify(response.data.user));
       }
       
       return response.data;
     } catch (error) {
-      console. error('Register error:', error. response?.data);
+      console.error('Register error:', error. response?.data);
       throw error. response?.data || error;
     }
   },
@@ -68,8 +68,8 @@ export const authService = {
       
       // ✅ TOKEN IS INSIDE response.data. user. token
       if (response.data.user?.token) {
-        const token = response.data.user. token;
-        sessionStorage.setItem(STORAGE_KEYS. authToken, token);
+        const token = response.data.user.token;
+        sessionStorage.setItem(STORAGE_KEYS.authToken, token);
         sessionStorage.setItem(STORAGE_KEYS.user, JSON.stringify(response.data.user));
         
         console.log('Token saved:', token. substring(0, 20) + '...');
@@ -88,8 +88,8 @@ export const authService = {
    * Logout user
    */
   logout: () => {
-    sessionStorage.removeItem(STORAGE_KEYS. authToken);
-    sessionStorage. removeItem(STORAGE_KEYS.user);
+    sessionStorage.removeItem(STORAGE_KEYS.authToken);
+    sessionStorage.removeItem(STORAGE_KEYS.user);
     console.log('User logged out');
   },
 

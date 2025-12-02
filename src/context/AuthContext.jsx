@@ -11,10 +11,10 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Load user & token from localStorage on mount
+  // Load user & token from sessionStorage on mount
   useEffect(() => {
-    const savedToken = localStorage.getItem('token');
-    const savedUser = localStorage. getItem('user');
+    const savedToken = sessionStorage.getItem('token');
+    const savedUser = sessionStorage.getItem('user');
 
     if (savedToken) {
       setToken(savedToken);

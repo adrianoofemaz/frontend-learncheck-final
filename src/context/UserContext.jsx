@@ -5,13 +5,13 @@
 
 import React, { createContext, useState, useCallback } from 'react';
 import userService from '../services/userService';
-import { APP_CONFIG } from '../constants/config';
+import { STORAGE_KEYS } from '../constants/config';
 
 export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
   const [preferences, setPreferences] = useState(
-    JSON.parse(localStorage.getItem(APP_CONFIG.storage.preferences)) || {
+    JSON.parse(sessionStorage.getItem(STORAGE_KEYS.preferences)) || {
       theme: 'light',
       font_size: 'md',
       font: 'sans',
@@ -46,6 +46,13 @@ export const UserProvider = ({ children }) => {
     try {
       const response = await userService.updatePreferences(newPreferences);
       setPreferences(response. preference);
+      
+      // Save to sessionStorage
+      sessionStorage. setItem(
+        STORAGE_KEYS.preferences,
+        JSON.stringify(response.preference)
+      );
+      
       setLoading(false);
       return response;
     } catch (err) {

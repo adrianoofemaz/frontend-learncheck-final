@@ -19,10 +19,11 @@ const LearningPage = () => {
   const { updateTutorialProgress } = useProgress();
 
   useEffect(() => {
-    if (id) {
+    if (id && tutorials. length > 0) {
+      // Select dari tutorials array yang sudah ada
       selectTutorial(parseInt(id));
     }
-  }, [id, selectTutorial]);
+  }, [id, tutorials, selectTutorial]);
 
   const handleMarkComplete = () => {
     if (currentTutorial) {
@@ -33,7 +34,7 @@ const LearningPage = () => {
   const handleNextTutorial = () => {
     handleMarkComplete();
     
-    const currentIndex = tutorials.findIndex(t => t.id === currentTutorial.id);
+    const currentIndex = tutorials.findIndex(t => t.id === currentTutorial. id);
     if (currentIndex < tutorials.length - 1) {
       const nextTutorial = tutorials[currentIndex + 1];
       navigate(`/learning/${nextTutorial.id}`);
@@ -41,7 +42,7 @@ const LearningPage = () => {
   };
 
   const canGoPrevious = tutorials.length > 0 && tutorials. findIndex(t => t.id === currentTutorial?.id) > 0;
-  const canGoNext = tutorials.length > 0 && tutorials.findIndex(t => t.id === currentTutorial?.id) < tutorials.length - 1;
+  const canGoNext = tutorials.length > 0 && tutorials.findIndex(t => t.id === currentTutorial?.id) < tutorials. length - 1;
 
   if (loading) {
     return <Loading fullScreen text="Memuat materi..." />;
@@ -49,7 +50,7 @@ const LearningPage = () => {
 
   if (error) {
     return (
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-2xl mx-auto px-4 py-8">
         <Alert
           type="error"
           title="Terjadi Kesalahan"
@@ -62,9 +63,9 @@ const LearningPage = () => {
     );
   }
 
-  if (!  currentTutorial) {
+  if (!currentTutorial) {
     return (
-      <div className="max-w-2xl mx-auto text-center">
+      <div className="max-w-2xl mx-auto text-center py-12">
         <p className="text-gray-600 mb-4">Materi tidak ditemukan</p>
         <Button onClick={() => navigate('/home')} variant="primary">
           Kembali ke Beranda
@@ -74,7 +75,7 @@ const LearningPage = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">{currentTutorial.title}</h1>
@@ -83,7 +84,7 @@ const LearningPage = () => {
 
       {/* Content */}
       <MaterialContent
-        title={currentTutorial. title}
+        title={currentTutorial.title}
         content={currentTutorial.content}
         loading={loading}
       />
@@ -114,7 +115,7 @@ const LearningPage = () => {
           </Button>
           {canGoNext ?  (
             <Button onClick={handleNextTutorial} variant="primary">
-              Lanjut ke Quiz →
+              Lanjut ke Materi Berikutnya →
             </Button>
           ) : (
             <Button onClick={() => navigate('/quiz-intro')} variant="primary">

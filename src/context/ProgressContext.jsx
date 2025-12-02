@@ -4,13 +4,13 @@
  */
 
 import React, { createContext, useState, useCallback, useContext } from 'react';
-import { APP_CONFIG } from '../constants/config';
+import { STORAGE_KEYS } from '../constants/config';
 
 export const ProgressContext = createContext();
 
 export const ProgressProvider = ({ children }) => {
   const [progress, setProgress] = useState(
-    JSON.parse(localStorage.getItem(APP_CONFIG.storage. progress)) || {}
+    JSON.parse(sessionStorage. getItem(STORAGE_KEYS.progress)) || {}
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -25,9 +25,9 @@ export const ProgressProvider = ({ children }) => {
           ...prev,
           [tutorialId]: status,
         };
-        // Save to localStorage
-        localStorage.setItem(
-          APP_CONFIG.storage.progress,
+        // Save to sessionStorage
+        sessionStorage.setItem(
+          STORAGE_KEYS.progress,
           JSON.stringify(updated)
         );
         return updated;
@@ -55,7 +55,7 @@ export const ProgressProvider = ({ children }) => {
    * Get total count
    */
   const getTotalCount = useCallback(() => {
-    return Object.keys(progress). length;
+    return Object.keys(progress).length;
   }, [progress]);
 
   /**
@@ -74,13 +74,13 @@ export const ProgressProvider = ({ children }) => {
   const resetProgress = useCallback(() => {
     try {
       const resetData = {};
-      Object. keys(progress). forEach((key) => {
+      Object.keys(progress). forEach((key) => {
         resetData[key] = false;
       });
       setProgress(resetData);
-      localStorage.setItem(
-        APP_CONFIG. storage.progress,
-        JSON. stringify(resetData)
+      sessionStorage.setItem(
+        STORAGE_KEYS.progress,
+        JSON.stringify(resetData)
       );
     } catch (err) {
       setError(err.message);
