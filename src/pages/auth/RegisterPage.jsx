@@ -51,7 +51,7 @@ const RegisterPage = () => {
       {/* Left Side - Logo & Pattern */}
       <div className="auth-left hidden lg:flex flex-1 items-center justify-center">
         <img 
-          src="/assets/images/Dicoding Login. png" 
+          src="/assets/images/Dicoding Login.png" 
           alt="Dicoding Logo"
           className="object-fill w-full -translate-y-26"
         />

@@ -43,7 +43,7 @@ const Navbar = () => {
                       Halo, {user?. name || 'User'}
                     </p>
                     <p className="text-gray-500 text-xs">
-                      {user?.email || 'user@email.com'}
+                      {user?.name + '@email.com'}
                     </p>
                   </div>
                   {/* User Avatar */}
@@ -98,10 +98,10 @@ const Navbar = () => {
               <>
                 <div className="px-4 py-3 bg-gray-50 rounded-lg">
                   <p className="text-gray-900 font-semibold text-sm">
-                    Halo, {user?.name || 'User'}
+                    Halo, {user?.name}
                   </p>
                   <p className="text-gray-500 text-xs mt-1">
-                    {user?.email || 'user@email.com'}
+                    {user?.name + '@email.com'}
                   </p>
                 </div>
                 <Button
