@@ -5,11 +5,9 @@
 
 import axios from 'axios';
 import { API_ENDPOINTS } from '../constants/apiEndpoints';
-import { APP_CONFIG } from '../constants/config';
+import { API_BASE_URL, STORAGE_KEYS } from '../constants/config';
 
 // Create axios instance untuk auth
-const API_BASE_URL = 'https://api.capstone.web.id'; // ← PRODUCTION API
-
 const api = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,
@@ -17,7 +15,7 @@ const api = axios.create({
 
 // Add token to requests
 api.interceptors. request.use((config) => {
-  const token = localStorage.getItem(APP_CONFIG.storage.authToken);
+  const token = sessionStorage.getItem(STORAGE_KEYS.authToken);
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -30,7 +28,7 @@ export const authService = {
    */
   register: async (username, password, name) => {
     try {
-      console.log('Register attempt:', { name, username, passwordLength: password. length });
+      console.log('Register attempt:', { name, username, passwordLength: password.length });
       
       const response = await api.post(API_ENDPOINTS.REGISTER, {
         name,
@@ -38,19 +36,19 @@ export const authService = {
         password,
       });
       
-      console.log('Register response:', response. data);
+      console.log('Register response:', response.data);
       
       // Register response might not include token, user should login after
       // But if token exists, save it
-      if (response.data.user?.token) {
-        localStorage.setItem(APP_CONFIG. storage.authToken, response.data.user.token);
-        localStorage.setItem(APP_CONFIG. storage.user, JSON.stringify(response.data.user));
+      if (response.data.user?. token) {
+        sessionStorage. setItem(STORAGE_KEYS.authToken, response.data. user.token);
+        sessionStorage.setItem(STORAGE_KEYS.user, JSON. stringify(response.data.user));
       }
       
-      return response. data;
+      return response.data;
     } catch (error) {
-      console.error('Register error:', error. response?.data);
-      throw error.response?.data || error;
+      console. error('Register error:', error. response?.data);
+      throw error. response?.data || error;
     }
   },
 
@@ -61,18 +59,18 @@ export const authService = {
     try {
       console.log('Login attempt:', { username, passwordLength: password.length });
       
-      const response = await api.post(API_ENDPOINTS.LOGIN, {
+      const response = await api. post(API_ENDPOINTS.LOGIN, {
         username,
         password,
       });
       
-      console. log('Login response:', response.data);
+      console.log('Login response:', response.data);
       
-      // ✅ TOKEN IS INSIDE response. data. user.token
+      // ✅ TOKEN IS INSIDE response.data. user. token
       if (response.data.user?.token) {
-        const token = response.data.user.token;
-        localStorage.setItem(APP_CONFIG. storage.authToken, token);
-        localStorage.setItem(APP_CONFIG.storage.user, JSON. stringify(response.data.user));
+        const token = response.data.user. token;
+        sessionStorage.setItem(STORAGE_KEYS. authToken, token);
+        sessionStorage.setItem(STORAGE_KEYS.user, JSON.stringify(response.data.user));
         
         console.log('Token saved:', token. substring(0, 20) + '...');
       } else {
@@ -90,23 +88,23 @@ export const authService = {
    * Logout user
    */
   logout: () => {
-    localStorage.removeItem(APP_CONFIG.storage.authToken);
-    localStorage.removeItem(APP_CONFIG.storage.user);
+    sessionStorage.removeItem(STORAGE_KEYS. authToken);
+    sessionStorage. removeItem(STORAGE_KEYS.user);
     console.log('User logged out');
   },
 
   /**
-   * Get token from localStorage
+   * Get token from sessionStorage
    */
   getToken: () => {
-    return localStorage.getItem(APP_CONFIG.storage.authToken);
+    return sessionStorage.getItem(STORAGE_KEYS.authToken);
   },
 
   /**
-   * Get stored user from localStorage
+   * Get stored user from sessionStorage
    */
   getUser: () => {
-    const user = localStorage.getItem(APP_CONFIG.storage.user);
+    const user = sessionStorage.getItem(STORAGE_KEYS.user);
     return user ? JSON.parse(user) : null;
   },
 
