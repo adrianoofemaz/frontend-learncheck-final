@@ -1,6 +1,7 @@
 /**
  * LearningPage
- * Tutorial/learning material display page
+ * Tutorial/learning material display page dengan sidebar navigasi
+ * Layout: Main content (left) + Sidebar modules (right)
  */
 
 import React, { useEffect } from 'react';
@@ -12,18 +13,258 @@ import { Alert } from '../components/common';
 import Button from '../components/common/Button';
 import Loading from '../components/common/Loading';
 
+// ============ SIDEBAR COMPONENT ============
+
+const ModuleSidebar = ({ tutorials, currentTutorial, getTutorialProgress, onSelectTutorial }) => {
+  const getStatusColor = (tutorialId, isCompleted) => {
+    if (isCompleted) return 'text-green-500';
+    if (currentTutorial?. id === tutorialId) return 'text-blue-600';
+    return 'text-gray-400';
+  };
+
+  const getStatusIcon = (isCompleted, isCurrent) => {
+    if (isCompleted) return '✓';
+    if (isCurrent) return '▶';
+    return '○';
+  };
+
+  return (
+    <div className="w-80 bg-white border-l border-gray-200 p-6 overflow-y-auto max-h-screen">
+      <div className="mb-8">
+        <h3 className="text-lg font-bold text-gray-900 mb-4">Daftar Submodul</h3>
+      </div>
+
+      <div className="space-y-2">
+        {tutorials.map((tutorial, index) => {
+          const isCompleted = getTutorialProgress(tutorial.id);
+          const isCurrent = currentTutorial?.id === tutorial.  id;
+
+          return (
+            <div key={tutorial.id}>
+              <button
+                onClick={() => onSelectTutorial(tutorial.  id)}
+                className={`w-full text-left px-4 py-3 rounded-lg transition-all ${
+                  isCurrent
+                    ? 'bg-blue-50 border border-blue-300'
+                    : 'hover:bg-gray-50 border border-transparent'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <span className={`text-xl font-bold ${getStatusColor(tutorial. id, isCompleted)}`}>
+                    {getStatusIcon(isCompleted, isCurrent)}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <p className={`text-sm font-medium truncate ${
+                      isCurrent ?   'text-blue-600' : 'text-gray-900'
+                    }`}>
+                      {tutorial.title}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {isCompleted ? 'Selesai' : isCurrent ? 'Sedang Dipelajari' : 'Belum Dimulai'}
+                    </p>
+                  </div>
+                </div>
+              </button>
+
+              <div className="ml-10 mt-2 h-1 bg-gray-200 rounded-full overflow-hidden">
+                <div
+                  className={`h-full transition-all ${isCompleted ? 'bg-green-500' : 'bg-blue-500'}`}
+                  style={{ width: isCompleted ? '100%' : '0%' }}
+                />
+              </div>
+
+              {isCurrent && (
+                <button className="w-full text-left px-4 py-2 ml-4 mt-1 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded">
+                  → Quiz Submodul #{index + 1}
+                </button>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+// ============ MAIN COMPONENT ============
+
 const LearningPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { currentTutorial, loading, error, selectTutorial, tutorials } = useLearning();
-  const { updateTutorialProgress } = useProgress();
+  const { updateTutorialProgress, getTutorialProgress } = useProgress();
 
   useEffect(() => {
-    if (id && tutorials. length > 0) {
-      // Select dari tutorials array yang sudah ada
-      selectTutorial(parseInt(id));
+    if (id) {
+      console.log('=== LearningPage useEffect ===');
+      console. log('Raw id from params:', id, typeof id);
+      
+      const parsedId = parseInt(id);
+      console.log('Parsed id:', parsedId);
+      console.log('isNaN(parsedId):', isNaN(parsedId));
+      
+      if (!isNaN(parsedId)) {
+        selectTutorial(parsedId).  then((tutorial) => {
+          console. log('selectTutorial result:', tutorial);
+          if (! tutorial) {
+            console.warn('Tutorial not found for id:', parsedId);
+          }
+        }).  catch((err) => {
+          console.error('Error selecting tutorial:', err);
+        });
+      } else {
+        console.error('Invalid id - cannot parse to number');
+      }
     }
-  }, [id, tutorials, selectTutorial]);
+  }, [id, selectTutorial]);
+
+  const currentIndex = tutorials.findIndex(t => t.id === currentTutorial?.id);
+  const totalModules = tutorials.length;
+  const progressPercentage = totalModules > 0 ? ((currentIndex + 1) / totalModules) * 100 : 0;
+  
+  // Check apakah ada tutorials & currentTutorial
+  const hasTutorials = tutorials.length > 0;
+  const canGoNext = hasTutorials && currentIndex >= 0 && currentIndex < tutorials.  length - 1;
+  const isLastModule = hasTutorials && currentIndex === tutorials.length - 1;
+
+  console.log('=== LearningPage state ===');
+  console.log('tutorials. length:', tutorials.length);
+  console.log('currentTutorial:', currentTutorial);
+  console.log('currentIndex:', currentIndex);
+  console.log('hasTutorials:', hasTutorials);
+
+  if (loading) {
+    return <Loading fullScreen text="Memuat materi..." />;
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="max-w-md text-center">
+          <Alert
+            type="error"
+            title="Terjadi Kesalahan"
+            message={error}
+          />
+          <Button onClick={() => navigate('/home')} variant="primary" className="mt-4">
+            Kembali ke Beranda
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (! currentTutorial) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="max-w-md text-center">
+          <p className="text-gray-600 mb-4">Materi tidak ditemukan</p>
+          <Button onClick={() => navigate('/home')} variant="primary">
+            Kembali ke Beranda
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-screen bg-white">
+      {/* Main Content */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-4xl mx-auto px-8 py-12">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold text-blue-600 mb-2">Belajar Dasar AI</h1>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{currentTutorial.title}</h2>
+
+            {/* Progress Bar */}
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-gray-700">Progress Membaca</span>
+                <span className="text-sm font-semibold text-green-600">{Math.round(progressPercentage)}%</span>
+              </div>
+              <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-green-500 transition-all duration-300"
+                  style={{ width: `${progressPercentage}%` }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Breadcrumb */}
+          <p className="text-sm text-gray-500 mb-6">
+            Belajar / Modul / {currentTutorial. title}
+          </p>
+
+          {/* Content */}
+          <MaterialContent
+            title={currentTutorial. title}
+            content={currentTutorial.content}
+            loading={loading}
+          />
+
+          {/* Navigation Buttons */}
+          <div className="mt-12 flex items-center justify-between pt-8 border-t border-gray-200">
+            <Button
+              onClick={() => navigate('/home')}
+              variant="secondary"
+              className="flex items-center gap-2"
+            >
+              ← Beranda
+            </Button>
+
+            <div className="flex gap-4">
+              {! getTutorialProgress(currentTutorial.id) && (
+                <Button
+                  onClick={handleMarkComplete}
+                  variant="secondary"
+                >
+                  ✓ Tandai Selesai
+                </Button>
+              )}
+
+              {isLastModule ?  (
+                <Button
+                  onClick={() => navigate(`/quiz-intro`)}
+                  variant="primary"
+                  className="flex items-center gap-2"
+                >
+                  Quiz Submodul 1 →
+                </Button>
+              ) : canGoNext ?  (
+                <Button
+                  onClick={handleNextTutorial}
+                  variant="primary"
+                  className="flex items-center gap-2"
+                >
+                  Quiz Submodul →
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => navigate(`/quiz-intro`)}
+                  variant="primary"
+                  className="flex items-center gap-2"
+                >
+                  Mulai Quiz →
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Right Sidebar - Module Navigation */}
+      {hasTutorials && (
+        <ModuleSidebar
+          tutorials={tutorials}
+          currentTutorial={currentTutorial}
+          getTutorialProgress={getTutorialProgress}
+          onSelectTutorial={selectTutorial}
+        />
+      )}
+    </div>
+  );
 
   const handleMarkComplete = () => {
     if (currentTutorial) {
@@ -34,98 +275,12 @@ const LearningPage = () => {
   const handleNextTutorial = () => {
     handleMarkComplete();
     
-    const currentIndex = tutorials.findIndex(t => t.id === currentTutorial. id);
+    const currentIndex = tutorials.findIndex(t => t.id === currentTutorial?.id);
     if (currentIndex < tutorials.length - 1) {
       const nextTutorial = tutorials[currentIndex + 1];
       navigate(`/learning/${nextTutorial.id}`);
     }
   };
-
-  const canGoPrevious = tutorials.length > 0 && tutorials. findIndex(t => t.id === currentTutorial?.id) > 0;
-  const canGoNext = tutorials.length > 0 && tutorials.findIndex(t => t.id === currentTutorial?.id) < tutorials. length - 1;
-
-  if (loading) {
-    return <Loading fullScreen text="Memuat materi..." />;
-  }
-
-  if (error) {
-    return (
-      <div className="max-w-2xl mx-auto px-4 py-8">
-        <Alert
-          type="error"
-          title="Terjadi Kesalahan"
-          message={error}
-        />
-        <Button onClick={() => navigate('/home')} variant="primary" className="mt-4">
-          Kembali ke Beranda
-        </Button>
-      </div>
-    );
-  }
-
-  if (!currentTutorial) {
-    return (
-      <div className="max-w-2xl mx-auto text-center py-12">
-        <p className="text-gray-600 mb-4">Materi tidak ditemukan</p>
-        <Button onClick={() => navigate('/home')} variant="primary">
-          Kembali ke Beranda
-        </Button>
-      </div>
-    );
-  }
-
-  return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">{currentTutorial.title}</h1>
-        <p className="text-gray-600">Pelajari materi dengan seksama sebelum melanjutkan</p>
-      </div>
-
-      {/* Content */}
-      <MaterialContent
-        title={currentTutorial.title}
-        content={currentTutorial.content}
-        loading={loading}
-      />
-
-      {/* Navigation Buttons */}
-      <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-between">
-        <div className="flex gap-4">
-          {canGoPrevious && (
-            <Button
-              onClick={() => {
-                const currentIndex = tutorials. findIndex(t => t.id === currentTutorial.id);
-                const prevTutorial = tutorials[currentIndex - 1];
-                navigate(`/learning/${prevTutorial.id}`);
-              }}
-              variant="secondary"
-            >
-              ← Materi Sebelumnya
-            </Button>
-          )}
-          <Button onClick={() => navigate('/home')} variant="secondary">
-            Kembali ke Beranda
-          </Button>
-        </div>
-
-        <div className="flex gap-4">
-          <Button onClick={handleMarkComplete} variant="secondary">
-            ✓ Tandai Selesai
-          </Button>
-          {canGoNext ?  (
-            <Button onClick={handleNextTutorial} variant="primary">
-              Lanjut ke Materi Berikutnya →
-            </Button>
-          ) : (
-            <Button onClick={() => navigate('/quiz-intro')} variant="primary">
-              Mulai Quiz →
-            </Button>
-          )}
-        </div>
-      </div>
-    </div>
-  );
 };
 
 export default LearningPage;

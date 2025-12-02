@@ -4,7 +4,7 @@
  * Route: /class/:classId
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useLearning } from '../hooks/useLearning';
 import { useProgress } from '../context/ProgressContext';
@@ -13,8 +13,15 @@ import Card from '../components/common/Card';
 
 // ============ SECTION COMPONENTS ============
 
-const HeroSection = ({ module, completionPercentage, onStartTutorial }) => {
+const HeroSection = ({ module, completionPercentage, onStartTutorial, tutorials }) => {
   if (!module) return null;
+
+  const handleBelajarSekarang = () => {
+    if (tutorials && tutorials.length > 0) {
+      // Pass TUTORIAL ID (35363, 35368, dll), bukan MODULE ID (9)! 
+      onStartTutorial(tutorials[0].id);
+    }
+  };
 
   return (
     <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-20">
@@ -30,7 +37,7 @@ const HeroSection = ({ module, completionPercentage, onStartTutorial }) => {
         <div className="flex flex-col gap-2 w-full">
           <div>
             <p className="font-medium text-sm mb-2">
-              4. 87
+              4.87
               <span className="text-yellow-500 text-xl ml-2">★ ★ ★ ★ ★</span>
             </p>
             <h2 className="text-2xl sm:text-3xl font-bold">{module.title}</h2>
@@ -87,7 +94,7 @@ const HeroSection = ({ module, completionPercentage, onStartTutorial }) => {
 
           <div className="flex flex-col sm:flex-row gap-4 mt-2">
             <button
-              onClick={() => onStartTutorial(module.id)}
+              onClick={handleBelajarSekarang}
               className="bg-blue-500 text-white hover:bg-blue-600 px-7 py-2 rounded-xl w-full sm:w-auto transition-colors duration-300 ease-in-out font-medium"
             >
               Belajar Sekarang
@@ -111,7 +118,7 @@ const BenefitsSection = ({ benefits }) => {
         {benefits.map((benefit) => (
           <div key={benefit.id} className="text-center">
             <div className="text-4xl mb-3">{benefit.icon}</div>
-            <h3 className="font-semibold text-gray-900 mb-2">{benefit.title}</h3>
+            <h3 className="font-semibold text-gray-900 mb-2">{benefit. title}</h3>
             <p className="text-sm text-gray-600">{benefit.desc}</p>
           </div>
         ))}
@@ -316,6 +323,7 @@ const ClassDetailPage = () => {
         module={currentModule}
         completionPercentage={completionPercentage}
         onStartTutorial={handleStartTutorial}
+        tutorials={tutorials}
       />
 
       <BenefitsSection benefits={benefits} />

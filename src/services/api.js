@@ -21,6 +21,7 @@ api.interceptors.request. use(
     const token = authService.getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console. log('Added auth token to request headers', token);
     }
     return config;
   },

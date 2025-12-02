@@ -6,58 +6,59 @@
 import api from './api';
 import { API_ENDPOINTS } from '../constants/apiEndpoints';
 import { MODULES_DATA } from '../constants/modulesData';
+import authService from './authService';
 
-// Mock data - for tutorial details fallback
+// Mock tutorials - temporary fallback while backend is being fixed
 const MOCK_TUTORIALS = [
   {
     id: 35363,
     title: "Penerapan AI dalam Dunia Nyata",
-    content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+    content: "<h2>Penerapan AI dalam Dunia Nyata</h2><p>Mari kita mulai pembelajaran ini dengan mengenal penerapan AI di dunia nyata... </p>"
   },
   {
     id: 35368,
     title: "Pengenalan AI",
-    content: "Artificial Intelligence (AI) adalah cabang dari ilmu komputer yang berfokus pada pengembangan mesin yang dapat melakukan tugas yang biasanya memerlukan kecerdasan manusia."
+    content: "<h2>Pengenalan AI</h2><p>Artificial Intelligence (AI) adalah cabang dari ilmu komputer... </p>"
   },
   {
     id: 35373,
     title: "Taksonomi AI",
-    content: "Taksonomi AI mencakup berbagai cabang dan subdisiplin yang mengelompokkan berbagai jenis sistem AI berdasarkan karakteristik dan kemampuannya."
+    content: "<h2>Taksonomi AI</h2><p>Taksonomi AI mencakup berbagai cabang dan subdisiplin...</p>"
   },
   {
     id: 35378,
     title: "AI Workflow",
-    content: "Workflow AI adalah proses sistematis yang digunakan untuk mengembangkan, melatih, dan menerapkan model artificial intelligence dalam aplikasi nyata."
+    content: "<h2>AI Workflow</h2><p>Workflow AI adalah proses sistematis... </p>"
   },
   {
     id: 35383,
     title: "[Story] Belajar Mempermudah Pekerjaan dengan AI",
-    content: "Cerita tentang bagaimana AI dapat digunakan untuk mempermudah pekerjaan sehari-hari dan meningkatkan produktivitas."
+    content: "<h2>[Story] Belajar Mempermudah Pekerjaan dengan AI</h2><p>Cerita tentang bagaimana AI dapat digunakan... </p>"
   },
   {
     id: 35398,
     title: "Pengenalan Data",
-    content: "Data adalah informasi yang diproses dan diinterpretasikan untuk menghasilkan insight yang bermakna bagi pengambilan keputusan."
+    content: "<h2>Pengenalan Data</h2><p>Data adalah informasi yang diproses...</p>"
   },
   {
     id: 35403,
     title: "Kriteria Data untuk AI",
-    content: "Data berkualitas tinggi adalah kunci kesuksesan dalam pengembangan model AI yang akurat dan reliable."
+    content: "<h2>Kriteria Data untuk AI</h2><p>Data berkualitas tinggi adalah kunci kesuksesan... </p>"
   },
   {
     id: 35793,
     title: "Infrastruktur Data di Industri",
-    content: "Infrastruktur data modern memerlukan sistem yang scalable, secure, dan efficient untuk menangani volume data yang besar."
+    content: "<h2>Infrastruktur Data di Industri</h2><p>Infrastruktur data modern memerlukan sistem... </p>"
   },
   {
     id: 35408,
-    title: "[Story] Apa yang Diperlukan untuk Membuat AI? ",
-    content: "Panduan lengkap tentang semua komponen yang diperlukan untuk membangun sistem AI yang sukses."
+    title: "[Story] Apa yang Diperlukan untuk Membuat AI?",
+    content: "<h2>[Story] Apa yang Diperlukan untuk Membuat AI?</h2><p>Panduan lengkap tentang semua komponen...</p>"
   },
   {
     id: 35428,
     title: "Tipe-Tipe Machine Learning",
-    content: "Machine Learning dibagi menjadi beberapa tipe: supervised learning, unsupervised learning, dan reinforcement learning."
+    content: "<h2>Tipe-Tipe Machine Learning</h2><p>Machine Learning dibagi menjadi beberapa tipe...</p>"
   },
 ];
 
@@ -79,52 +80,55 @@ export const tutorialService = {
 
   /**
    * Get tutorials/submodules for a module
-   * Only "Belajar Dasar AI" (id=9) has backend submodules
+   * Try backend, fallback ke mock jika error
    */
   getTutorials: async (moduleId) => {
     try {
-      const module = await tutorialService.getModule(moduleId);
+      const token = authService.getToken();
       
-      // If module has backend submodules
-      if (module?. hasBackendSubmodules) {
-        try {
-          // Try to fetch from backend first
-          const response = await api. get(API_ENDPOINTS. TUTORIALS);
-          return response.data?. data?. tutorials || [];
-        } catch (apiError) {
-          console.warn('Backend API failed, using mock data:', apiError.message);
-          // Fallback to mock data
-          return MOCK_TUTORIALS;
-        }
+      if (!token) {
+        console.log('No token - using mock tutorials');
+        return MOCK_TUTORIALS;
       }
+
+      const url = API_ENDPOINTS.TUTORIALS;
+      console.log('Fetching tutorials from:', url);
       
-      // Other modules don't have submodules yet
-      return [];
-    } catch (error) {
-      console.error('Error fetching tutorials:', error);
-      return [];
+      const response = await api.get(url);
+      console.log('Tutorials response:', response);
+      
+      const tutorials = response.data?.  data?. tutorials || [];
+      console. log('Tutorials extracted:', tutorials. length);
+      
+      if (tutorials.length > 0) {
+        return tutorials;
+      }
+    } catch (err) {
+      console.warn('Backend failed, using mock tutorials:', err. message);
     }
+    
+    // Fallback ke mock jika error atau kosong
+    return MOCK_TUTORIALS;
   },
 
   /**
    * Get tutorial detail by ID
+   * Cari dari tutorials list
    */
   getTutorialDetail: async (id) => {
     try {
-      try {
-        // Try real API first
-        const url = API_ENDPOINTS.TUTORIAL_DETAIL(id);
-        const response = await api.get(url);
-        return response.data?.data || response.data;
-      } catch (apiError) {
-        console.warn('Backend API failed for detail, using mock data:', apiError.message);
-        // Fallback to mock data
-        const tutorial = MOCK_TUTORIALS.find(t => t.id == id);
-        return tutorial || { id, title: 'Not Found', content: '' };
+      const tutorials = await tutorialService.getTutorials(null);
+      const tutorial = tutorials. find(t => t.id == id);
+      
+      if (tutorial) {
+        console.log('Found tutorial:', tutorial. title);
+        return tutorial;
       }
-    } catch (error) {
-      console.error('Error fetching tutorial detail:', error);
-      throw error;
+      
+      throw new Error(`Tutorial ${id} not found`);
+    } catch (err) {
+      console.error('Error fetching tutorial detail:', err. message);
+      throw err;
     }
   },
 
@@ -133,7 +137,12 @@ export const tutorialService = {
    */
   getAssessment: async (tutorialId) => {
     try {
-      const url = API_ENDPOINTS. ASSESSMENT(tutorialId);
+      const token = authService.getToken();
+      if (!token) {
+        throw new Error('No authentication token.  Please login first.');
+      }
+
+      const url = API_ENDPOINTS.ASSESSMENT(tutorialId);
       const response = await api.get(url);
       return response.data;
     } catch (error) {
@@ -147,7 +156,12 @@ export const tutorialService = {
    */
   submitAnswers: async (tutorialId, assessmentId, answers) => {
     try {
-      const url = API_ENDPOINTS.SUBMIT_ASSESSMENT(tutorialId, assessmentId);
+      const token = authService.getToken();
+      if (!token) {
+        throw new Error('No authentication token. Please login first.');
+      }
+
+      const url = API_ENDPOINTS. SUBMIT_ASSESSMENT(tutorialId, assessmentId);
       const response = await api.post(url, { answers });
       return response.data;
     } catch (error) {
