@@ -1,26 +1,24 @@
 /**
- * Axios Instance & Interceptors
+ * API Service
+ * Axios instance dengan interceptor
  */
 
 import axios from 'axios';
 import { APP_CONFIG } from '../constants/config';
+import authService from './authService';
 
-// Create axios instance
 const api = axios.create({
   baseURL: APP_CONFIG.api.baseURL,
-  timeout: APP_CONFIG.api.timeout,
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-/**
- * Request Interceptor
- * Add Authorization token ke setiap request
- */
-api.interceptors.request.use(
+// Request interceptor - add token to headers
+api.interceptors.request. use(
   (config) => {
-    const token = localStorage.getItem(APP_CONFIG.storage.authToken);
+    const token = authService.getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -31,20 +29,16 @@ api.interceptors.request.use(
   }
 );
 
-/**
- * Response Interceptor
- * Handle errors, 401 responses, dll
- */
-api. interceptors.response.use(
+// Response interceptor - handle 401 and logout
+api.interceptors.response. use(
   (response) => response,
   (error) => {
-    if (error.response?. status === 401) {
-      // Token expired atau invalid
-      localStorage.removeItem(APP_CONFIG. storage.authToken);
-      localStorage.removeItem(APP_CONFIG. storage.user);
-      window. location.href = '/login';
+    if (error.response?.status === 401) {
+      // Unauthorized - logout user
+      authService.logout();
+      window.location.href = '/login';
     }
-    return Promise.reject(error);
+    return Promise. reject(error);
   }
 );
 

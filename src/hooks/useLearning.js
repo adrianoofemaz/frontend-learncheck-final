@@ -19,9 +19,26 @@ export const useLearning = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await tutorialService. getTutorials();
-      setTutorials(response.data. tutorials || []);
+      const response = await tutorialService.getTutorials();
+      console.log('Full Tutorial response:', response);
+      console.log('Response type:', typeof response);
+      console.log('Is Array?', Array.isArray(response));
+
+      // Check if response is already an array
+      if (Array. isArray(response)) {
+        setTutorials(response);
+      } else if (response?.data && Array.isArray(response.data)) {
+        setTutorials(response.data);
+      } else if (response?.tutorials && Array.isArray(response.tutorials)) {
+        setTutorials(response. tutorials);
+      } else if (response?.data?.tutorials && Array.isArray(response.data.tutorials)) {
+        setTutorials(response. data.tutorials);
+      } else {
+        console.error('Cannot find tutorials array in response:', response);
+        setTutorials([]);
+      }
     } catch (err) {
+      console.error('Error fetching tutorials:', err);
       setError(err.message || 'Failed to fetch tutorials');
     } finally {
       setLoading(false);
@@ -36,17 +53,27 @@ export const useLearning = () => {
     setError(null);
     try {
       const response = await tutorialService. getTutorialDetail(id);
+      console.log('Tutorial detail response:', response);
+      
       setCurrentTutorial({
         id,
-        ... response. data,
+        ... response.data,
       });
-      return response.data;
+      return response. data;
     } catch (err) {
+      console.error('Error fetching tutorial detail:', err);
       setError(err.message || 'Failed to fetch tutorial');
     } finally {
       setLoading(false);
     }
   }, []);
+
+  /**
+   * Select tutorial (alias for fetchTutorialDetail)
+   */
+  const selectTutorial = useCallback((id) => {
+    return fetchTutorialDetail(id);
+  }, [fetchTutorialDetail]);
 
   // Fetch tutorials on mount
   useEffect(() => {
@@ -60,6 +87,7 @@ export const useLearning = () => {
     error,
     fetchTutorials,
     fetchTutorialDetail,
+    selectTutorial,
   };
 };
 

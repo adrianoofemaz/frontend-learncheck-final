@@ -2,27 +2,24 @@
  * Auth Pages Styles - Split Layout
  */
 
-.auth-container {
+. auth-container {
   display: flex;
 }
 
 /* Left Side - Dicoding Logo */
 .auth-left {
-
-
+  /* styling */
 }
 
 /* Divider */
 .auth-divider {
-  width: 8px;
-  background: linear-gradient(to bottom, #a21e4a, #8b1a3f);
-  flex-shrink: 0;
+  display: none;  /* ← HILANGKAN DIVIDER */
 }
 
 /* Right Side - Form */
-. auth-right {
+.auth-right {
   width: 100%;
-  background: linear-gradient(135deg, #f8fafc 0%, #f0f4f8 100%);
+  background: #ffffff;  /* ← PUTIH CLEAN */
   overflow-y: auto;
 }
 
@@ -62,7 +59,7 @@
   box-shadow: 0 10px 20px rgba(30, 58, 138, 0.3);
 }
 
-.auth-right button[type="submit"]:disabled {
+. auth-right button[type="submit"]:disabled {
   opacity: 0. 7;
   cursor: not-allowed;
 }
@@ -79,8 +76,8 @@
 
   .auth-right {
     width: 100%;
-    background-color: white;
-     }
+    background-color: #ffffff;  /* ← TETAP PUTIH */
+  }
 }
 
 @keyframes slideUp {

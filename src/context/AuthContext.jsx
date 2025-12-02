@@ -1,99 +1,41 @@
 /**
- * AuthContext
- * Manage authentication state globally
+ * Auth Context
  */
 
-import React, { createContext, useState, useCallback, useEffect } from 'react';
-import authService from '../services/authService';
+import React, { createContext, useState, useEffect } from 'react';
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
-  /**
-   * Initialize auth - check if user already logged in
-   */
+  // Load user & token from localStorage on mount
   useEffect(() => {
-    const initAuth = () => {
+    const savedToken = localStorage.getItem('token');
+    const savedUser = localStorage. getItem('user');
+
+    if (savedToken) {
+      setToken(savedToken);
+    }
+    if (savedUser) {
       try {
-        const token = authService.getToken();
-        const userData = authService.getUser();
-
-        if (token && userData) {
-          setUser(userData);
-          setIsAuthenticated(true);
-        }
+        setUser(JSON. parse(savedUser));
       } catch (err) {
-        console.error('Auth initialization error:', err);
-        setError(err.message);
-      } finally {
-        setLoading(false);
+        console.error('Error parsing saved user:', err);
       }
-    };
-
-    initAuth();
-  }, []);
-
-  /**
-   * Handle login
-   */
-  const login = useCallback(async (email, password) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await authService.login(email, password);
-      setUser(response.user);
-      setIsAuthenticated(true);
-      setLoading(false);
-      return response;
-    } catch (err) {
-      setError(err.message || 'Login failed');
-      setLoading(false);
-      throw err;
     }
-  }, []);
-
-  /**
-   * Handle register
-   */
-  const register = useCallback(async (name, email, password) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await authService.register(email, password, name);
-      setUser(response.user);
-      setIsAuthenticated(true);
-      setLoading(false);
-      return response;
-    } catch (err) {
-      setError(err.message || 'Register failed');
-      setLoading(false);
-      throw err;
-    }
-  }, []);
-
-  /**
-   * Handle logout
-   */
-  const logout = useCallback(() => {
-    authService. logout();
-    setUser(null);
-    setIsAuthenticated(false);
-    setError(null);
+    setLoading(false);
   }, []);
 
   const value = {
     user,
-    isAuthenticated,
+    setUser,
+    token,
+    setToken,
     loading,
-    error,
-    login,
-    register,
-    logout,
+    isAuthenticated: !!token,
   };
 
   return (
@@ -103,4 +45,4 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export default AuthContext;
+export default AuthProvider;

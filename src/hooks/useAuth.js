@@ -1,85 +1,82 @@
 /**
  * useAuth Hook
- * Handle authentication logic
  */
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import authService from '../services/authService';
-import { APP_CONFIG } from '../constants/config';
+import { AuthContext } from '../context/AuthContext';
 
 export const useAuth = () => {
+  const navigate = useNavigate();
+  const authContext = useContext(AuthContext);
+  
+  if (!authContext) {
+    throw new Error('useAuth must be used within AuthProvider');
+  }
+
+  const { user, setUser, token, setToken } = authContext;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [user, setUser] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Check authentication on mount
-  useEffect(() => {
-    const storedUser = localStorage.getItem(APP_CONFIG.storage.user);
-    const token = localStorage.getItem(APP_CONFIG.storage.authToken);
-    
-    if (storedUser && token) {
-      setUser(JSON.parse(storedUser));
-      setIsAuthenticated(true);
-    }
-  }, []);
-
-  /**
-   * Register user
-   */
-  const register = useCallback(async (name, email, password) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await authService.register(email, password, name);
-      setUser(response.user);
-      setIsAuthenticated(true);
-      setLoading(false);
-      return response;
-    } catch (err) {
-      setError(err.message || 'Register failed');
-      setLoading(false);
-      throw err;
-    }
-  }, []);
-
-  /**
-   * Login user
-   */
   const login = useCallback(async (email, password) => {
     setLoading(true);
     setError(null);
-    try {
-      const response = await authService.login(email, password);
-      setUser(response.user);
-      setIsAuthenticated(true);
-      setLoading(false);
-      return response;
-    } catch (err) {
-      setError(err. message || 'Login failed');
-      setLoading(false);
-      throw err;
-    }
-  }, []);
 
-  /**
-   * Logout user
-   */
+    try {
+      console.log('Calling authService.login.. .');
+      
+      const response = await authService. login(email, password);
+      console.log('Login response:', response);
+
+      // Extract user & token from response
+      // Token bisa di: response.user.token, response. token, atau response.data.token
+      const userData = response.user || response.data?. user;
+      const tokenData = response.user?.token || response.token || response.data?.token;
+
+      console.log('User data:', userData);
+      console. log('Token:', tokenData);
+
+      if (! tokenData) {
+        throw new Error('Token tidak ditemukan di response');
+      }
+
+      // Save to localStorage
+      localStorage.setItem('token', tokenData);
+      localStorage. setItem('user', JSON.stringify(userData));
+
+      // Save to context
+      setToken(tokenData);
+      setUser(userData || {});
+
+      console.log('✓ Login successful');
+      return { user: userData, token: tokenData };
+    } catch (err) {
+      console.error('Login error:', err);
+      const errorMessage = err.message || 'Login gagal';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [setUser, setToken]);
+
   const logout = useCallback(() => {
-    authService.logout();
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
     setUser(null);
-    setIsAuthenticated(false);
-    setError(null);
-  }, []);
+    setToken(null);
+    navigate('/login');
+  }, [setUser, setToken, navigate]);
 
   return {
-    register,
-    login,
-    logout,
-    isAuthenticated,
     user,
+    token,
     loading,
     error,
+    login,
+    logout,
+    isAuthenticated: !!token,
   };
 };
 

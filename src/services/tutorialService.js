@@ -1,36 +1,42 @@
-/**
- * Tutorial Service
- * Handle tutorials/learning materials
- */
 
-import api from './api';
-import { API_ENDPOINTS } from '../constants/apiEndpoints';
+import axios from 'axios';
+
+const api = axios.create({
+  baseURL: 'https://api.capstone.web.id',
+  timeout: 10000,
+});
+
+// Add auth token
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('learncheck_auth_token');
+  if (token) {
+    config. headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
 export const tutorialService = {
-  /**
-   * Get all tutorials
-   */
   getTutorials: async () => {
-    try {
-      const response = await api.get(API_ENDPOINTS.TUTORIALS_LIST);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error;
-    }
+    const response = await api.get('/tutorials');
+    return response.data;
   },
 
-  /**
-   * Get tutorial detail by ID
-   * @param {string|number} id - Tutorial ID
-   */
   getTutorialDetail: async (id) => {
-    try {
-      const url = API_ENDPOINTS.TUTORIAL_DETAIL.replace(':id', id);
-      const response = await api. get(url);
-      return response.data;
-    } catch (error) {
-      throw error. response?.data || error;
-    }
+    const response = await api.get(`/tutorials/${id}`);
+    return response.data;
+  },
+
+  getAssessment: async (tutorialId) => {
+    const response = await api.get(`/assessment/tutorial/${tutorialId}`);
+    return response.data;
+  },
+
+  submitAnswers: async (tutorialId, assessmentId, answers) => {
+    const response = await api.post(
+      `/submit/tutorial/${tutorialId}/assessment/${assessmentId}`,
+      { answers }
+    );
+    return response. data;
   },
 };
 

@@ -15,10 +15,17 @@ const LoginPage = () => {
 
   const handleLogin = async (formData, setServerError) => {
     try {
-      await login(formData. username, formData.password);
-      navigate('/home');
+      const response = await login(formData. username, formData.password);
+      console.log('Login response:', response);
+      
+      // REDIRECT KE HOME SETELAH LOGIN BERHASIL
+      if (response && response.token) {
+        console.log('Redirecting to /home...');
+        navigate('/home', { replace: true });
+      }
     } catch (err) {
-      setServerError(err.message || 'Login gagal.  Silakan coba lagi.');
+      console.error('Login error:', err);
+      setServerError(err?. error || 'Login gagal. Silakan coba lagi.');
     }
   };
 
@@ -34,16 +41,19 @@ const LoginPage = () => {
       </div>
 
       {/* Divider */}
+      <div className="auth-divider"></div>
 
       {/* Right Side - Form */}
       <div className="auth-right flex-1 bg-white w-full lg:w-1/2 flex items-center justify-center">
-        <div className="w-full max-w-md -translate-y-28">
+        <div className="w-full max-w-md -translate-y-12">
           {/* Header */}
-          <div className="text-center mb-10 ">
+          <div className="text-center mb-10">
             <div className="flex items-center justify-center mb-6">
-              <div className="w-32 h-32 bg-slate-800 rounded-full flex items-center justify-center text-white text-8xl font-bold">
-                9
-              </div>
+              <img 
+                src="/assets/images/logo-login.jpg" 
+                alt="Number 9"
+                className="w-32 h-32 object-contain"
+              />
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Selamat Datang Kembali</h1>
             <p className="text-gray-600">Masukkan username dan password untuk login</p>
@@ -68,9 +78,11 @@ const LoginPage = () => {
 
           {/* Google Sign In */}
           <button className="w-full py-3 px-4 border-2 border-gray-300 rounded-lg text-gray-700 font-semibold hover:bg-gray-50 transition flex items-center justify-center gap-3">
-            <svg className="w-5 h-5" viewBox="0 0 24 24">
-              <image href="/assets/images/logo_google.png" width="24" height="24" />
-            </svg>
+            <img 
+              src="/assets/images/logo google.png" 
+              alt="Google Logo"
+              className="w-5 h-5 object-contain"
+            />
             Sign in with Google
           </button>
 

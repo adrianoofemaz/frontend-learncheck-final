@@ -1,29 +1,19 @@
 /**
- * API Endpoints Mapping
+ * API Endpoints
  */
 
 export const API_ENDPOINTS = {
-  // Health Check
-  HEALTH: '/test',
-
-  // Auth
   REGISTER: '/register',
   LOGIN: '/login',
-
-  // User
-  USER_PROFILE: '/users',
-  USER_PREFERENCES: '/users/preference',
-
-  // Tutorials
-  TUTORIALS_LIST: '/tutorials',
-  TUTORIAL_DETAIL: '/tutorials/:id',
-
-  // Assessment/Quiz
-  QUESTIONS_LIST: '/questions-final',
-  SUBMIT_ASSESSMENT: '/submit/tutorial/:tutorialId/assessment/:assessmentId',
-
-  // Progress
+  LOGOUT: '/logout',
+  USERS: '/users',
+  USER_PREFERENCE: '/users/preference',
+  TUTORIALS: '/tutorials',
+  TUTORIAL_DETAIL: (id) => `/tutorials/${id}`,
+  ASSESSMENT: (id) => `/assessment/tutorial/${id}`,
+  SUBMIT_ASSESSMENT: (tutorialId, assessmentId) => `/submit/tutorial/${tutorialId}/assessment/${assessmentId}`,
   PROGRESS_RESET: '/progress-reset',
+  QUESTIONS_FINAL: '/questions-final',
 };
 
 export default API_ENDPOINTS;
