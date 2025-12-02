@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { XMarkIcon, CheckCircleIcon, ExclamationIcon, InformationCircleIcon } from '@heroicons/react/24/solid';
+import { XMarkIcon, CheckCircleIcon, ExclamationTriangleIcon, InformationCircleIcon } from '@heroicons/react/24/solid';
 
 const Alert = ({
   type = 'info', // success, error, warning, info
@@ -29,7 +29,7 @@ const Alert = ({
       icon: 'text-red-600',
       title: 'text-red-900',
       message: 'text-red-800',
-      Icon: ExclamationIcon,
+      Icon: ExclamationTriangleIcon,
     },
     warning: {
       bg: 'bg-yellow-50',
@@ -37,7 +37,7 @@ const Alert = ({
       icon: 'text-yellow-600',
       title: 'text-yellow-900',
       message: 'text-yellow-800',
-      Icon: ExclamationIcon,
+      Icon: ExclamationTriangleIcon,
     },
     info: {
       bg: 'bg-blue-50',
@@ -49,12 +49,12 @@ const Alert = ({
     },
   };
 
-  const config = types[type] || types. info;
+  const config = types[type] || types.info;
   const { bg, border, icon, title: titleClass, message: messageClass, Icon } = config;
 
   return (
     <div className={`${bg} border ${border} rounded-lg p-4 flex gap-4 ${className}`}>
-      <Icon className={`w-5 h-5 mt-0.5 flex-shrink-0 ${icon}`} />
+      <Icon className={`w-5 h-5 mt-0.5 shrink-0 ${icon}`} />
       
       <div className="flex-1">
         {title && <h3 className={`font-medium ${titleClass}`}>{title}</h3>}
@@ -64,7 +64,7 @@ const Alert = ({
       {dismissible && onClose && (
         <button
           onClick={onClose}
-          className="text-gray-400 hover:text-gray-600 flex-shrink-0"
+          className="text-gray-400 hover:text-gray-600 shrink-0"
         >
           <XMarkIcon className="w-5 h-5" />
         </button>

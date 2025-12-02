@@ -41,7 +41,7 @@ const LoginForm = ({ onSubmit, loading = false }) => {
       return;
     }
 
-    onSubmit? .(formData, setServerError);
+    onSubmit?.(formData, setServerError);
   };
 
   return (

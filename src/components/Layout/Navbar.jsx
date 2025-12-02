@@ -24,7 +24,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <div className="flex-shrink-0">
+          <div className="shrink-0">
             <button
               onClick={() => navigate('/')}
               className="text-2xl font-bold text-blue-600 hover:text-blue-700"
@@ -35,7 +35,7 @@ const Navbar = () => {
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center gap-6">
-            {isAuthenticated ?  (
+            {isAuthenticated ? (
               <>
                 <div className="flex items-center gap-2">
                   <span className="text-gray-700">

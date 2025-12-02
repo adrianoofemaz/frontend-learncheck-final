@@ -3,7 +3,7 @@
  */
 
 export const API_BASE_URL = 
-  process.env.REACT_APP_API_URL || 'https://api.capstone. web.id';
+  import.meta.env.VITE_API_URL || 'https://api.capstone. web.id';
 
 export const APP_CONFIG = {
   api: {

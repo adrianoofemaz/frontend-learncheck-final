@@ -31,7 +31,7 @@ const AnswerOption = ({
   };
 
   const getIndicatorClass = () => {
-    if (! isSubmitted) {
+    if (!isSubmitted) {
       return isSelected
         ? 'border-blue-500 bg-blue-500'
         : 'border-gray-300 bg-white';
@@ -53,10 +53,10 @@ const AnswerOption = ({
       className={`w-full p-4 text-left rounded-lg border-2 transition-all ${getStateClass()}`}
     >
       <div className="flex items-center gap-4">
-        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${getIndicatorClass()}`}>
+        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 ${getIndicatorClass()}`}>
           {isSubmitted && isCorrect && <span className="text-white text-sm font-bold">✓</span>}
           {isSubmitted && isSelected && !isCorrect && <span className="text-white text-sm font-bold">✕</span>}
-          {! isSubmitted && isSelected && <span className="text-white text-sm font-bold">✓</span>}
+          {!isSubmitted && isSelected && <span className="text-white text-sm font-bold">✓</span>}
         </div>
         <span className="text-gray-900">{option}</span>
       </div>

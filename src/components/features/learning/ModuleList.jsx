@@ -22,10 +22,10 @@ const ModuleList = ({ modules = [], onSelectModule, completedModules = [] }) => 
           >
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
+                <div className="flex items-center gap-2 mb-1 shrink-0">
                   <h3 className="font-semibold text-gray-900">{module.title}</h3>
                   {isCompleted && (
-                    <CheckCircleIcon className="w-5 h-5 text-green-600 flex-shrink-0" />
+                    <CheckCircleIcon className="w-5 h-5 text-green-600 shrink-0" />
                   )}
                 </div>
                 <p className="text-sm text-gray-600 line-clamp-2">
@@ -37,7 +37,7 @@ const ModuleList = ({ modules = [], onSelectModule, completedModules = [] }) => 
                 onClick={() => onSelectModule?.(module.id)}
                 variant={isCompleted ? 'secondary' : 'primary'}
                 size="sm"
-                className="ml-4 flex-shrink-0"
+                className="ml-4 shrink-0"
               >
                 {isCompleted ? 'Ulangi' : 'Belajar'}
               </Button>

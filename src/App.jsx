@@ -36,8 +36,8 @@ function App() {
             <QuizProvider>
               <Routes>
                 {/* Auth Routes */}
-                <Route path={ROUTES. REGISTER} element={<RegisterPage />} />
-                <Route path={ROUTES.LOGIN} element={<LoginPage />} />
+                <Route path={ROUTES.  REGISTER} element={<RegisterPage />} />
+                <Route path={ROUTES. LOGIN} element={<LoginPage />} />
 
                 {/* Redirect root to home */}
                 <Route path="/" element={<Navigate to={ROUTES.HOME} replace />} />

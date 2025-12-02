@@ -23,7 +23,7 @@ const AnswerReview = ({ answers = [], questions = [] }) => {
             bordered
           >
             <div className="flex items-start gap-4 mb-4">
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 {isCorrect ? (
                   <CheckCircleIcon className="w-6 h-6 text-green-600" />
                 ) : (
@@ -35,7 +35,7 @@ const AnswerReview = ({ answers = [], questions = [] }) => {
                 <p className="font-semibold text-gray-900 mb-2">
                   Pertanyaan {index + 1}
                 </p>
-                <p className="text-gray-700 mb-3">{question?. assessment}</p>
+                <p className="text-gray-700 mb-3">{question?.assessment}</p>
 
                 <div className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
                   isCorrect

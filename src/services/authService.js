@@ -1,59 +1,76 @@
 /**
- * User Service
- * Handle user profile, preferences
+ * Auth Service
+ * Handle authentication (login, register, logout)
  */
 
 import api from './api';
 import { API_ENDPOINTS } from '../constants/apiEndpoints';
 import { APP_CONFIG } from '../constants/config';
 
-export const userService = {
+export const authService = {
   /**
-   * Get user profile
+   * Register new user
    */
-  getProfile: async () => {
+  register: async (email, password, name) => {
     try {
-      const response = await api.get(API_ENDPOINTS.USER_PROFILE);
-      return response.data;
+      const response = await api.post(API_ENDPOINTS.REGISTER, {
+        email,
+        password,
+        name,
+      });
+      
+      // Save token & user to localStorage
+      localStorage.setItem(APP_CONFIG. storage.authToken, response.data.token);
+      localStorage.setItem(APP_CONFIG.storage.user, JSON.stringify(response.data.user));
+      
+      return response. data;
     } catch (error) {
-      throw error.response?. data || error;
+      throw error. response?.data || error;
     }
   },
 
   /**
-   * Get user preferences
+   * Login user
    */
-  getPreferences: async () => {
+  login: async (email, password) => {
     try {
-      const response = await api.get(API_ENDPOINTS.USER_PREFERENCES);
+      const response = await api.post(API_ENDPOINTS. LOGIN, {
+        email,
+        password,
+      });
+      
+      // Save token & user to localStorage
+      localStorage.setItem(APP_CONFIG.storage.authToken, response.data.token);
+      localStorage.setItem(APP_CONFIG.storage.user, JSON. stringify(response.data.user));
+      
       return response.data;
     } catch (error) {
-      throw error.response?.data || error;
+      throw error.response?. data || error; 
     }
   },
 
   /**
-   * Update user preferences
-   * @param {object} preferences - { theme, font_size, font, layout_width }
+   * Logout user
    */
-  updatePreferences: async (preferences) => {
-    try {
-      const response = await api.patch(
-        API_ENDPOINTS.USER_PREFERENCES,
-        preferences
-      );
-      
-      // Update local storage
-      localStorage.setItem(
-        APP_CONFIG.storage.preferences,
-        JSON.stringify(response.data. preference)
-      );
-      
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error;
-    }
+  logout: () => {
+    localStorage.removeItem(APP_CONFIG. storage.authToken);
+    localStorage.removeItem(APP_CONFIG. storage.user);
+  },
+
+  /**
+   * Get token from localStorage
+   */
+  getToken: () => {
+    return localStorage.getItem(APP_CONFIG.storage.authToken);
+  },
+
+  /**
+   * Get stored user from localStorage
+   */
+  getUser: () => {
+    const user = localStorage.getItem(APP_CONFIG.storage.user);
+    return user ? JSON.parse(user) : null;
   },
 };
 
-export default userService;
+export default authService;

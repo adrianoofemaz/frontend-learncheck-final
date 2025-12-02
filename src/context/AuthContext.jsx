@@ -41,11 +41,11 @@ export const AuthProvider = ({ children }) => {
   /**
    * Handle login
    */
-  const login = useCallback(async (username, password) => {
+  const login = useCallback(async (email, password) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await authService.login(username, password);
+      const response = await authService.login(email, password);
       setUser(response.user);
       setIsAuthenticated(true);
       setLoading(false);
@@ -60,15 +60,17 @@ export const AuthProvider = ({ children }) => {
   /**
    * Handle register
    */
-  const register = useCallback(async (name, username, password) => {
+  const register = useCallback(async (name, email, password) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await authService.register(name, username, password);
+      const response = await authService.register(email, password, name);
+      setUser(response.user);
+      setIsAuthenticated(true);
       setLoading(false);
       return response;
     } catch (err) {
-      setError(err. message || 'Register failed');
+      setError(err.message || 'Register failed');
       setLoading(false);
       throw err;
     }
@@ -78,7 +80,7 @@ export const AuthProvider = ({ children }) => {
    * Handle logout
    */
   const logout = useCallback(() => {
-    authService.logout();
+    authService. logout();
     setUser(null);
     setIsAuthenticated(false);
     setError(null);

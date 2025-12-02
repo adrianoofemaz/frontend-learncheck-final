@@ -7,7 +7,7 @@ import React from 'react';
 import Card from '../../common/Card';
 
 const QuizCard = ({ question, selectedAnswer, onSelectAnswer, questionNumber, totalQuestions }) => {
-  if (! question) return null;
+  if (!question) return null;
 
   const options = [
     question.option_1,
@@ -42,9 +42,9 @@ const QuizCard = ({ question, selectedAnswer, onSelectAnswer, questionNumber, to
           >
             <div className="flex items-center">
               <div
-                className={`w-6 h-6 rounded-full border-2 mr-4 flex items-center justify-center flex-shrink-0 ${
+                className={`w-6 h-6 rounded-full border-2 mr-4 flex items-center justify-center shrink-0 ${
                   selectedAnswer === index
-                    ? 'border-blue-500 bg-blue-500'
+                    ?  'border-blue-500 bg-blue-500'
                     : 'border-gray-300'
                 }`}
               >

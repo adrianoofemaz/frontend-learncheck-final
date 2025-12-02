@@ -3,14 +3,14 @@
  * Manage user learning progress
  */
 
-import React, { createContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useState, useCallback, useContext } from 'react';
 import { APP_CONFIG } from '../constants/config';
 
 export const ProgressContext = createContext();
 
 export const ProgressProvider = ({ children }) => {
   const [progress, setProgress] = useState(
-    JSON.parse(localStorage.getItem(APP_CONFIG.storage.progress)) || {}
+    JSON.parse(localStorage.getItem(APP_CONFIG.storage. progress)) || {}
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -55,7 +55,7 @@ export const ProgressProvider = ({ children }) => {
    * Get total count
    */
   const getTotalCount = useCallback(() => {
-    return Object.keys(progress).length;
+    return Object.keys(progress). length;
   }, [progress]);
 
   /**
@@ -74,13 +74,13 @@ export const ProgressProvider = ({ children }) => {
   const resetProgress = useCallback(() => {
     try {
       const resetData = {};
-      Object.keys(progress). forEach((key) => {
+      Object. keys(progress). forEach((key) => {
         resetData[key] = false;
       });
       setProgress(resetData);
       localStorage.setItem(
-        APP_CONFIG.storage.progress,
-        JSON.stringify(resetData)
+        APP_CONFIG. storage.progress,
+        JSON. stringify(resetData)
       );
     } catch (err) {
       setError(err.message);
@@ -102,8 +102,20 @@ export const ProgressProvider = ({ children }) => {
   return (
     <ProgressContext.Provider value={value}>
       {children}
-    </ProgressContext. Provider>
+    </ProgressContext.Provider>
   );
+};
+
+/**
+ * Custom Hook: useProgress
+ * Gunakan di komponen manapun untuk akses progress context
+ */
+export const useProgress = () => {
+  const context = useContext(ProgressContext);
+  if (!context) {
+    throw new Error('useProgress must be used within ProgressProvider');
+  }
+  return context;
 };
 
 export default ProgressContext;
