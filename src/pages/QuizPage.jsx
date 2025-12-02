@@ -4,22 +4,23 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useQuizProgress } from '../hooks/useQuizProgress';
 import { useQuiz } from '../hooks/useQuiz';
-import { QuizCard, QuizTimer, AnswerOption } from '../components/features/quiz';
+import { QuizCard, QuizTimer } from '../components/features/quiz';
 import { Alert } from '../components/common';
 import Button from '../components/common/Button';
 import Loading from '../components/common/Loading';
-import Card from '../components/common/Card';
 
 const QuizPage = () => {
   const navigate = useNavigate();
-  const { questions, loading, error, fetchQuestions, submitAnswers } = useQuiz();
+  const { tutorialId } = useParams();
+  const { questions, loading, error, assessmentId, fetchQuestions, submitAnswers } = useQuiz();
   const {
     currentQuestionIndex,
     answers,
     recordAnswer,
+    getCurrentAnswer,
     nextQuestion,
     previousQuestion,
     initializeQuiz,
@@ -28,10 +29,16 @@ const QuizPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
 
+  // ✅ FETCH dengan tutorialId
   useEffect(() => {
-    fetchQuestions();
-    initializeQuiz();
-  }, []);
+    if (tutorialId) {
+      console.log('Fetching quiz for tutorial:', tutorialId);
+      fetchQuestions(parseInt(tutorialId));
+      initializeQuiz();
+    } else {
+      setSubmitError('Tutorial ID tidak ditemukan');
+    }
+  }, [tutorialId, fetchQuestions, initializeQuiz]);
 
   if (loading) {
     return <Loading fullScreen text="Memuat kuis..." />;
@@ -39,28 +46,32 @@ const QuizPage = () => {
 
   if (error) {
     return (
-      <div className="max-w-2xl mx-auto">
-        <Alert type="error" title="Error" message={error} />
-        <Button onClick={() => navigate(-1)} variant="primary" className="mt-4">
-          Kembali
-        </Button>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="max-w-2xl mx-auto text-center">
+          <Alert type="error" title="Error" message={error} />
+          <Button onClick={() => navigate(-1)} variant="primary" className="mt-4">
+            Kembali
+          </Button>
+        </div>
       </div>
     );
   }
 
   if (questions.length === 0) {
     return (
-      <div className="max-w-2xl mx-auto text-center">
-        <p className="text-gray-600 mb-4">Pertanyaan tidak ditemukan</p>
-        <Button onClick={() => navigate(-1)} variant="primary">
-          Kembali
-        </Button>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="max-w-2xl mx-auto text-center">
+          <p className="text-gray-600 mb-4">Pertanyaan tidak ditemukan</p>
+          <Button onClick={() => navigate(-1)} variant="primary">
+            Kembali
+          </Button>
+        </div>
       </div>
     );
   }
 
   const currentQuestion = questions[currentQuestionIndex];
-  const currentAnswer = answers[currentQuestionIndex];
+  const currentAnswer = getCurrentAnswer();
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
   const allAnswered = Object.keys(answers).length === questions.length;
 
@@ -69,20 +80,33 @@ const QuizPage = () => {
     setSubmitError(null);
 
     try {
-      const answersData = Object.entries(answers).map(([questionIndex, answer]) => ({
-        soal_id: questions[parseInt(questionIndex)]?.id,
-        correct: answer !== undefined,
-      }));
+      console.log('Submitting quiz answers..  .');
+
+      // ✅ FORMAT JAWABAN SESUAI BACKEND
+      const answersData = Object.entries(answers).map(([questionIndex, answerIndex]) => {
+        const question = questions[parseInt(questionIndex)];
+        const selectedOption = question?. multiple_choice[answerIndex];
+        
+        return {
+          soal_id: question?.id,
+          correct: selectedOption?.correct || false,  // ✅ CEK field correct dari option
+        };
+      });
+
+      console.log('Answers to submit:', answersData);
+      console. log('Assessment ID:', assessmentId);
 
       const result = await submitAnswers(
-        currentQuestion?. tutorial_id,
-        'assessment_001',
+        parseInt(tutorialId),
+        assessmentId,
         answersData
       );
 
+      console.log('Submit result:', result);
       navigate('/quiz-results', { state: { result } });
     } catch (err) {
-      setSubmitError(err.message || 'Gagal mengirim jawaban');
+      console. error('Submit error:', err);
+      setSubmitError(err. message || 'Gagal mengirim jawaban');
       setIsSubmitting(false);
     }
   };
@@ -100,7 +124,7 @@ const QuizPage = () => {
               Dijawab: {Object.keys(answers).length}/{questions.length}
             </p>
           </div>
-          <QuizTimer duration={30} isActive={true} onTimeUp={nextQuestion} />
+          <QuizTimer duration={30} isActive={true} onTimeUp={() => nextQuestion(questions.length)} />
         </div>
 
         {/* Progress Bar */}
@@ -142,7 +166,7 @@ const QuizPage = () => {
             ← Sebelumnya
           </Button>
 
-          {isLastQuestion ?  (
+          {isLastQuestion ? (
             <Button
               onClick={handleSubmitQuiz}
               variant="primary"
@@ -153,7 +177,7 @@ const QuizPage = () => {
             </Button>
           ) : (
             <Button
-              onClick={nextQuestion}
+              onClick={() => nextQuestion(questions. length)}
               variant="primary"
               disabled={currentAnswer === undefined}
               fullWidth

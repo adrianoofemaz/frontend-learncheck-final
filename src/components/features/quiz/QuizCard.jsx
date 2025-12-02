@@ -9,12 +9,11 @@ import Card from '../../common/Card';
 const QuizCard = ({ question, selectedAnswer, onSelectAnswer, questionNumber, totalQuestions }) => {
   if (!question) return null;
 
-  const options = [
-    question.option_1,
-    question.option_2,
-    question.option_3,
-    question.option_4,
-  ].filter(Boolean);
+  // ✅ GET options dari multiple_choice array
+  const options = question.multiple_choice || [];
+
+  console.log('QuizCard question:', question);
+  console.log('QuizCard options:', options);
 
   return (
     <Card>
@@ -30,32 +29,40 @@ const QuizCard = ({ question, selectedAnswer, onSelectAnswer, questionNumber, to
 
       {/* Options */}
       <div className="space-y-3">
-        {options.map((option, index) => (
-          <button
-            key={index}
-            onClick={() => onSelectAnswer?.(index)}
-            className={`w-full p-4 text-left rounded-lg border-2 transition-all ${
-              selectedAnswer === index
-                ? 'border-blue-500 bg-blue-50'
-                : 'border-gray-200 hover:border-gray-300 bg-white'
-            }`}
-          >
-            <div className="flex items-center">
-              <div
-                className={`w-6 h-6 rounded-full border-2 mr-4 flex items-center justify-center shrink-0 ${
-                  selectedAnswer === index
-                    ?  'border-blue-500 bg-blue-500'
-                    : 'border-gray-300'
-                }`}
-              >
-                {selectedAnswer === index && (
-                  <span className="text-white text-sm font-bold">✓</span>
-                )}
+        {options.length === 0 ? (
+          <p className="text-gray-500 text-center py-4">Tidak ada opsi tersedia</p>
+        ) : (
+          options.map((option, index) => (
+            <button
+              key={index}
+              onClick={() => {
+                console.log('Selected answer:', index, option);
+                onSelectAnswer?.(index);
+              }}
+              className={`w-full p-4 text-left rounded-lg border-2 transition-all ${
+                selectedAnswer === index
+                  ? 'border-blue-500 bg-blue-50'
+                  : 'border-gray-200 hover:border-gray-300 bg-white'
+              }`}
+            >
+              <div className="flex items-center">
+                <div
+                  className={`w-6 h-6 rounded-full border-2 mr-4 flex items-center justify-center shrink-0 ${
+                    selectedAnswer === index
+                      ?  'border-blue-500 bg-blue-500'
+                      : 'border-gray-300'
+                  }`}
+                >
+                  {selectedAnswer === index && (
+                    <span className="text-white text-sm font-bold">✓</span>
+                  )}
+                </div>
+                {/* ✅ GET option. option */}
+                <span className="text-gray-900">{option.option}</span>
               </div>
-              <span className="text-gray-900">{option}</span>
-            </div>
-          </button>
-        ))}
+            </button>
+          ))
+        )}
       </div>
     </Card>
   );

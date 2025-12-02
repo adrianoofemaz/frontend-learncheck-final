@@ -8,14 +8,24 @@ import { API_ENDPOINTS } from '../constants/apiEndpoints';
 
 export const quizService = {
   /**
-   * Get all questions/assessments
+   * Get questions untuk tutorial tertentu
+   * @param {number} tutorialId - Tutorial ID
    */
-  getQuestions: async () => {
+  getQuestions: async (tutorialId) => {
     try {
-      const response = await api.get(API_ENDPOINTS.QUESTIONS_LIST);
+      console.log('Fetching questions for tutorial:', tutorialId);
+      
+      // ✅ Gunakan ASSESSMENT endpoint dengan tutorial ID
+      const url = API_ENDPOINTS.ASSESSMENT(tutorialId);
+      console.log('Questions URL:', url);
+      
+      const response = await api.get(url);
+      console.log('Questions response:', response. data);
+      
       return response.data;
     } catch (error) {
-      throw error.response?. data || error;
+      console.error('Error fetching questions:', error. message);
+      throw error. response?.  data || error;
     }
   },
 
@@ -23,17 +33,21 @@ export const quizService = {
    * Submit quiz answers
    * @param {string|number} tutorialId - Tutorial ID
    * @param {string} assessmentId - Assessment ID
-   * @param {array} answers - Array of answers { soal_id, correct }
+   * @param {array} answers - Array of answers
    */
   submitAnswers: async (tutorialId, assessmentId, answers) => {
     try {
-      const url = API_ENDPOINTS.SUBMIT_ASSESSMENT
-        .replace(':tutorialId', tutorialId)
-        .replace(':assessmentId', assessmentId);
+      console.log('Submitting answers:', { tutorialId, assessmentId, answers });
       
-      const response = await api.post(url, { answers });
+      const url = API_ENDPOINTS.  SUBMIT_ASSESSMENT(tutorialId, assessmentId);
+      console.log('Submit URL:', url);
+      
+      const response = await api.  post(url, { answers });
+      console.log('Submit response:', response.data);
+      
       return response.data;
     } catch (error) {
+      console.error('Error submitting answers:', error.message);
       throw error.response?. data || error;
     }
   },
@@ -43,10 +57,15 @@ export const quizService = {
    */
   resetProgress: async () => {
     try {
-      const response = await api. get(API_ENDPOINTS.PROGRESS_RESET);
-      return response. data;
+      console.  log('Resetting progress.. .');
+      
+      const response = await api.  get(API_ENDPOINTS.  PROGRESS_RESET);
+      console.  log('Reset response:', response.data);
+      
+      return response.  data;
     } catch (error) {
-      throw error.response?.data || error;
+      console. error('Error resetting progress:', error.message);
+      throw error. response?. data || error;
     }
   },
 };

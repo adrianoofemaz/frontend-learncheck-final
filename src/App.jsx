@@ -37,16 +37,16 @@ function App() {
             <QuizProvider>
               <Routes>
                 {/* Auth Routes */}
-                <Route path={ROUTES. REGISTER} element={<RegisterPage />} />
-                <Route path={ROUTES.LOGIN} element={<LoginPage />} />
+                <Route path={ROUTES.  REGISTER} element={<RegisterPage />} />
+                <Route path={ROUTES. LOGIN} element={<LoginPage />} />
 
                 {/* Redirect root to home */}
-                <Route path="/" element={<Navigate to={ROUTES.HOME} replace />} />
+                <Route path="/" element={<Navigate to={ROUTES. HOME} replace />} />
 
                 {/* Main Routes */}
                 {/* HomePage - List Kelas */}
                 <Route
-                  path={ROUTES.HOME}
+                  path={ROUTES. HOME}
                   element={
                     <LayoutWrapper>
                       <HomePage />
@@ -66,7 +66,7 @@ function App() {
 
                 {/* LearningPage - Baca Materi */}
                 <Route
-                  path={ROUTES.LEARNING}
+                  path={ROUTES. LEARNING}
                   element={
                     <LayoutWrapper showBottomNav>
                       <LearningPage />
@@ -76,7 +76,7 @@ function App() {
 
                 {/* QuizIntroPage - Info Kuis */}
                 <Route
-                  path={ROUTES. QUIZ_INTRO}
+                  path="/quiz-intro/:tutorialId"
                   element={
                     <LayoutWrapper showBottomNav>
                       <QuizIntroPage />
@@ -84,9 +84,9 @@ function App() {
                   }
                 />
 
-                {/* QuizPage - Jawab Soal (iframe) */}
+                {/* QuizPage - Jawab Soal */}
                 <Route
-                  path={ROUTES. QUIZ}
+                  path="/quiz/:tutorialId"
                   element={
                     <LayoutWrapper showBottomNav={false} showSidebar={false}>
                       <QuizPage />
@@ -96,7 +96,7 @@ function App() {
 
                 {/* ResultsPage - Hasil Quiz */}
                 <Route
-                  path={ROUTES.QUIZ_RESULTS}
+                  path={ROUTES. QUIZ_RESULTS}
                   element={
                     <LayoutWrapper showBottomNav>
                       <ResultsPage />
@@ -105,7 +105,7 @@ function App() {
                 />
 
                 {/* 404 - Not Found */}
-                <Route path={ROUTES.NOT_FOUND} element={<NotFoundPage />} />
+                <Route path={ROUTES. NOT_FOUND} element={<NotFoundPage />} />
               </Routes>
             </QuizProvider>
           </LearningProvider>

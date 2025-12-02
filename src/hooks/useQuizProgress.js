@@ -11,13 +11,15 @@ export const useQuizProgress = () => {
   const [score, setScore] = useState(0);
   const [startTime, setStartTime] = useState(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [showFeedback, setShowFeedback] = useState(false);
 
   /**
    * Record answer untuk question tertentu
+   * @param {number} questionIndex - Index pertanyaan
+   * @param {number} answer - Index jawaban (0-3)
    */
   const recordAnswer = useCallback((questionIndex, answer) => {
+    console.log('Recording answer:', { questionIndex, answer });
     setAnswers((prev) => ({
       ...prev,
       [questionIndex]: answer,
@@ -25,12 +27,18 @@ export const useQuizProgress = () => {
   }, []);
 
   /**
+   * Get selected answer untuk current question
+   */
+  const getCurrentAnswer = useCallback(() => {
+    return answers[currentQuestionIndex];
+  }, [answers, currentQuestionIndex]);
+
+  /**
    * Move ke question berikutnya
    */
   const nextQuestion = useCallback((totalQuestions) => {
     if (currentQuestionIndex < totalQuestions - 1) {
       setCurrentQuestionIndex((prev) => prev + 1);
-      setSelectedAnswer(null);
     }
   }, [currentQuestionIndex]);
 
@@ -40,7 +48,6 @@ export const useQuizProgress = () => {
   const previousQuestion = useCallback(() => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex((prev) => prev - 1);
-      setSelectedAnswer(null);
     }
   }, [currentQuestionIndex]);
 
@@ -53,7 +60,6 @@ export const useQuizProgress = () => {
     setScore(0);
     setStartTime(null);
     setIsSubmitted(false);
-    setSelectedAnswer(null);
     setShowFeedback(false);
   }, []);
 
@@ -71,14 +77,13 @@ export const useQuizProgress = () => {
     setCurrentQuestionIndex,
     answers,
     recordAnswer,
+    getCurrentAnswer,  // ✅ NEW
     score,
     setScore,
     startTime,
     setStartTime,
     isSubmitted,
     setIsSubmitted,
-    selectedAnswer,
-    setSelectedAnswer,
     showFeedback,
     setShowFeedback,
     nextQuestion,

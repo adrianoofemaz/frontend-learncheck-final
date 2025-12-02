@@ -18,7 +18,7 @@ import Loading from '../components/common/Loading';
 const ModuleSidebar = ({ tutorials, currentTutorial, getTutorialProgress, onSelectTutorial }) => {
   const getStatusColor = (tutorialId, isCompleted) => {
     if (isCompleted) return 'text-green-500';
-    if (currentTutorial?. id === tutorialId) return 'text-blue-600';
+    if (currentTutorial?.id === tutorialId) return 'text-blue-600';
     return 'text-gray-400';
   };
 
@@ -37,12 +37,12 @@ const ModuleSidebar = ({ tutorials, currentTutorial, getTutorialProgress, onSele
       <div className="space-y-2">
         {tutorials.map((tutorial, index) => {
           const isCompleted = getTutorialProgress(tutorial.id);
-          const isCurrent = currentTutorial?.id === tutorial.  id;
+          const isCurrent = currentTutorial?.id === tutorial. id;
 
           return (
             <div key={tutorial.id}>
               <button
-                onClick={() => onSelectTutorial(tutorial.  id)}
+                onClick={() => onSelectTutorial(tutorial.id)}
                 className={`w-full text-left px-4 py-3 rounded-lg transition-all ${
                   isCurrent
                     ? 'bg-blue-50 border border-blue-300'
@@ -50,12 +50,12 @@ const ModuleSidebar = ({ tutorials, currentTutorial, getTutorialProgress, onSele
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <span className={`text-xl font-bold ${getStatusColor(tutorial. id, isCompleted)}`}>
+                  <span className={`text-xl font-bold ${getStatusColor(tutorial.id, isCompleted)}`}>
                     {getStatusIcon(isCompleted, isCurrent)}
                   </span>
                   <div className="flex-1 min-w-0">
                     <p className={`text-sm font-medium truncate ${
-                      isCurrent ?   'text-blue-600' : 'text-gray-900'
+                      isCurrent ?  'text-blue-600' : 'text-gray-900'
                     }`}>
                       {tutorial.title}
                     </p>
@@ -94,49 +94,49 @@ const LearningPage = () => {
   const { currentTutorial, loading, error, selectTutorial, tutorials } = useLearning();
   const { updateTutorialProgress, getTutorialProgress } = useProgress();
 
+  // ============ HANDLERS ============
+  const handleMarkComplete = () => {
+    if (currentTutorial) {
+      updateTutorialProgress(currentTutorial.id, true);
+    }
+  };
+
+  const handleNextTutorial = () => {
+    handleMarkComplete();
+    const currentIndex = tutorials.findIndex(t => t.id === currentTutorial?.id);
+    if (currentIndex < tutorials.length - 1) {
+      const nextTutorial = tutorials[currentIndex + 1];
+      navigate(`/learning/${nextTutorial.id}`);
+    }
+  };
+
+  // ============ EFFECTS ============
   useEffect(() => {
     if (id) {
-      console.log('=== LearningPage useEffect ===');
-      console. log('Raw id from params:', id, typeof id);
-      
       const parsedId = parseInt(id);
-      console.log('Parsed id:', parsedId);
-      console.log('isNaN(parsedId):', isNaN(parsedId));
-      
-      if (!isNaN(parsedId)) {
-        selectTutorial(parsedId).  then((tutorial) => {
-          console. log('selectTutorial result:', tutorial);
-          if (! tutorial) {
-            console.warn('Tutorial not found for id:', parsedId);
-          }
-        }).  catch((err) => {
-          console.error('Error selecting tutorial:', err);
+      if (! isNaN(parsedId)) {
+        selectTutorial(parsedId). catch((err) => {
+          console. error('Error selecting tutorial:', err);
         });
-      } else {
-        console.error('Invalid id - cannot parse to number');
       }
     }
   }, [id, selectTutorial]);
 
+  // ============ STATE CALCULATIONS ============
   const currentIndex = tutorials.findIndex(t => t.id === currentTutorial?.id);
   const totalModules = tutorials.length;
   const progressPercentage = totalModules > 0 ? ((currentIndex + 1) / totalModules) * 100 : 0;
-  
-  // Check apakah ada tutorials & currentTutorial
+
   const hasTutorials = tutorials.length > 0;
-  const canGoNext = hasTutorials && currentIndex >= 0 && currentIndex < tutorials.  length - 1;
+  const canGoNext = hasTutorials && currentIndex >= 0 && currentIndex < tutorials.length - 1;
   const isLastModule = hasTutorials && currentIndex === tutorials.length - 1;
 
-  console.log('=== LearningPage state ===');
-  console.log('tutorials. length:', tutorials.length);
-  console.log('currentTutorial:', currentTutorial);
-  console.log('currentIndex:', currentIndex);
-  console.log('hasTutorials:', hasTutorials);
-
-  if (loading) {
+  // ============ RENDER - LOADING ============
+  if (loading || ! currentTutorial) {
     return <Loading fullScreen text="Memuat materi..." />;
   }
 
+  // ============ RENDER - ERROR ============
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -154,19 +154,7 @@ const LearningPage = () => {
     );
   }
 
-  if (! currentTutorial) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="max-w-md text-center">
-          <p className="text-gray-600 mb-4">Materi tidak ditemukan</p>
-          <Button onClick={() => navigate('/home')} variant="primary">
-            Kembali ke Beranda
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
+  // ============ RENDER - SUCCESS ============
   return (
     <div className="flex h-screen bg-white">
       {/* Main Content */}
@@ -194,12 +182,12 @@ const LearningPage = () => {
 
           {/* Breadcrumb */}
           <p className="text-sm text-gray-500 mb-6">
-            Belajar / Modul / {currentTutorial. title}
+            Belajar / Modul / {currentTutorial.title}
           </p>
 
           {/* Content */}
           <MaterialContent
-            title={currentTutorial. title}
+            title={currentTutorial.title}
             content={currentTutorial.content}
             loading={loading}
           />
@@ -226,13 +214,13 @@ const LearningPage = () => {
 
               {isLastModule ?  (
                 <Button
-                  onClick={() => navigate(`/quiz-intro`)}
+                  onClick={() => navigate(`/quiz-intro/${currentTutorial.id}`)}
                   variant="primary"
                   className="flex items-center gap-2"
                 >
                   Quiz Submodul 1 →
                 </Button>
-              ) : canGoNext ?  (
+              ) : canGoNext ? (
                 <Button
                   onClick={handleNextTutorial}
                   variant="primary"
@@ -242,7 +230,7 @@ const LearningPage = () => {
                 </Button>
               ) : (
                 <Button
-                  onClick={() => navigate(`/quiz-intro`)}
+                  onClick={() => navigate(`/quiz-intro/${currentTutorial.id}`)}
                   variant="primary"
                   className="flex items-center gap-2"
                 >
@@ -265,22 +253,6 @@ const LearningPage = () => {
       )}
     </div>
   );
-
-  const handleMarkComplete = () => {
-    if (currentTutorial) {
-      updateTutorialProgress(currentTutorial.id, true);
-    }
-  };
-
-  const handleNextTutorial = () => {
-    handleMarkComplete();
-    
-    const currentIndex = tutorials.findIndex(t => t.id === currentTutorial?.id);
-    if (currentIndex < tutorials.length - 1) {
-      const nextTutorial = tutorials[currentIndex + 1];
-      navigate(`/learning/${nextTutorial.id}`);
-    }
-  };
 };
 
 export default LearningPage;

@@ -4,7 +4,6 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { formatTime } from '../../../utils/helpers';
 import { ClockIcon } from '@heroicons/react/24/solid';
 
 const QuizTimer = ({ duration = 30, onTimeUp, isActive = true }) => {
@@ -15,12 +14,16 @@ const QuizTimer = ({ duration = 30, onTimeUp, isActive = true }) => {
 
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
-        if (prev <= 1) {
+        const newTime = prev - 1;
+        if (newTime <= 0) {
           clearInterval(timer);
-          onTimeUp?. ();
+          // ✅ Call onTimeUp AFTER state update
+          setTimeout(() => {
+            onTimeUp?. ();
+          }, 0);
           return 0;
         }
-        return prev - 1;
+        return newTime;
       });
     }, 1000);
 
@@ -28,6 +31,12 @@ const QuizTimer = ({ duration = 30, onTimeUp, isActive = true }) => {
   }, [isActive, onTimeUp]);
 
   const isWarning = timeLeft <= 10;
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  };
 
   return (
     <div className={`flex items-center gap-2 text-lg font-semibold ${

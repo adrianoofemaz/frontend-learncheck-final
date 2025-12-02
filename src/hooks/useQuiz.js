@@ -11,19 +11,33 @@ export const useQuiz = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [submitLoading, setSubmitLoading] = useState(false);
+  const [assessmentId, setAssessmentId] = useState(null);
 
   /**
-   * Fetch all questions
+   * Fetch questions untuk tutorial tertentu
+   * @param {number} tutorialId - Tutorial ID
    */
-  const fetchQuestions = useCallback(async () => {
+  const fetchQuestions = useCallback(async (tutorialId) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await quizService.getQuestions();
-      setQuestions(response.data || []);
-      return response.data;
+      console.log('Fetching questions for tutorial:', tutorialId);
+      
+      const response = await quizService.  getQuestions(tutorialId);
+      console.log('Questions response:', response);
+      
+      // Extract questions & assessment ID dari response
+      const questionsData = response.data || [];
+      const assmtId = response.assessment_id || null;
+      
+      setQuestions(questionsData);
+      setAssessmentId(assmtId);
+      
+      return response;
     } catch (err) {
+      console.error('Error fetching questions:', err);
       setError(err.message || 'Failed to fetch questions');
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -31,22 +45,30 @@ export const useQuiz = () => {
 
   /**
    * Submit quiz answers
+   * @param {number} tutorialId - Tutorial ID
+   * @param {string} assessmentId - Assessment ID
+   * @param {array} answers - Array of answers
    */
-  const submitAnswers = useCallback(async (tutorialId, assessmentId, answers) => {
+  const submitAnswers = useCallback(async (tutorialId, assmtId, answers) => {
     setSubmitLoading(true);
     setError(null);
     try {
-      const response = await quizService.submitAnswers(
+      console.log('Submitting answers:', { tutorialId, assessmentId: assmtId, answers });
+      
+      const response = await quizService.  submitAnswers(
         tutorialId,
-        assessmentId,
+        assmtId,
         answers
       );
-      setSubmitLoading(false);
+      
+      console.log('Submit response:', response);
       return response;
     } catch (err) {
+      console.error('Error submitting answers:', err);
       setError(err.message || 'Failed to submit answers');
-      setSubmitLoading(false);
       throw err;
+    } finally {
+      setSubmitLoading(false);
     }
   }, []);
 
@@ -57,13 +79,18 @@ export const useQuiz = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await quizService.resetProgress();
-      setLoading(false);
+      console.log('Resetting progress.. .');
+      
+      const response = await quizService. resetProgress();
+      
+      console.log('Reset response:', response);
       return response;
     } catch (err) {
+      console.error('Error resetting progress:', err);
       setError(err.message || 'Failed to reset progress');
-      setLoading(false);
       throw err;
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -72,6 +99,7 @@ export const useQuiz = () => {
     loading,
     error,
     submitLoading,
+    assessmentId,
     fetchQuestions,
     submitAnswers,
     resetProgress,
