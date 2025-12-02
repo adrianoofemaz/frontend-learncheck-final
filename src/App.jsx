@@ -1,32 +1,32 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import './index.css';
+import React from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import "./index.css";
 
 // Providers/Contexts
-import { AuthProvider } from './context/AuthContext';
-import { UserProvider } from './context/UserContext';
-import { LearningProvider } from './context/LearningContext';
-import { QuizProvider } from './context/QuizContext';
-import { ProgressProvider } from './context/ProgressContext';
+import { AuthProvider } from "./context/AuthContext";
+import { UserProvider } from "./context/UserContext";
+import { LearningProvider } from "./context/LearningContext";
+import { QuizProvider } from "./context/QuizContext";
+import { ProgressProvider } from "./context/ProgressContext";
 
 // Layout
-import LayoutWrapper from './components/layout/LayoutWrapper';
+import LayoutWrapper from "./components/Layout/LayoutWrapper";
 
 // Pages - Auth
-import LoginPage from './pages/auth/LoginPage';
-import RegisterPage from './pages/auth/RegisterPage';
+import LoginPage from "./pages/auth/LoginPage";
+import RegisterPage from "./pages/auth/RegisterPage";
 
 // Pages - Main
-import HomePage from './pages/HomePage';
-import ClassDetailPage from './pages/ClassDetailPage';
-import LearningPage from './pages/LearningPage';
-import QuizPage from './pages/QuizPage';
-import QuizIntroPage from './pages/QuizIntroPage';
-import ResultsPage from './pages/ResultsPage';
-import NotFoundPage from './pages/NotFoundPage';
+import HomePage from "./pages/HomePage";
+import ClassDetailPage from "./pages/ClassDetailPage";
+import LearningPage from "./pages/LearningPage";
+import QuizPage from "./pages/QuizPage";
+import QuizIntroPage from "./pages/QuizIntroPage";
+import ResultsPage from "./pages/ResultsPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
 // Routes
-import { ROUTES } from './constants/routes';
+import { ROUTES } from "./constants/routes";
 
 function App() {
   return (
@@ -37,11 +37,14 @@ function App() {
             <QuizProvider>
               <Routes>
                 {/* Auth Routes */}
-                <Route path={ROUTES. REGISTER} element={<RegisterPage />} />
+                <Route path={ROUTES.REGISTER} element={<RegisterPage />} />
                 <Route path={ROUTES.LOGIN} element={<LoginPage />} />
 
                 {/* Redirect root to home */}
-                <Route path="/" element={<Navigate to={ROUTES.HOME} replace />} />
+                <Route
+                  path="/"
+                  element={<Navigate to={ROUTES.HOME} replace />}
+                />
 
                 {/* Main Routes */}
                 {/* HomePage - List Kelas */}
@@ -76,7 +79,7 @@ function App() {
 
                 {/* QuizIntroPage - Info Kuis */}
                 <Route
-                  path={ROUTES. QUIZ_INTRO}
+                  path={ROUTES.QUIZ_INTRO}
                   element={
                     <LayoutWrapper showBottomNav>
                       <QuizIntroPage />
@@ -86,7 +89,7 @@ function App() {
 
                 {/* QuizPage - Jawab Soal (iframe) */}
                 <Route
-                  path={ROUTES. QUIZ}
+                  path={ROUTES.QUIZ}
                   element={
                     <LayoutWrapper showBottomNav={false} showSidebar={false}>
                       <QuizPage />

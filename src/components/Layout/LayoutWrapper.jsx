@@ -3,11 +3,11 @@
  * Main layout wrapper dengan Navbar, Sidebar, Footer
  */
 
-import React from 'react';
-import Navbar from './Navbar';
-import Sidebar from './Sidebar';
-import Footer from './Footer';
-import BottomNav from './BottomNav';
+import React from "react";
+import Navbar from "./Navbar";
+import Sidebar from "./Sidebar";
+import Footer from "./Footer";
+import BottomNav from "./BottomNav";
 
 const LayoutWrapper = ({
   children,
@@ -27,9 +27,7 @@ const LayoutWrapper = ({
 
         {/* Main Content */}
         <main className="flex-1">
-          <div className="container mx-auto px-4 py-8">
-            {children}
-          </div>
+          <div className="container mx-auto px-4 py-8">{children}</div>
         </main>
       </div>
 
