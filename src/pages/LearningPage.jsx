@@ -29,9 +29,9 @@ const ModuleSidebar = ({ tutorials, currentTutorial, getTutorialProgress, onSele
   };
 
   return (
-    <div className="w-80 bg-white border-l border-gray-200 p-6 overflow-y-auto max-h-screen">
+    <div className="w-80 bg-white border-l border-gray-200 p-6 overflow-y-auto max-h-screen sticky top-0">
       <div className="mb-8">
-        <h3 className="text-lg font-bold text-gray-900 mb-4">Daftar Submodul</h3>
+        <h3 className="text-lg font-bold text-gray-900 mb-4">📚 Daftar Submodul</h3>
       </div>
 
       <div className="space-y-2">
@@ -74,7 +74,10 @@ const ModuleSidebar = ({ tutorials, currentTutorial, getTutorialProgress, onSele
               </div>
 
               {isCurrent && (
-                <button className="w-full text-left px-4 py-2 ml-4 mt-1 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded">
+                <button
+                  onClick={() => {}}
+                  className="w-full text-left px-4 py-2 ml-4 mt-1 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded"
+                >
                   → Quiz Submodul #{index + 1}
                 </button>
               )}
@@ -101,13 +104,15 @@ const LearningPage = () => {
     }
   };
 
-  const handleNextTutorial = () => {
+  const handleStartQuiz = () => {
     handleMarkComplete();
-    const currentIndex = tutorials.findIndex(t => t.id === currentTutorial?.id);
-    if (currentIndex < tutorials.length - 1) {
-      const nextTutorial = tutorials[currentIndex + 1];
-      navigate(`/learning/${nextTutorial.id}`);
+    if (currentTutorial?. id) {
+      navigate(`/quiz-intro/${currentTutorial.id}`);
     }
+  };
+
+  const handleSelectTutorial = (tutorialId) => {
+    navigate(`/learning/${tutorialId}`);
   };
 
   // ============ EFFECTS ============
@@ -116,7 +121,7 @@ const LearningPage = () => {
       const parsedId = parseInt(id);
       if (! isNaN(parsedId)) {
         selectTutorial(parsedId). catch((err) => {
-          console. error('Error selecting tutorial:', err);
+          console.error('Error selecting tutorial:', err);
         });
       }
     }
@@ -128,7 +133,6 @@ const LearningPage = () => {
   const progressPercentage = totalModules > 0 ? ((currentIndex + 1) / totalModules) * 100 : 0;
 
   const hasTutorials = tutorials.length > 0;
-  const canGoNext = hasTutorials && currentIndex >= 0 && currentIndex < tutorials.length - 1;
   const isLastModule = hasTutorials && currentIndex === tutorials.length - 1;
 
   // ============ RENDER - LOADING ============
@@ -168,8 +172,12 @@ const LearningPage = () => {
             {/* Progress Bar */}
             <div className="mb-6">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-700">Progress Membaca</span>
-                <span className="text-sm font-semibold text-green-600">{Math.round(progressPercentage)}%</span>
+                <span className="text-sm font-medium text-gray-700">
+                  Submodul {currentIndex + 1}/{totalModules}
+                </span>
+                <span className="text-sm font-semibold text-green-600">
+                  {Math.round(progressPercentage)}%
+                </span>
               </div>
               <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
                 <div
@@ -212,31 +220,13 @@ const LearningPage = () => {
                 </Button>
               )}
 
-              {isLastModule ?  (
-                <Button
-                  onClick={() => navigate(`/quiz-intro/${currentTutorial.id}`)}
-                  variant="primary"
-                  className="flex items-center gap-2"
-                >
-                  Quiz Submodul 1 →
-                </Button>
-              ) : canGoNext ? (
-                <Button
-                  onClick={handleNextTutorial}
-                  variant="primary"
-                  className="flex items-center gap-2"
-                >
-                  Quiz Submodul →
-                </Button>
-              ) : (
-                <Button
-                  onClick={() => navigate(`/quiz-intro/${currentTutorial.id}`)}
-                  variant="primary"
-                  className="flex items-center gap-2"
-                >
-                  Mulai Quiz →
-                </Button>
-              )}
+              <Button
+                onClick={handleStartQuiz}
+                variant="primary"
+                className="flex items-center gap-2"
+              >
+                ▶️ Mulai Quiz →
+              </Button>
             </div>
           </div>
         </div>
@@ -248,7 +238,7 @@ const LearningPage = () => {
           tutorials={tutorials}
           currentTutorial={currentTutorial}
           getTutorialProgress={getTutorialProgress}
-          onSelectTutorial={selectTutorial}
+          onSelectTutorial={handleSelectTutorial}
         />
       )}
     </div>

@@ -1,8 +1,7 @@
 /**
- * HomePage - SIMPLE VERSION
+ * HomePage
  * List semua classes/courses
- * Route: /
- * Click on class → ClassDetailPage
+ * Click on class → LANGSUNG ke LearningPage
  */
 
 import React, { useEffect } from 'react';
@@ -11,29 +10,32 @@ import { useLearning } from '../hooks/useLearning';
 import { useProgress } from '../context/ProgressContext';
 import Button from '../components/common/Button';
 import Card from '../components/common/Card';
+import Loading from '../components/common/Loading';
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const { modules, loading, error, fetchModules } = useLearning();
+  const { modules, tutorials, loading, error, fetchModules } = useLearning();
   const { getCompletionPercentage, getTutorialProgress } = useProgress();
 
   useEffect(() => {
     fetchModules();
   }, [fetchModules]);
 
+  // ✅ HANDLE SELECT CLASS - LANGSUNG KE LEARNING
   const handleSelectClass = (moduleId) => {
-    navigate(`/class/${moduleId}`);
+    const firstTutorial = tutorials?. find(
+      t => t.module_id === moduleId || t.moduleId === moduleId
+    );
+
+    if (firstTutorial?. id) {
+      navigate(`/learning/${firstTutorial.id}`);
+    } else {
+      console.error('No tutorial found for module:', moduleId);
+    }
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4 mx-auto"></div>
-          <p className="text-gray-600">Memuat kelas...</p>
-        </div>
-      </div>
-    );
+    return <Loading fullScreen text="Memuat kelas..." />;
   }
 
   if (error) {
@@ -52,7 +54,7 @@ const HomePage = () => {
   const completionPercentage = getCompletionPercentage();
 
   return (
-    <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-20 py-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       {/* Page Header */}
       <div className="mb-12">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">
@@ -72,7 +74,7 @@ const HomePage = () => {
             <div
               className="bg-blue-600 h-3 rounded-full transition-all duration-300"
               style={{ width: `${completionPercentage}%` }}
-            ></div>
+            />
           </div>
         </div>
       </div>
@@ -83,21 +85,26 @@ const HomePage = () => {
 
         {modules && modules.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {modules. map((cls) => {
-              const isCompleted = getTutorialProgress(cls.id);
-              const classProgress = isCompleted ? 100 : 0;
+            {modules.map((module) => {
+              const moduleCompleted = tutorials?.every(t =>
+                t.module_id === module.id || t.moduleId === module.id
+                  ? getTutorialProgress(t.id)
+                  : true
+              );
+
+              const moduleProgress = moduleCompleted ? 100 : 0;
 
               return (
                 <div
-                  key={cls.id}
-                  onClick={() => handleSelectClass(cls. id)}
+                  key={module.id}
+                  onClick={() => handleSelectClass(module. id)}
                   className="border border-gray-200 rounded-lg overflow-hidden bg-white hover:shadow-lg hover:border-blue-300 transition-all cursor-pointer group"
                 >
                   {/* Image */}
                   <div className="h-48 bg-gradient-to-br from-blue-400 to-blue-600 overflow-hidden flex items-center justify-center">
                     <img
-                      src="/assets/images/fotomodul.png"
-                      alt={cls.title}
+                      src={module.image || '/assets/images/fotomodul.png'}
+                      alt={module. title}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                     />
                   </div>
@@ -107,9 +114,9 @@ const HomePage = () => {
                     {/* Title & Status */}
                     <div className="flex items-start justify-between mb-3">
                       <h3 className="text-lg font-semibold text-gray-900 flex-1 group-hover:text-blue-600 transition-colors">
-                        {cls.title}
+                        {module.title}
                       </h3>
-                      {isCompleted && (
+                      {moduleCompleted && (
                         <span className="ml-2 inline-flex items-center justify-center w-6 h-6 bg-green-100 rounded-full flex-shrink-0">
                           <span className="text-green-600 font-bold text-sm">✓</span>
                         </span>
@@ -118,7 +125,7 @@ const HomePage = () => {
 
                     {/* Description */}
                     <p className="text-sm text-gray-600 mb-4 line-clamp-2 min-h-10">
-                      {cls.description || 'Pelajari topik ini dengan materi yang komprehensif'}
+                      {module.description || 'Pelajari topik ini dengan materi yang komprehensif'}
                     </p>
 
                     {/* Rating */}
@@ -135,23 +142,23 @@ const HomePage = () => {
                     <div className="mb-4">
                       <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
                         <span>Progres</span>
-                        <span>{classProgress}%</span>
+                        <span>{moduleProgress}%</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div
                           className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                          style={{ width: `${classProgress}%` }}
-                        ></div>
+                          style={{ width: `${moduleProgress}%` }}
+                        />
                       </div>
                     </div>
 
                     {/* Button */}
                     <Button
-                      onClick={() => handleSelectClass(cls.id)}
-                      variant={isCompleted ? 'secondary' : 'primary'}
+                      onClick={() => handleSelectClass(module.id)}
+                      variant={moduleCompleted ? 'secondary' : 'primary'}
                       fullWidth
                     >
-                      {isCompleted ? 'Lanjutkan Belajar' : 'Mulai Belajar'}
+                      {moduleCompleted ? '▶️ Lanjutkan Belajar' : '▶️ Mulai Belajar'}
                     </Button>
                   </div>
                 </div>

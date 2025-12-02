@@ -54,10 +54,10 @@ const ResultsPage = () => {
   }
 
   // ✅ GET current tutorial index & next tutorial
-  const currentIndex = tutorials.findIndex(t => t.id === currentTutorial?. id);
-  const hasNextTutorial = currentIndex < tutorials.length - 1;
+  const currentIndex = tutorials.findIndex(t => t. id === currentTutorial?. id);
+  const hasNextTutorial = currentIndex >= 0 && currentIndex < tutorials. length - 1;
   const nextTutorial = hasNextTutorial ? tutorials[currentIndex + 1] : null;
-  const isLastTutorial = currentIndex === tutorials.length - 1;
+  const isLastTutorial = currentIndex >= 0 && currentIndex === tutorials. length - 1;
 
   // ✅ PARSE result data - flexible untuk berbagai format API
   const correctAnswers = result.correct_count || result.benar || 0;
@@ -81,21 +81,28 @@ const ResultsPage = () => {
 
   // ✅ HANDLE "Coba Lagi" - ke quiz dengan tutorialId
   const handleRetry = () => {
-    if (currentTutorial?. id) {
+    if (currentTutorial?.id) {
       navigate(`/quiz-intro/${currentTutorial.id}`);
     }
   };
 
-  // ✅ HANDLE "Lanjut" - LANGSUNG ke learning berikutnya atau selesai
+  // ✅ HANDLE "Lanjut" - LANGSUNG ke learning berikutnya
   const handleNext = () => {
+    if (! currentTutorial?.id) {
+      console.error('Current tutorial ID tidak ada');
+      return;
+    }
+
     // Mark current sebagai selesai
-    updateTutorialProgress(currentTutorial. id, true);
+    updateTutorialProgress(currentTutorial.id, true);
     
-    if (hasNextTutorial && nextTutorial) {
+    if (hasNextTutorial && nextTutorial?. id) {
       // Lanjut ke learning berikutnya
+      console.log('Navigating to next learning:', nextTutorial.id);
       navigate(`/learning/${nextTutorial.id}`);
     } else if (isLastTutorial) {
-      // Selesai - ke beranda
+      // Selesai semua - ke beranda
+      console.log('All tutorials completed, going to home');
       navigate('/home');
     }
   };
@@ -109,18 +116,18 @@ const ResultsPage = () => {
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-2xl mx-auto px-4">
         
-        {/* ✅ SCORE CARD - SIMPLIFIED & FIXED */}
+        {/* ✅ SCORE CARD - CLEAN & FIXED */}
         <Card className="mb-8">
           <div className="text-center">
             <p className="text-sm text-gray-600 mb-6">Skor Anda</p>
             
-            {/* Score Display */}
+            {/* Score Display - Clean Layout */}
             <div className="mb-8">
-              <div className="inline-flex items-baseline gap-3">
-                <span className="text-7xl font-bold text-blue-600">{percentage}%</span>
+              <div className="flex items-center justify-center gap-6">
+                <div className="text-7xl font-bold text-blue-600">{percentage}%</div>
                 <div className="text-left">
                   <p className="text-sm text-gray-600">Jawaban Benar</p>
-                  <p className="text-3xl font-bold text-green-600">
+                  <p className="text-4xl font-bold text-green-600">
                     {correctAnswers}/{totalQuestions}
                   </p>
                 </div>
@@ -176,14 +183,14 @@ const ResultsPage = () => {
         )}
 
         {/* Progress Info */}
-        {tutorials.length > 0 && (
+        {tutorials.length > 0 && currentIndex >= 0 && (
           <Card className="mb-8">
             <h3 className="text-lg font-bold text-gray-900 mb-4">📈 Progress Pembelajaran</h3>
             
             <div className="mb-4">
               <div className="flex justify-between items-center mb-2">
                 <span className="text-sm text-gray-600">
-                  Submodul {currentIndex + 1} dari {tutorials. length}
+                  Submodul {currentIndex + 1} dari {tutorials.length}
                 </span>
                 <span className="text-sm font-semibold text-blue-600 max-w-xs truncate">
                   {currentTutorial?.title}
@@ -197,10 +204,10 @@ const ResultsPage = () => {
               </div>
             </div>
 
-            {hasNextTutorial && (
+            {hasNextTutorial && nextTutorial && (
               <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
                 <p className="text-sm text-green-800">
-                  ✅ <span className="font-semibold">Submodul berikutnya:</span> {nextTutorial. title}
+                  ✅ <span className="font-semibold">Submodul berikutnya:</span> {nextTutorial.title}
                 </p>
               </div>
             )}
@@ -215,7 +222,7 @@ const ResultsPage = () => {
           </Card>
         )}
 
-        {/* ✅ ACTION BUTTONS - FIXED LOGIC */}
+        {/* ✅ ACTION BUTTONS - BENAR!  */}
         <div className="space-y-3">
           {/* Coba Lagi Button */}
           <Button
@@ -226,7 +233,7 @@ const ResultsPage = () => {
             🔄 Coba Lagi
           </Button>
 
-          {/* ✅ LANJUT / SELESAI - FIXED!  */}
+          {/* ✅ LANJUT / SELESAI BUTTON */}
           <Button
             onClick={handleNext}
             variant="primary"
