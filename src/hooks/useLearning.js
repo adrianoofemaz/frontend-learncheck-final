@@ -20,7 +20,7 @@ export const useLearning = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await tutorialService. getModules();
+      const response = await tutorialService.getModules();
       console.log('Modules response:', response);
       setModules(response || []);
     } catch (err) {
@@ -34,7 +34,7 @@ export const useLearning = () => {
   /**
    * Fetch tutorials for a specific module
    * Get MOCK list untuk sidebar navigation
-   * @param {number} moduleId - Module ID (e. g., 9 untuk "Belajar Dasar AI")
+   * @param {number} moduleId - Module ID (e.g., 9 untuk "Belajar Dasar AI")
    */
   const fetchTutorials = useCallback(async (moduleId) => {
     setLoading(true);
@@ -46,7 +46,10 @@ export const useLearning = () => {
       console.log('Tutorials list response:', response);
 
       if (Array.isArray(response)) {
-        setTutorials(response);
+        // ✅ SORT by ID ascending (1, 2, 3, ...)
+        const sortedTutorials = response.sort((a, b) => a.id - b.id);
+        setTutorials(sortedTutorials);
+        console.log('Tutorials sorted by ID:', sortedTutorials);
       } else {
         setTutorials([]);
       }
@@ -65,7 +68,7 @@ export const useLearning = () => {
    */
   const selectTutorial = useCallback(async (tutorialId) => {
     // Coba dari array dulu (untuk navigasi cepat)
-    const tutorial = tutorials.find(t => t. id === tutorialId);
+    const tutorial = tutorials.find(t => t.id === tutorialId);
     
     if (tutorial && tutorial.content) {
       setCurrentTutorial(tutorial);
@@ -98,7 +101,7 @@ export const useLearning = () => {
    */
   const fetchTutorialDetail = useCallback(async (id) => {
     // Coba dari array dulu
-    const tutorial = tutorials.find(t => t. id === id);
+    const tutorial = tutorials.find(t => t.id === id);
     if (tutorial && tutorial.content) {
       setCurrentTutorial(tutorial);
       console.log('Found tutorial in array:', tutorial);

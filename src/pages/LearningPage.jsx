@@ -61,7 +61,7 @@ const ModuleSidebar = ({ tutorials, currentTutorial, getTutorialProgress, onSele
         <div className="space-y-2">
           {tutorials.map((tutorial, index) => {
             const isCompleted = getTutorialProgress(tutorial.id);
-            const isCurrent = currentTutorial?.id === tutorial. id;
+            const isCurrent = currentTutorial?. id === tutorial.id;
 
             return (
               <div key={tutorial.id}>
@@ -82,7 +82,7 @@ const ModuleSidebar = ({ tutorials, currentTutorial, getTutorialProgress, onSele
                     </span>
                     <div className="flex-1 min-w-0">
                       <p className={`text-sm font-medium truncate ${
-                        isCurrent ?  'text-blue-600' : 'text-gray-900'
+                        isCurrent ?     'text-blue-600' : 'text-gray-900'
                       }`}>
                         {tutorial.title}
                       </p>
@@ -134,7 +134,7 @@ const BottomNavigationBar = ({ onHome, onMarkComplete, onStartQuiz, isCompleted,
 
         {/* Center - Mark complete button */}
         <div className="flex gap-4">
-          {!  isCompleted && (
+          {!     isCompleted && (
             <Button
               onClick={onMarkComplete}
               variant="secondary"
@@ -178,10 +178,10 @@ const LearningPage = () => {
   const { currentTutorial, loading, error, selectTutorial, tutorials, fetchTutorials } = useLearning();
   const { updateTutorialProgress, getTutorialProgress } = useProgress();
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [tutorialsFetched, setTutorialsFetched] = useState(false); // ✅ Track if fetched
+  const [tutorialsFetched, setTutorialsFetched] = useState(false);
 
-  const setSidebar =() => {
-    setSidebarOpen(!sidebarOpen);
+  const setSidebar = () => {
+    setSidebarOpen(!  sidebarOpen);
   }
 
   // ============ HANDLERS ============
@@ -193,7 +193,7 @@ const LearningPage = () => {
 
   const handleStartQuiz = () => {
     handleMarkComplete();
-    if (currentTutorial?. id) {
+    if (currentTutorial?.  id) {
       navigate(`/quiz-intro/${currentTutorial.id}`);
     }
   };
@@ -203,24 +203,21 @@ const LearningPage = () => {
   };
 
   // ============ EFFECTS ============
-  // ✅ FIX: Only fetch once, then select
   useEffect(() => {
-    if (! tutorialsFetched && id) {
+    if (!  tutorialsFetched && id) {
       const parsedId = parseInt(id);
-      if (! isNaN(parsedId)) {
-        // Fetch tutorials once
+      if (!  isNaN(parsedId)) {
         fetchTutorials(1);
         setTutorialsFetched(true);
       }
     }
-  }, [id]); // ✅ Only depend on ID! 
+  }, [id]);
 
-  // ✅ FIX: Select tutorial after ID changes
   useEffect(() => {
     if (id && tutorials. length > 0) {
       const parsedId = parseInt(id);
-      if (!isNaN(parsedId)) {
-        selectTutorial(parsedId). catch((err) => {
+      if (! isNaN(parsedId)) {
+        selectTutorial(parsedId).  catch((err) => {
           console. error('Error selecting tutorial:', err);
         });
       }
@@ -235,14 +232,14 @@ const LearningPage = () => {
   const isCompleted = getTutorialProgress(currentTutorial?.id);
 
   // ============ RENDER - LOADING ============
-  if (loading || ! currentTutorial) {
+  if (loading || !  currentTutorial) {
     return <Loading fullScreen text="Memuat materi..." />;
   }
 
   // ============ RENDER - ERROR ============
   if (error) {
     return (
-      <div className=" flex items-center justify-center">
+      <div className="flex items-center justify-center min-h-screen">
         <div className="max-w-md text-center">
           <Alert
             type="error"
@@ -261,12 +258,12 @@ const LearningPage = () => {
   return (
     <div className={`flex h-screen`}>
       {/* Main Content - with bottom padding for fixed bar */}
-      <div className={`flex-1 overflow-y-auto pb-24 ${sidebarOpen ? 'pr-48' : ''}`}>
-        <div className="max-w-4xl mx-auto px-8 py-12">
+      <div className={`flex-1 overflow-y-auto pb-24 pt-8 ${sidebarOpen ? 'pr-48' : ''}`}>
+        <div className=" max-w-4xl mx-auto px-8">
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-blue-600 mb-2">Belajar Dasar AI</h1>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">{currentTutorial.title}</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{currentTutorial. title}</h2>
 
             {/* Progress Bar */}
             <div className="mb-6">

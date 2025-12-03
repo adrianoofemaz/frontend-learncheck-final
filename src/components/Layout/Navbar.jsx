@@ -1,9 +1,9 @@
 /**
  * Navbar Component
- * Top navigation bar - Sesuai Figma design dari backup-learncheck-1
+ * Top navigation bar - dengan Hide on Scroll effect
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/solid';
@@ -13,14 +13,40 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isHidden, setIsHidden] = useState(false);
+  const [lastScrollTop, setLastScrollTop] = useState(0);
 
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
-  return (
-    <nav className="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm">
+  // ✅ Hide navbar on scroll down
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      
+      if (scrollTop > lastScrollTop && scrollTop > 100) {
+        // Scrolling DOWN
+        setIsHidden(true);
+      } else {
+        // Scrolling UP
+        setIsHidden(false);
+      }
+      
+      setLastScrollTop(scrollTop <= 0 ? 0 : scrollTop);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollTop]);
+
+  return(
+    <nav 
+      className={`bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm transition-all duration-300 ${
+        isHidden ? '-translate-y-full' : 'translate-y-0'
+      }`}
+    >
       <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-20">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -35,12 +61,12 @@ const Navbar = () => {
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center gap-6">
-            {isAuthenticated ? (
+            {isAuthenticated?(
               <>
                 <div className="flex items-center gap-3">
                   <div className="text-right">
                     <p className="text-gray-900 font-semibold text-sm">
-                      Halo, {user?. name || 'User'}
+                      Halo, {user?.name || 'User'}
                     </p>
                     <p className="text-gray-500 text-xs">
                       {user?.name + '@email.com'}
@@ -64,7 +90,7 @@ const Navbar = () => {
                   </Button>
                 </div>
               </>
-            ) : (
+            ):(
               <>
                 <Button onClick={() => navigate('/login')} variant="secondary" size="sm">
                   Masuk
@@ -79,10 +105,10 @@ const Navbar = () => {
           {/* Mobile Menu Button */}
           <div className="md:hidden">
             <button
-              onClick={() => setMobileMenuOpen(! mobileMenuOpen)}
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="text-gray-600 hover:text-gray-900 transition-colors"
             >
-              {mobileMenuOpen ? (
+              {mobileMenuOpen ?  (
                 <XMarkIcon className="w-6 h-6" />
               ) : (
                 <Bars3Icon className="w-6 h-6" />
