@@ -36,7 +36,7 @@ const LayoutWrapper = ({
       {showFooter && <Footer />}
 
       {/* Bottom Navigation - FIXED */}
-      {showBottomNav && <BottomNav />}
+      {/* {showBottomNav && <BottomNav />} */}
     </div>
   );
 };

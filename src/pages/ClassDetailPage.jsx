@@ -25,7 +25,7 @@ const HeroSection = ({ module, completionPercentage, onStartTutorial, tutorials 
   };
 
   return (
-    <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-20">
+    <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-20 pt-10">
       <div className="flex flex-col md:flex-row items-center mb-8 gap-10 p-8 bg-blue-50 rounded-lg shadow-md transition-all duration-500 ease-in-out">
         <div className="transition-all transform duration-500 ease-in-out hover:scale-105 w-full md:w-120 h-auto">
           <img

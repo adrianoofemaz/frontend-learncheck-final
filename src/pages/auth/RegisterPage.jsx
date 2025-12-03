@@ -53,12 +53,12 @@ const RegisterPage = () => {
         <img 
           src="/assets/images/Dicoding Login.png" 
           alt="Dicoding Logo"
-          className="object-fill w-full -translate-y-26"
+          className="w-full h-full object-cover"
         />
       </div>
 
       {/* Divider */}
-      <div className="auth-divider"></div>
+      <div className="auth-container h-screen flex flex-col lg:flex-row bg-white overflow-hidden"></div>
 
       {/* Right Side - Form */}
       <div className="auth-right flex-1 bg-white w-full lg:w-1/2 flex items-center justify-center">
