@@ -28,7 +28,7 @@ const HeroSection = ({ module, completionPercentage, onStartTutorial, tutorials 
     <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-20 pt-10">
       <div className="flex flex-col md:flex-row items-center mb-8 gap-10 p-8 bg-blue-50 rounded-lg shadow-md transition-all duration-500 ease-in-out">
         <div className="transition-all transform duration-500 ease-in-out hover:scale-105 w-full md:w-120 h-auto">
-          <img
+          <img  
             src="/assets/images/fotomodul.png"
             alt="Course Thumbnail"
             className="w-full h-auto rounded-lg object-cover max-w-full"
@@ -96,11 +96,11 @@ const HeroSection = ({ module, completionPercentage, onStartTutorial, tutorials 
           <div className="flex flex-col sm:flex-row gap-4 mt-2">
             <button
               onClick={handleBelajarSekarang}
-              className="bg-blue-500 text-white hover:bg-blue-600 px-7 py-2 rounded-xl w-full sm:w-auto transition-colors duration-300 ease-in-out font-medium"
+              className="bg-blue-500 text-white hover:bg-blue-600 px-7 py-2 rounded-xl w-full sm:w-auto transition-colors duration-300 ease-in-out font-medium cursor-pointer"
             >
               Mulai Belajar
             </button>
-            <button className="border-2 border-blue-400 hover:text-white hover:bg-blue-500 text-blue-400 px-7 py-2 rounded-xl w-full sm:w-auto transition-colors duration-300 ease-in-out font-medium">
+            <button className="border-2 border-blue-400 hover:text-white hover:bg-blue-500 text-blue-400 px-7 py-2 rounded-xl w-full sm:w-auto transition-colors duration-300 ease-in-out font-medium cursor-pointer">
               Informasi Kelas
             </button>
           </div>

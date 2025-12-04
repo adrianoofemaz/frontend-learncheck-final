@@ -1,7 +1,5 @@
 /**
  * LearningPage
- * Tutorial/learning material display page dengan sidebar navigasi
- * Layout: Navbar (top) + Main content (left) + Sidebar (right) + Bottom nav (fixed)
  */
 
 import React, { useEffect, useState } from 'react';
