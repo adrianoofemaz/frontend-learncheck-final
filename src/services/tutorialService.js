@@ -116,12 +116,12 @@ export const tutorialService = {
    * Cari dari tutorials list
    */
   getTutorialDetail: async (id) => {
+          console.log('Fetching tutorial detail for ID:', id);
     try {
-      const tutorials = await tutorialService.getTutorials(null);
-      const tutorial = tutorials. find(t => t.id == id);
-      
+      const tutorial = await api.get(API_ENDPOINTS.TUTORIAL_DETAIL(id));
+
       if (tutorial) {
-        console.log('Found tutorial:', tutorial. title);
+        console.log('Found tutorial:', tutorial.data.tutorial);
         return tutorial;
       }
       

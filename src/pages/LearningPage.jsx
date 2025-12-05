@@ -200,28 +200,40 @@ const LearningPage = () => {
     navigate(`/learning/${tutorialId}`);
   };
 
-  // ============ EFFECTS ============
   useEffect(() => {
-    if (!  tutorialsFetched && id) {
-      const parsedId = parseInt(id);
-      if (!  isNaN(parsedId)) {
-        fetchTutorials(1);
-        setTutorialsFetched(true);
-      }
-    }
-  }, [id]);
-
-  useEffect(() => {
-    if (id && tutorials. length > 0) {
+    if (id) {
+      console.log(id);
       const parsedId = parseInt(id);
       if (! isNaN(parsedId)) {
-        selectTutorial(parsedId).  catch((err) => {
+        selectTutorial(parsedId). catch((err) => {
           console. error('Error selecting tutorial:', err);
         });
       }
     }
-  }, [id, tutorials, selectTutorial]);
+  }, [id, selectTutorial]);
+  
+  // ============ EFFECTS ============
+  // useEffect(() => {
+  //   if (!  tutorialsFetched && id) {
+  //     const parsedId = parseInt(id);
+  //     if (!  isNaN(parsedId)) {
+  //       fetchTutorials(1);
+  //       setTutorialsFetched(true);
+  //     }
+  //   }
+  // }, [id]);
 
+  // useEffect(() => {
+  //   if (id && tutorials. length > 0) {
+  //     const parsedId = parseInt(id);
+  //     if (! isNaN(parsedId)) {
+  //       selectTutorial(parsedId).  catch((err) => {
+  //         console. error('Error selecting tutorial:', err);
+  //       });
+  //     }
+  //   }
+  // }, [id, tutorials, selectTutorial]);
+  
   // ============ STATE CALCULATIONS ============
   const currentIndex = tutorials.findIndex(t => t.id === currentTutorial?.id);
   const totalModules = tutorials.length;
