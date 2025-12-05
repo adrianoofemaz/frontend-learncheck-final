@@ -9,6 +9,8 @@ import Navbar from './Navbar';
 import Footer from './Footer';
 import BottomNav from './BottomNav';
 
+
+
 const LayoutWrapper = ({
   children,
   showNavbar = true,
@@ -17,7 +19,7 @@ const LayoutWrapper = ({
   fullHeight = false,
 }) => {
   return (
-    <div className={`flex flex-col min-h-screen bg-gray-50 ${fullHeight ? 'h-screen' : ''}`}>
+    <div className={`flex flex-col min-h-screen bg-blue-50 bg-[url('public/assets/images/bg-pattern.svg')] ${fullHeight ? 'h-screen' : ''}`}>
       {/* Navbar */}
       {showNavbar && <Navbar />}
 

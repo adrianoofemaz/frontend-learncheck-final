@@ -2,7 +2,7 @@
  * LearningPage
  */
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useLearning } from '../hooks/useLearning';
 import { useProgress } from '../context/ProgressContext';
@@ -10,7 +10,7 @@ import { MaterialContent } from '../components/features/learning';
 import { Alert } from '../components/common';
 import Button from '../components/common/Button';
 import Loading from '../components/common/Loading';
-import { ChevronDoubleLeftIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
+import {  ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
 
 // ============ SIDEBAR COMPONENT ============
 
@@ -201,11 +201,13 @@ const LearningPage = () => {
   };
 
   useEffect(() => {
+      console.log(currentTutorial, 'asdjkasbdja')
     if (id) {
-      console.log(id);
+      console.log(id)
       const parsedId = parseInt(id);
       if (! isNaN(parsedId)) {
         selectTutorial(parsedId). catch((err) => {
+          
           console. error('Error selecting tutorial:', err);
         });
       }
@@ -233,7 +235,7 @@ const LearningPage = () => {
   //     }
   //   }
   // }, [id, tutorials, selectTutorial]);
-  
+
   // ============ STATE CALCULATIONS ============
   const currentIndex = tutorials.findIndex(t => t.id === currentTutorial?.id);
   const totalModules = tutorials.length;
@@ -273,7 +275,7 @@ const LearningPage = () => {
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-blue-600 mb-2">Belajar Dasar AI</h1>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">{currentTutorial. title}</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">ajsdjasd</h2>
 
             {/* Progress Bar */}
             <div className="mb-6">
@@ -296,13 +298,13 @@ const LearningPage = () => {
 
           {/* Breadcrumb */}
           <p className="text-sm text-gray-500 mb-6">
-            Belajar / Modul / {currentTutorial.title}
+            Belajar / Modul / adsdasdasd  
           </p>
 
           {/* Content */}
           <MaterialContent
-            title={currentTutorial.title}
-            content={currentTutorial.content}
+            title='asdasdsa'
+            content={currentTutorial.data.content}
             loading={loading}
           />
         </div>

@@ -8,11 +8,6 @@ import tutorialService from '../services/tutorialService';
 
 export const useLearning = () => {
   const [modules, setModules] = useState([]);
-  // const [tutorials, setTutorials] = useState([]);
-  const [currentTutorial, setCurrentTutorial] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
   const [tutorials] = useState([
     { id: 35363, title: 'Penerapan AI dalam Dunia Nyata' },
     { id: 35368, title: 'Pengenalan AI' },
@@ -25,6 +20,9 @@ export const useLearning = () => {
     { id: 35403, title: 'Model Training' },
     { id: 35408, title: 'Deployment & Monitoring' },
   ]);
+  const [currentTutorial, setCurrentTutorial] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   /**
    * Fetch all modules (statis)
