@@ -4,12 +4,10 @@
  * Sidebar TIDAK ada di sini
  */
 
-import React from 'react';
-import Navbar from './Navbar';
-import Footer from './Footer';
-import BottomNav from './BottomNav';
-
-
+import React from "react";
+import Navbar from "./Navbar";
+import Footer from "./Footer";
+import BottomNav from "./BottomNav";
 
 const LayoutWrapper = ({
   children,
@@ -19,25 +17,37 @@ const LayoutWrapper = ({
   fullHeight = false,
 }) => {
   return (
-    <div className={`flex flex-col min-h-screen bg-blue-50 bg-[url('public/assets/images/bg-pattern.svg')] ${fullHeight ? 'h-screen' : ''}`}>
-      {/* Navbar */}
-      {showNavbar && <Navbar />}
+    <div
+      className={`relative min-h-screen bg-blue-50 ${
+        fullHeight ? "h-screen" : ""
+      }`}
+    >
+      {/* BACKGROUND IMAGE ONLY */}
+      <img
+        src="/assets/images/bg-pattern.svg"
+        alt="bg-pattern"
+        aria-hidden="true"
+        className="pointer-events-none select-none
+                   absolute top-0 left-0 w-full h-full 
+                   object-cover opacity-20 z-0"
+      />
 
-      {/* Main Content - dengan padding bottom untuk fixed BottomNav */}
-      <main className={`${fullHeight ? 'flex-1 overflow-hidden' : 'flex-1'}`}>
-        {fullHeight ? (
-          children
-        ) : (
-          <div className="container mx-auto px-4">
-            {children}
-          </div>
-        )}
-      </main>
+      {/* FOREGROUND CONTENT */}
+      <div className="relative z-10 flex flex-col min-h-screen">
+        {showNavbar && <Navbar />}
 
-      {/* Footer */}
-      {showFooter && <Footer />}
+        <main className={`${fullHeight ? "flex-1 overflow-hidden" : "flex-1"}`}>
+          {fullHeight ? (
+            children
+          ) : (
+            <div className="container mx-auto px-4">{children}</div>
+          )}
+        </main>
 
-      {/* Bottom Navigation - FIXED */}
+        {showFooter && <Footer />}
+      </div>
+
+      {/* BottomNav jika ada */}
       {/* {showBottomNav && <BottomNav />} */}
     </div>
   );
