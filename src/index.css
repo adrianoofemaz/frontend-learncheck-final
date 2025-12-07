@@ -1,5 +1,5 @@
 /* Font - HARUS DI PALING ATAS */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
 
 @import "tailwindcss";
 
@@ -7,9 +7,9 @@
    CSS VARIABLES (easy theming)
    ============================== */
 :root {
-  --color-bg-body: #f0f4ff;          /* Body background */
+  --color-bg-body: #f0f4ff; /* Body background */
   --color-text-base: #1f2937;
-  --color-bottom-bar-bg: #06111C;
+  --color-bottom-bar-bg: #06111c;
   --color-bottom-bar-border: #142233;
   --color-bottom-bar-text: #c9d1d9;
   --color-scrollbar-track: #f0f3f5;
@@ -20,12 +20,25 @@
   --content-card-width: 880px;
 }
 
-html, body {
+html,
+/* Light Theme */
+.theme-light {
+  background-color: white;
+  color: black;
+}
+
+/* Dark Theme */
+.theme-dark {
+  background-color: #1f1e1e;
+  /* text-color: #ffffff; */
+  /* color: white; */
+}
+body {
   width: 100%;
   min-height: 100%;
   overflow-x: hidden;
   scroll-behavior: smooth;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   background: var(--color-bg-body);
   color: var(--color-text-base);
 }
@@ -40,12 +53,12 @@ body {
 
 /* ✅ HIDE SCROLLBAR tapi tetap bisa scroll */
 body::-webkit-scrollbar {
-  display: none;  /* Hide scrollbar */
+  display: none; /* Hide scrollbar */
 }
 
 body {
-  -ms-overflow-style: none;  /* IE dan Edge */
-  scrollbar-width: none;      /* Firefox */
+  -ms-overflow-style: none; /* IE dan Edge */
+  scrollbar-width: none; /* Firefox */
 }
 
 /* Firefox - Hide semua scrollbar */
@@ -63,15 +76,29 @@ body {
    ANIMATIONS
    ============================== */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-. animate-fadeIn { animation: fadeIn 0.3s ease-in; }
-.animate-slideUp { animation: slideUp 0.28s ease-out; }
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-in;
+}
+.animate-slideUp {
+  animation: slideUp 0.28s ease-out;
+}
 
 /* ==============================
    TAILWIND COMPONENT HELPERS
@@ -112,9 +139,16 @@ body {
 /* ==============================
    HELPERS
    ============================== */
-.hide-scrollbar::-webkit-scrollbar { display: none; }
-.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-. has-bottom-bar { padding-bottom: 80px; }
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.has-bottom-bar {
+  padding-bottom: 80px;
+}
 
 /* ==============================
    PATTERN / BACKGROUND (LayoutWrapper)
@@ -142,7 +176,7 @@ body {
   inset: 0;
   z-index: 5;
   pointer-events: none;
-  background: rgba(255,255,255,0.78);
+  background: rgba(255, 255, 255, 0.78);
   transition: background 160ms ease;
 }
 
@@ -167,9 +201,13 @@ body {
   margin: 0 auto;
   position: relative;
   border-radius: 16px; /* full container rounded */
-  overflow: hidden;     /* ensure no gap and that blue/top and body are clipped into one shape */
-  box-shadow: 0 14px 50px rgba(16,24,40,0.06);
-  background: linear-gradient(180deg, #2d6df6 0%, #2563eb 100%); /* fall-back so top shows if needed */
+  overflow: hidden; /* ensure no gap and that blue/top and body are clipped into one shape */
+  box-shadow: 0 14px 50px rgba(16, 24, 40, 0.06);
+  background: linear-gradient(
+    180deg,
+    #2d6df6 0%,
+    #2563eb 100%
+  ); /* fall-back so top shows if needed */
 }
 
 /* blue strip area implemented as pseudo element so card and bar are one visual unit */
@@ -180,15 +218,15 @@ body {
   left: 0;
   right: 0;
   height: 60px; /* controls height of blue area */
-  background: linear-gradient(180deg,#2d6df6 0%,#2563eb 100%);
+  background: linear-gradient(180deg, #2d6df6 0%, #2563eb 100%);
   z-index: 6;
 }
 
 /* place the three dots in the left corner of the blue area */
-.quiz-hero . window-controls {
+.quiz-hero .window-controls {
   position: absolute;
   left: 18px;
-  top: 24px; 
+  top: 24px;
   display: flex;
   gap: 8px;
   z-index: 12;
@@ -200,12 +238,18 @@ body {
   height: 14px;
   border-radius: 9999px;
   display: inline-block;
-  box-shadow: 0 1px 0 rgba(0,0,0,0.06) inset;
-  border: 1px solid rgba(255,255,255,0.25);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06) inset;
+  border: 1px solid rgba(255, 255, 255, 0.25);
 }
-.window-dot.dot-red { background: #ff5f56; }
-.window-dot. dot-yellow { background: #ffbd2e; }
-.window-dot. dot-green { background: #27c93f; }
+.window-dot.dot-red {
+  background: #ff5f56;
+}
+.window-dot.dot-yellow {
+  background: #ffbd2e;
+}
+.window-dot.dot-green {
+  background: #27c93f;
+}
 
 /* badge centered overlapping the blue bar and the white body */
 .quiz-badge {
@@ -216,7 +260,7 @@ body {
   color: #fff;
   padding: 10px 28px;
   border-radius: 9999px;
-  box-shadow: 0 10px 24px rgba(37,99,235,0.18);
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.18);
   font-weight: 600;
   z-index: 14;
 }
@@ -245,7 +289,7 @@ body {
 }
 
 /* subtitle / quote */
-.quiz-hero-body p. lead {
+.quiz-hero-body p.lead {
   color: #475569;
   margin-bottom: 20px;
   font-style: italic;
@@ -254,12 +298,12 @@ body {
 /* inner info card (single card) */
 .quiz-info-card {
   background: #ffffff;
-  border: 1px solid rgba(15,23,42,0.06);
+  border: 1px solid rgba(15, 23, 42, 0.06);
   border-radius: 12px;
   padding: 22px 20px;
   margin: 18px auto 28px;
   max-width: 820px;
-  box-shadow: 0 6px 18px rgba(16,24,40,0.04);
+  box-shadow: 0 6px 18px rgba(16, 24, 40, 0.04);
   text-align: left;
 }
 
@@ -293,18 +337,18 @@ body {
   justify-content: center;
   background: #f0f8ff;
   color: #2563eb;
-  border: 1px solid rgba(37,99,235,0.06);
+  border: 1px solid rgba(37, 99, 235, 0.06);
 }
 
 /* CTA button (centered below info card) */
 .quiz-cta {
   display: inline-block;
-  background: linear-gradient(180deg,#2d6df6,#2563eb);
+  background: linear-gradient(180deg, #2d6df6, #2563eb);
   color: #fff;
   padding: 12px 36px;
   border-radius: 999px;
   font-weight: 700;
-  box-shadow: 0 16px 34px rgba(37,99,235,0.18);
+  box-shadow: 0 16px 34px rgba(37, 99, 235, 0.18);
   margin-top: 6px;
 }
 
@@ -312,27 +356,57 @@ body {
    Responsive tweaks
    ============================== */
 @media (max-width: 768px) {
-  . quiz-hero {
+  .quiz-hero {
     max-width: calc(100% - 32px);
     margin: 0 16px;
   }
-  . quiz-hero::before { height: 56px; }
-  .quiz-hero . window-controls { top: 12px; left: 12px; }
-  .quiz-badge { padding: 8px 20px; margin-top: -16px; font-size: 14px; }
-  .quiz-hero-body { padding: 28px 18px; margin-top: 28px; }
-  .quiz-info-card { padding: 16px; margin: 14px auto 20px; }
-  .quiz-hero-body h1 { font-size: 1.75rem; }
+  .quiz-hero::before {
+    height: 56px;
+  }
+  .quiz-hero.window-controls {
+    top: 12px;
+    left: 12px;
+  }
+  .quiz-badge {
+    padding: 8px 20px;
+    margin-top: -16px;
+    font-size: 14px;
+  }
+  .quiz-hero-body {
+    padding: 28px 18px;
+    margin-top: 28px;
+  }
+  .quiz-info-card {
+    padding: 16px;
+    margin: 14px auto 20px;
+  }
+  .quiz-hero-body h1 {
+    font-size: 1.75rem;
+  }
 }
 
 /* ==============================
    SMALL VISUAL TWEAKS FOR LEARNING PAGE (content helpers)
    ============================== */
-.material-foreground . breadcrumb { margin-bottom: 1rem; }
-.material-foreground h1, .material-foreground h2 { color: #0b4ee6; }
-.material-foreground a { color: #1d4ed8; text-decoration: underline; }
-.material-foreground img { max-width: 100%; height: auto; display: block; }
-.material-foreground pre, .material-foreground code {
-  background: rgba(250,250,250,0.9);
+.material-foreground .breadcrumb {
+  margin-bottom: 1rem;
+}
+.material-foreground h1,
+.material-foreground h2 {
+  color: #0b4ee6;
+}
+.material-foreground a {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+.material-foreground img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+.material-foreground pre,
+.material-foreground code {
+  background: rgba(250, 250, 250, 0.9);
   padding: 0.5rem;
   border-radius: 6px;
   overflow: auto;
@@ -340,7 +414,7 @@ body {
 
 /* Accessibility focus outline adjustments for keyboard users */
 :focus {
-  outline: 3px solid rgba(59,130,246,0.30);
+  outline: 3px solid rgba(59, 130, 246, 0.3);
   outline-offset: 2px;
 }
 
@@ -355,22 +429,29 @@ body {
   padding: 14px 18px;
   border-radius: 12px;
   background: #ffffff;
-  border: 1px solid rgba(15,23,42,0.06);
-  box-shadow: 0 8px 24px rgba(16,24,40,0.04);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.04);
   opacity: 1;
   transform: translateY(0);
-  transition: opacity 240ms cubic-bezier(. 2,. 9,.28,1), transform 280ms cubic-bezier(.2,. 9,.28,1);
+  transition: opacity 240ms cubic-bezier(0.2, 0.9, 0.28, 1),
+    transform 280ms cubic-bezier(0.2, 0.9, 0.28, 1);
   pointer-events: auto;
   outline: none;
 }
 
 /* tipe feedback */
-.feedback. correct { border-left: 4px solid #16a34a; }   /* hijau */
-.feedback.incorrect { border-left: 4px solid #ef4444; } /* merah */
-.feedback. neutral { border-left: 4px solid transparent; }
+.feedback.correct {
+  border-left: 4px solid #16a34a;
+} /* hijau */
+.feedback.incorrect {
+  border-left: 4px solid #ef4444;
+} /* merah */
+.feedback.neutral {
+  border-left: 4px solid transparent;
+}
 
 /* inner content layout */
-.feedback . feedback-inner {
+.feedback.feedback-inner {
   display: flex;
   gap: 12px;
   align-items: flex-start;
@@ -380,7 +461,7 @@ body {
 }
 
 /* icon area kecil */
-.feedback . feedback-icon {
+.feedback.feedback-icon {
   width: 36px;
   height: 36px;
   border-radius: 9999px;
@@ -389,14 +470,22 @@ body {
   justify-content: center;
   background: #eff6ff;
   color: #2563eb;
-  border: 1px solid rgba(37,99,235,0. 06);
+  border: 1px solid rgba(37, 99, 235, 0 06);
 }
 
 /* make sure feedback can be focused (used by JS to focus for accessibility) */
-. feedback[tabindex] { outline: none; }
+.feedback[tabindex] {
+  outline: none;
+}
 
 /* small screens */
 @media (max-width: 768px) {
-  .feedback { padding: 12px 14px; margin: 14px auto; border-radius: 10px; }
-  .feedback . feedback-inner { font-size: 0.95rem; }
+  .feedback {
+    padding: 12px 14px;
+    margin: 14px auto;
+    border-radius: 10px;
+  }
+  .feedback.feedback-inner {
+    font-size: 0.95rem;
+  }
 }

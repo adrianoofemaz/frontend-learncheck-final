@@ -4,19 +4,24 @@
  * Route: /home (Beranda)
  */
 
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useLearning } from '../hooks/useLearning';
-import { useProgress } from '../context/ProgressContext';
-import Button from '../components/common/Button';
-import Card from '../components/common/Card';
-import Loading from '../components/common/Loading';
-import { Alert } from '../components/common';
+import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useLearning } from "../hooks/useLearning";
+import { useProgress } from "../context/ProgressContext";
+import Button from "../components/Common/Button";
+import Card from "../components/common/Card";
+import Loading from "../components/common/Loading";
+import { Alert } from "../components/common";
 
 // ============ SECTION COMPONENTS ============
 
-const HeroSection = ({ module, completionPercentage, onStartTutorial, tutorials }) => {
-  if (! module) return null;
+const HeroSection = ({
+  module,
+  completionPercentage,
+  onStartTutorial,
+  tutorials,
+}) => {
+  if (!module) return null;
 
   const handleBelajarSekarang = () => {
     if (tutorials && tutorials.length > 0) {
@@ -25,10 +30,10 @@ const HeroSection = ({ module, completionPercentage, onStartTutorial, tutorials 
   };
 
   return (
-    <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-20 pt-10">
+    <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-20 pt-30">
       <div className="flex flex-col md:flex-row items-center mb-8 gap-10 p-8 bg-white rounded-lg shadow-md transition-all duration-500 ease-in-out">
         <div className="transition-all transform duration-500 ease-in-out hover:scale-105 w-full md:w-120 h-auto">
-          <img  
+          <img
             src="/assets/images/fotomodul.png"
             alt="Course Thumbnail"
             className="w-full h-auto rounded-lg object-cover max-w-full"
@@ -38,14 +43,14 @@ const HeroSection = ({ module, completionPercentage, onStartTutorial, tutorials 
         <div className="flex flex-col gap-2 w-full">
           <div>
             <p className="font-medium text-sm mb-2">
-              4.  87
+              4. 87
               <span className="text-yellow-500 text-xl ml-2">★ ★ ★ ★ ★</span>
             </p>
             <h2 className="text-2xl sm:text-3xl font-bold">{module.title}</h2>
           </div>
 
           <div className="space-x-3 mb-2">
-            {['AI', 'Machine Learning', 'Data Science'].  map((tag) => (
+            {["AI", "Machine Learning", "Data Science"].map((tag) => (
               <span
                 key={tag}
                 className="py-1 px-4 bg-blue-200 rounded-2xl text-sm transition-all duration-300 ease-in-out hover:bg-blue-300"
@@ -150,13 +155,16 @@ const DescriptionSection = ({ module }) => {
       <Card className="p-8">
         <div className="space-y-6 text-gray-700 leading-relaxed">
           <p className="text-lg">
-            {module.description || 'Pelajari fundamental Artificial Intelligence dengan materi interaktif dan quiz'}
+            {module.description ||
+              "Pelajari fundamental Artificial Intelligence dengan materi interaktif dan quiz"}
           </p>
 
           <div>
             <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <span className="w-6 h-6 bg-blue-100 rounded flex items-center justify-center text-blue-600 text-lg">▶</span>
-              Apa yang akan kamu pelajari?  
+              <span className="w-6 h-6 bg-blue-100 rounded flex items-center justify-center text-blue-600 text-lg">
+                ▶
+              </span>
+              Apa yang akan kamu pelajari?
             </h3>
             <ul className="space-y-2 ml-8">
               <li className="flex items-start gap-2">
@@ -184,21 +192,27 @@ const DescriptionSection = ({ module }) => {
 
           <div>
             <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <span className="w-6 h-6 bg-yellow-100 rounded flex items-center justify-center text-yellow-600 text-lg">⚠</span>
+              <span className="w-6 h-6 bg-yellow-100 rounded flex items-center justify-center text-yellow-600 text-lg">
+                ⚠
+              </span>
               Prasyarat
             </h3>
             <p className="ml-8">
-              Tidak ada prasyarat khusus.   Kelas ini dirancang untuk pemula yang ingin belajar tentang Artificial Intelligence.  
+              Tidak ada prasyarat khusus. Kelas ini dirancang untuk pemula yang
+              ingin belajar tentang Artificial Intelligence.
             </p>
           </div>
 
           <div>
             <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <span className="w-6 h-6 bg-green-100 rounded flex items-center justify-center text-green-600 text-lg">✓</span>
+              <span className="w-6 h-6 bg-green-100 rounded flex items-center justify-center text-green-600 text-lg">
+                ✓
+              </span>
               Target Peserta
             </h3>
             <p className="ml-8">
-              Kelas ini cocok untuk siapa saja yang tertarik mempelajari AI, baik dari latar belakang teknis maupun non-teknis. 
+              Kelas ini cocok untuk siapa saja yang tertarik mempelajari AI,
+              baik dari latar belakang teknis maupun non-teknis.
             </p>
           </div>
         </div>
@@ -211,7 +225,8 @@ const DescriptionSection = ({ module }) => {
 
 const ClassDetailPage = () => {
   const navigate = useNavigate();
-  const { modules, tutorials, loading, error, fetchModules, fetchTutorials } = useLearning();
+  const { modules, tutorials, loading, error, fetchModules, fetchTutorials } =
+    useLearning();
   const { getCompletionPercentage } = useProgress();
 
   useEffect(() => {
@@ -237,7 +252,11 @@ const ClassDetailPage = () => {
       <div className="flex items-center justify-center min-h-screen">
         <Card className="max-w-md text-center">
           <Alert type="error" title="Error" message={error} />
-          <Button onClick={() => fetchModules()} variant="primary" className="mt-4">
+          <Button
+            onClick={() => fetchModules()}
+            variant="primary"
+            className="mt-4"
+          >
             Coba Lagi
           </Button>
         </Card>
@@ -251,33 +270,33 @@ const ClassDetailPage = () => {
   const benefits = [
     {
       id: 1,
-      icon: '📜',
-      title: 'Sertifikat Kelulusan',
-      desc: 'Dapatkan sertifikat resmi setelah menyelesaikan kursus.',
+      icon: "📜",
+      title: "Sertifikat Kelulusan",
+      desc: "Dapatkan sertifikat resmi setelah menyelesaikan kursus.",
     },
     {
       id: 2,
-      icon: '💬',
-      title: 'Forum Diskusi',
-      desc: 'Berinteraksi dengan instruktur dan sesama siswa.',
+      icon: "💬",
+      title: "Forum Diskusi",
+      desc: "Berinteraksi dengan instruktur dan sesama siswa.",
     },
     {
       id: 3,
-      icon: '📚',
-      title: 'Modul Lengkap',
-      desc: 'Akses materi belajar interaktif dan terstruktur.',
+      icon: "📚",
+      title: "Modul Lengkap",
+      desc: "Akses materi belajar interaktif dan terstruktur.",
     },
     {
       id: 4,
-      icon: '✏️',
-      title: 'Uji & Latihan',
-      desc: 'Uji pemahaman Anda dengan berbagai soal latihan.',
+      icon: "✏️",
+      title: "Uji & Latihan",
+      desc: "Uji pemahaman Anda dengan berbagai soal latihan.",
     },
     {
       id: 5,
-      icon: '🎯',
-      title: 'Ujian Akhir',
-      desc: 'Evaluasi komprehensif untuk mengukur pencapaian materi.',
+      icon: "🎯",
+      title: "Ujian Akhir",
+      desc: "Evaluasi komprehensif untuk mengukur pencapaian materi.",
     },
   ];
 
