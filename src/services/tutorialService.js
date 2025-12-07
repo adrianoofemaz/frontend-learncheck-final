@@ -10,46 +10,16 @@ import authService from './authService';
 
 // Mock tutorials - ONLY untuk sidebar/title references (BUKAN fallback)
 const MOCK_TUTORIALS = [
-  {
-    id: 35363,
-    title: 'Penerapan AI dalam Dunia Nyata',
-  },
-  {
-    id: 35368,
-    title: 'Pengenalan AI',
-  },
-  {
-    id: 35373,
-    title: 'Taksonomi AI',
-  },
-  {
-    id: 35378,
-    title: 'AI Workflow',
-  },
-  {
-    id: 35383,
-    title: '[Story] Belajar Mempermudah Pekerjaan dengan AI',
-  },
-  {
-    id: 35388,
-    title: 'Kriteria Data untuk AI',
-  },
-  {
-    id: 35393,
-    title: 'Pengenalan Data',
-  },
-  {
-    id: 35398,
-    title: 'Dataset Preparation',
-  },
-  {
-    id: 35403,
-    title: 'Model Training',
-  },
-  {
-    id: 35428,
-    title: 'Tipe-Tipe Machine Learning',
-  },
+  { id: 35363, title: 'Penerapan AI dalam Dunia Nyata' },
+  { id: 35368, title: 'Pengenalan AI' },
+  { id: 35373, title: 'Taksonomi AI' },
+  { id: 35378, title: 'AI Workflow' },
+  { id: 35383, title: '[Story] Belajar Mempermudah Pekerjaan dengan AI' },
+  { id: 35388, title: 'Kriteria Data untuk AI' },
+  { id: 35393, title: 'Pengenalan Data' },
+  { id: 35398, title: 'Dataset Preparation' },
+  { id: 35403, title: 'Model Training' },
+  { id: 35428, title: 'Tipe-Tipe Machine Learning' },
 ];
 
 export const tutorialService = {
@@ -73,7 +43,7 @@ export const tutorialService = {
    * HANYA untuk sidebar/reference - bukan actual content
    */
   getMockTutorialTitle: (id) => {
-    const tutorial = MOCK_TUTORIALS. find((t) => t.id === id);
+    const tutorial = MOCK_TUTORIALS.find((t) => t.id === id);
     return tutorial?.title || `Tutorial ${id}`;
   },
 
@@ -87,7 +57,7 @@ export const tutorialService = {
 
   /**
    * Get tutorial detail by ID from backend
-   * Response: { status, message, data: { content, title, ...  } }
+   * Response: { status, message, data: { content, title, ... } }
    */
   getTutorialDetail: async (id) => {
     console.log('🔍 Fetching tutorial detail for ID:', id);
@@ -105,17 +75,17 @@ export const tutorialService = {
       const response = await api.get(url);
       console.log('✅ Tutorial detail response:', response);
 
-      // ✅ Backend returns: { status, message, data: { content, title, ... } }
-      const tutorialData = response.data?. data;
+      const tutorialData = response.data?.data;
 
+      // Jika backend tidak mengembalikan konten, anggap tidak ditemukan
       if (!tutorialData || !tutorialData.content) {
-        throw new Error(`Tutorial ${id} tidak ditemukan`);
+        return null;
       }
 
       // Format ke struktur yang diharapkan oleh component
       const tutorial = {
-        id: id,
-        title: tutorialData.title || this.getMockTutorialTitle(id),
+        id,
+        title: tutorialData.title || tutorialService.getMockTutorialTitle(id),
         data: {
           content: tutorialData.content,
         },
@@ -124,7 +94,12 @@ export const tutorialService = {
       console.log('✅ Found tutorial:', tutorial);
       return tutorial;
     } catch (err) {
-      console.error('❌ Error fetching tutorial detail:', err. message);
+      // Jika backend balas 404, kembalikan null agar UI bisa fallback
+      if (err.response?.status === 404) {
+        console.warn(`⚠️ Tutorial ${id} tidak ditemukan (404)`);
+        return null;
+      }
+      console.error('❌ Error fetching tutorial detail:', err.message);
       throw err;
     }
   },

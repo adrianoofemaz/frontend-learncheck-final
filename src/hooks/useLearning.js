@@ -55,14 +55,21 @@ export const useLearning = () => {
 
       console.log(`📄 useLearning: Fetching content for tutorial ${tutorialId}...`);
       const tutorial = await tutorialService.getTutorialDetail(tutorialId);
-      console.log(tutorial);
-      setCurrentTutorial(tutorial.  data.  tutorial);
+
+      // Fallback jika 404 / null
+      if (!tutorial) {
+        setCurrentTutorial(null);
+        setError(`Materi untuk tutorial ${tutorialId} belum tersedia.`);
+        return null;
+      }
+
+      setCurrentTutorial(tutorial);
       console.log(`✅ useLearning: Tutorial ${tutorialId} content loaded`);
-      return tutorial.  data. tutorial;
+      return tutorial;
     } catch (err) {
-      console. error(`❌ Error fetching tutorial ${tutorialId}:`, err);
+      console.error(`❌ Error fetching tutorial ${tutorialId}:`, err);
       setError(err.message);
-      throw err;
+      return null; // jangan lempar lagi, biar UI bisa render error
     } finally {
       setLoading(false);
     }
@@ -72,22 +79,20 @@ export const useLearning = () => {
    * Select tutorial - fetch content from backend
    * @param {number} tutorialId - Tutorial ID
    */
-  const selectTutorial = useCallback(async (tutorialId) => {
-    try {
-      console.log(`📋 useLearning: Selecting tutorial ${tutorialId}... `);
+  const selectTutorial = useCallback(
+    async (tutorialId) => {
+      console.log(`📋 useLearning: Selecting tutorial ${tutorialId}...`);
       const tutorial = await getTutorialDetail(tutorialId);
-      console.log(`✅ useLearning: Tutorial ${tutorialId} selected`);
-
-      if (!  tutorial) {
-        throw new Error(`Tutorial ${tutorialId} not found`);
+      if (!tutorial) {
+        // error sudah diset di getTutorialDetail
+        return null;
       }
+      console.log(`✅ useLearning: Tutorial ${tutorialId} selected`);
       setCurrentTutorial(tutorial);
-    } catch (err) {
-      console.error('Error selecting tutorial:', err);
-      setError(err.message);
-      throw err;
-    }
-  }, [getTutorialDetail]);
+      return tutorial;
+    },
+    [getTutorialDetail]
+  );
 
   /**
    * Fetch tutorials - just return static list
@@ -100,31 +105,39 @@ export const useLearning = () => {
   /**
    * Fetch tutorial detail by ID (fallback manual)
    */
-  const fetchTutorialDetail = useCallback(async (id) => {
-    // Try dari array dulu
-    const tutorial = tutorials.find(t => t. id === id);
-    if (tutorial && tutorial.content) {
-      setCurrentTutorial(tutorial);
-      console.log('Found tutorial in array:', tutorial);
-      return tutorial;
-    }
+  const fetchTutorialDetail = useCallback(
+    async (id) => {
+      // Try dari array dulu
+      const tutorial = tutorials.find((t) => t.id === id);
+      if (tutorial && tutorial.content) {
+        setCurrentTutorial(tutorial);
+        console.log('Found tutorial in array:', tutorial);
+        return tutorial;
+      }
 
-    // Fallback: fetch dari backend
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await tutorialService.getTutorialDetail(id);
-      console. log('Tutorial detail response:', response);
-      setCurrentTutorial(response);
-      return response;
-    } catch (err) {
-      console.error('Error fetching tutorial detail:', err);
-      setError(err.message || 'Failed to fetch tutorial');
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  }, [tutorials]);
+      // Fallback: fetch dari backend
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await tutorialService.getTutorialDetail(id);
+        console.log('Tutorial detail response:', response);
+        if (!response) {
+          setError(`Materi untuk tutorial ${id} belum tersedia.`);
+          setCurrentTutorial(null);
+          return null;
+        }
+        setCurrentTutorial(response);
+        return response;
+      } catch (err) {
+        console.error('Error fetching tutorial detail:', err);
+        setError(err.message || 'Failed to fetch tutorial');
+        return null;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [tutorials]
+  );
 
   // Fetch modules on mount
   useEffect(() => {
