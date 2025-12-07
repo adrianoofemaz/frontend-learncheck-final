@@ -26,7 +26,7 @@ const HeroSection = ({ module, completionPercentage, onStartTutorial, tutorials 
 
   return (
     <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-20 pt-10">
-      <div className="flex flex-col md:flex-row items-center mb-8 gap-10 p-8 bg-blue-50 rounded-lg shadow-md transition-all duration-500 ease-in-out">
+      <div className="flex flex-col md:flex-row items-center mb-8 gap-10 p-8 bg-white rounded-lg shadow-md transition-all duration-500 ease-in-out">
         <div className="transition-all transform duration-500 ease-in-out hover:scale-105 w-full md:w-120 h-auto">
           <img  
             src="/assets/images/fotomodul.png"
@@ -112,17 +112,26 @@ const HeroSection = ({ module, completionPercentage, onStartTutorial, tutorials 
 
 const BenefitsSection = ({ benefits }) => {
   return (
-    <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-20 my-10">
-      <h2 className="text-2xl font-bold mb-8">Fitur & Manfaat Kelas</h2>
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h2 className="text-2xl font-bold mb-8 text-center lg:text-left">
+        Fitur & Manfaat Kelas
+      </h2>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 lg:gap-8 items-stretch">
         {benefits.map((benefit) => (
-          <div key={benefit.id} className="text-center">
-            <div className="w-12 h-12 mx-auto mb-3 bg-blue-100 rounded-lg flex items-center justify-center text-2xl font-bold text-blue-600">
+          <div
+            key={benefit.id}
+            className="flex flex-col h-full items-center text-center bg-white backdrop-blur rounded-xl shadow-sm p-4 sm:p-5"
+          >
+            <div className="w-12 h-12 mb-3 bg-blue-100 rounded-lg flex items-center justify-center text-2xl font-bold text-blue-600">
               {benefit.icon}
             </div>
-            <h3 className="font-semibold text-gray-900 mb-2">{benefit.title}</h3>
-            <p className="text-sm text-gray-600">{benefit.desc}</p>
+            <h3 className="font-semibold text-gray-900 mb-2 min-h-[48px] flex items-center justify-center">
+              {benefit.title}
+            </h3>
+            <p className="text-sm text-gray-600 leading-relaxed">
+              {benefit.desc}
+            </p>
           </div>
         ))}
       </div>

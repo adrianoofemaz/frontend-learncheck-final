@@ -1,5 +1,8 @@
 /**
  * LearningPage
+ * ✅ Keep: Working backend + content
+ * ✅ Add: Sticky top bar + Card wrapper + Dynamic titles
+ * ✅ Fix: Full background + Dynamic title per submodul
  */
 
 import React, { useEffect, useState } from 'react';
@@ -9,12 +12,20 @@ import { useProgress } from '../context/ProgressContext';
 import { MaterialContent } from '../components/features/learning';
 import { Alert } from '../components/common';
 import Button from '../components/common/Button';
+import Card from '../components/common/Card';
 import Loading from '../components/common/Loading';
-import { ChevronDoubleLeftIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
 
 // ============ SIDEBAR COMPONENT ============
 
-const ModuleSidebar = ({ tutorials, currentTutorial, getTutorialProgress, onSelectTutorial, isOpen, onClose }) => {
+const ModuleSidebar = ({
+  tutorials,
+  currentTutorial,
+  getTutorialProgress,
+  onSelectTutorial,
+  isOpen,
+  onClose,
+}) => {
   const getStatusColor = (tutorialId, isCompleted) => {
     if (isCompleted) return 'text-green-500';
     if (currentTutorial?.id === tutorialId) return 'text-blue-600';
@@ -31,27 +42,20 @@ const ModuleSidebar = ({ tutorials, currentTutorial, getTutorialProgress, onSele
     <>
       <div
         onClick={onClose}
-        className={`absolute ${isOpen ? 'rounded-full translate-x-8' : 'rounded-l-full translate-x-78'}   p-2 bg-blue-900 w-8 z-100 top-20 right-76 transform transition-transform duration-300 ease-in-ou text-gray-500 hover:text-gray-700 text-2xl`}
+        className={`absolute ${
+          isOpen ? 'rounded-full translate-x-8' : 'rounded-l-full translate-x-78'
+        } p-2 bg-blue-900 w-8 z-100 top-20 right-76 transform transition-transform duration-300 ease-in-out text-gray-500 hover:text-gray-700 text-2xl cursor-pointer`}
       >
-        {isOpen ? <ChevronRightIcon color='white' /> : <ChevronLeftIcon color='white' />}
+        {isOpen ? <ChevronRightIcon color="white" /> : <ChevronLeftIcon color="white" />}
       </div>
-      {/* ✅ OVERLAY - close sidebar when click outside (mobile only) */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-opacity-50 z-30 lg:hidden"
-          onClick={onClose}
-        />
-      )}
 
-      {/* ✅ SIDEBAR - Fixed on mobile, sticky on desktop */}
+      {isOpen && <div className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden" onClick={onClose} />}
+
       <div
-        className={`fixed h-full lg:absolute top-0 right-0 w-80 pt-32 bg-white border-l border-gray-200 px-6 overflow-y-auto z-20 transform transition-transform duration-300 ease-in-out ${
-          isOpen ? 'translate-x-0' : 'translate-x-120 '
+        className={`fixed h-full  top-0 right-0 w-80 pt-32 bg-white border-l border-gray-200 px-6 overflow-y-auto z-20 transform transition-transform duration-300 ease-in-out ${
+          isOpen ? 'translate-x-0' : 'translate-x-120'
         }`}
       >
-        {/* ✅ CLOSE BUTTON - only show on mobile */}
-       
-
         <div className="mb-2 pt-8 lg:pt-0">
           <h3 className="text-lg font-bold text-gray-900">Daftar Submodul</h3>
         </div>
@@ -59,7 +63,7 @@ const ModuleSidebar = ({ tutorials, currentTutorial, getTutorialProgress, onSele
         <div className="space-y-2">
           {tutorials.map((tutorial, index) => {
             const isCompleted = getTutorialProgress(tutorial.id);
-            const isCurrent = currentTutorial?. id === tutorial.id;
+            const isCurrent = currentTutorial?.id === tutorial.id;
 
             return (
               <div key={tutorial.id}>
@@ -68,10 +72,8 @@ const ModuleSidebar = ({ tutorials, currentTutorial, getTutorialProgress, onSele
                     onSelectTutorial(tutorial.id);
                     onClose();
                   }}
-                  className={`w-full text-left px-4 py-3 rounded-lg transition-all ${
-                    isCurrent
-                      ? 'bg-blue-50 border border-blue-300'
-                      : 'hover:bg-gray-50 border border-transparent'
+                  className={`w-full text-left px-4 py-3 rounded-lg transition-all cursor-pointer ${
+                    isCurrent ? 'bg-blue-50 border border-blue-300' : 'hover:bg-gray-50 border border-transparent'
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -79,9 +81,11 @@ const ModuleSidebar = ({ tutorials, currentTutorial, getTutorialProgress, onSele
                       {getStatusIcon(isCompleted, isCurrent)}
                     </span>
                     <div className="flex-1 min-w-0">
-                      <p className={`text-sm font-medium truncate ${
-                        isCurrent ?     'text-blue-600' : 'text-gray-900'
-                      }`}>
+                      <p
+                        className={`text-sm font-medium truncate ${
+                          isCurrent ? 'text-blue-600' : 'text-gray-900'
+                        }`}
+                      >
                         {tutorial.title}
                       </p>
                       <p className="text-xs text-gray-500">
@@ -101,7 +105,7 @@ const ModuleSidebar = ({ tutorials, currentTutorial, getTutorialProgress, onSele
                 {isCurrent && (
                   <button
                     onClick={() => {}}
-                    className="w-full text-left px-4 py-2 ml-4 mt-1 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded"
+                    className="w-full text-left px-4 py-2 ml-4 mt-1 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded cursor-pointer"
                   >
                     → Quiz Submodul #{index + 1}
                   </button>
@@ -121,41 +125,26 @@ const BottomNavigationBar = ({ onHome, onMarkComplete, onStartQuiz, isCompleted,
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-8 py-4 z-20">
       <div className="flex items-center justify-between max-w-7xl mx-auto">
-        {/* Left - Back button */}
-        <Button
-          onClick={onHome}
-          variant="secondary"
-          className="flex items-center gap-2"
-        >
+        <Button onClick={onHome} variant="secondary" className="flex items-center gap-2 cursor-pointer">
           ← Beranda
         </Button>
 
-        {/* Center - Mark complete button */}
         <div className="flex gap-4">
-          {!     isCompleted && (
-            <Button
-              onClick={onMarkComplete}
-              variant="secondary"
-            >
+          {!isCompleted && (
+            <Button onClick={onMarkComplete} variant="secondary" className="cursor-pointer">
               ✓ Tandai Selesai
             </Button>
           )}
         </div>
 
-        {/* Right - Quiz button + Toggle sidebar */}
         <div className="flex gap-4 items-center">
-          <Button
-            onClick={onStartQuiz}
-            variant="primary"
-            className="flex items-center gap-2"
-          >
+          <Button onClick={onStartQuiz} variant="primary" className="flex items-center gap-2 cursor-pointer">
             ▶️ Mulai Quiz →
           </Button>
 
-          {/* Toggle sidebar button for mobile */}
           <button
             onClick={onToggleSidebar}
-            className="lg:hidden p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
+            className="lg:hidden p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors cursor-pointer"
             title="Toggle sidebar"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -173,14 +162,14 @@ const BottomNavigationBar = ({ onHome, onMarkComplete, onStartQuiz, isCompleted,
 const LearningPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { currentTutorial, loading, error, selectTutorial, tutorials, fetchTutorials } = useLearning();
+  // ✅ KEEP: selectTutorial (working backend)
+  const { currentTutorial, loading, error, selectTutorial, tutorials } = useLearning();
   const { updateTutorialProgress, getTutorialProgress } = useProgress();
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [tutorialsFetched, setTutorialsFetched] = useState(false);
 
   const setSidebar = () => {
-    setSidebarOpen(!  sidebarOpen);
-  }
+    setSidebarOpen(!sidebarOpen);
+  };
 
   // ============ HANDLERS ============
   const handleMarkComplete = () => {
@@ -191,7 +180,7 @@ const LearningPage = () => {
 
   const handleStartQuiz = () => {
     handleMarkComplete();
-    if (currentTutorial?.  id) {
+    if (currentTutorial?.id) {
       navigate(`/quiz-intro/${currentTutorial.id}`);
     }
   };
@@ -201,50 +190,57 @@ const LearningPage = () => {
   };
 
   // ============ EFFECTS ============
+  // ✅ KEEP: selectTutorial logic
   useEffect(() => {
-    if (!  tutorialsFetched && id) {
+    if (id) {
       const parsedId = parseInt(id);
-      if (!  isNaN(parsedId)) {
-        fetchTutorials(1);
-        setTutorialsFetched(true);
-      }
-    }
-  }, [id]);
-
-  useEffect(() => {
-    if (id && tutorials. length > 0) {
-      const parsedId = parseInt(id);
-      if (! isNaN(parsedId)) {
-        selectTutorial(parsedId).  catch((err) => {
-          console. error('Error selecting tutorial:', err);
+      if (!isNaN(parsedId)) {
+        selectTutorial(parsedId).catch((err) => {
+          console.error('Error selecting tutorial:', err);
         });
       }
     }
-  }, [id, tutorials, selectTutorial]);
+  }, [id, selectTutorial]);
 
   // ============ STATE CALCULATIONS ============
-  const currentIndex = tutorials.findIndex(t => t.id === currentTutorial?.id);
+  const currentIndex = tutorials.findIndex((t) => t.id === currentTutorial?.id);
   const totalModules = tutorials.length;
   const progressPercentage = totalModules > 0 ? ((currentIndex + 1) / totalModules) * 100 : 0;
-
   const isCompleted = getTutorialProgress(currentTutorial?.id);
 
+  // ✅ DYNAMIC: Static title dari tutorials array (berubah per submodul)
+  const currentTutorialTitle = tutorials.find((t) => t.id === currentTutorial?.id)?.title || '';
+
   // ============ RENDER - LOADING ============
-  if (loading || !  currentTutorial) {
+  if (loading) {
     return <Loading fullScreen text="Memuat materi..." />;
   }
 
-  // ============ RENDER - ERROR ============
+  // ============ RENDER - ERROR (termasuk 404 -> message set di hook) ============
   if (error) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="max-w-md text-center">
+          <Alert type="error" title="Terjadi Kesalahan" message={error} />
+          <Button onClick={() => navigate('/home')} variant="primary" className="mt-4 cursor-pointer">
+            Kembali ke Beranda
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // ============ RENDER - NO DATA ============
+  if (!currentTutorial) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="max-w-md text-center">
           <Alert
-            type="error"
-            title="Terjadi Kesalahan"
-            message={error}
+            type="warning"
+            title="Materi belum tersedia"
+            message="Silakan kembali ke beranda atau pilih submodul lain."
           />
-          <Button onClick={() => navigate('/home')} variant="primary" className="mt-4">
+          <Button onClick={() => navigate('/home')} variant="primary" className="mt-4 cursor-pointer">
             Kembali ke Beranda
           </Button>
         </div>
@@ -254,49 +250,53 @@ const LearningPage = () => {
 
   // ============ RENDER - SUCCESS ============
   return (
-    <div className={`flex h-screen`}>
-      {/* Main Content - with bottom padding for fixed bar */}
-      <div className={`flex-1 overflow-y-auto pb-24 pt-8 ${sidebarOpen ? 'pr-48' : ''}`}>
-        <div className=" max-w-4xl mx-auto px-8">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold text-blue-600 mb-2">Belajar Dasar AI</h1>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">{currentTutorial. title}</h2>
+    <div className="flex h-screen">
+      {/* ✅ STICKY TOP BAR */}
+      <div className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 px-8 py-4 z-40">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-blue-600">LearnCheck</h1>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-gray-600">Halo, user</span>
+            <button className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold cursor-pointer">
+              U
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content - with top and bottom padding for fixed bars */}
+      {/* ✅ FIX: Added min-h-screen for full background + changed pr-48 to pr-80 */}
+      <div className={`flex-1 overflow-y-auto pt-20 pb-24 min-h-screen ${sidebarOpen ? 'pr-80' : ''} transition-all duration-300`}>
+        <div className="max-w-4xl mx-auto px-8">
+          {/* ✅ HEADER IN CARD */}
+          <Card className="mb-8">
+            <div className="mb-6">
+              <h1 className="text-4xl font-bold text-blue-600 mb-2">Belajar Dasar AI</h1>
+              {/* ✅ DYNAMIC TITLE: Berubah sesuai submodul (Penerapan AI, Pengenalan AI, dll) */}
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">{currentTutorialTitle}</h2>
+            </div>
 
             {/* Progress Bar */}
             <div className="mb-6">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-700">
-                  Submodul {currentIndex + 1}/{totalModules}
-                </span>
-                <span className="text-sm font-semibold text-green-600">
-                  {Math.round(progressPercentage)}%
-                </span>
+                <span className="text-sm font-medium text-gray-700">Submodul {currentIndex + 1}/{totalModules}</span>
+                <span className="text-sm font-semibold text-green-600">{Math.round(progressPercentage)}%</span>
               </div>
               <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-green-500 transition-all duration-300"
-                  style={{ width: `${progressPercentage}%` }}
-                />
+                <div className="h-full bg-green-500 transition-all duration-300" style={{ width: `${progressPercentage}%` }} />
               </div>
             </div>
-          </div>
+          </Card>
 
           {/* Breadcrumb */}
-          <p className="text-sm text-gray-500 mb-6">
-            Belajar / Modul / {currentTutorial.title}
-          </p>
+          <p className="text-sm text-gray-500 mb-6">Belajar / Modul / {currentTutorialTitle}</p>
 
-          {/* Content */}
-          <MaterialContent
-            title={currentTutorial.title}
-            content={currentTutorial.content}
-            loading={loading}
-          />
+          {/* ✅ CONTENT: Working with correct path */}
+          <MaterialContent title={currentTutorialTitle} content={currentTutorial.data.content} loading={loading} />
         </div>
       </div>
 
-      {/* ✅ RIGHT SIDEBAR - Always show if tutorials exist */}
+      {/* ✅ RIGHT SIDEBAR */}
       {tutorials && tutorials.length > 0 && (
         <ModuleSidebar
           tutorials={tutorials}
@@ -308,7 +308,7 @@ const LearningPage = () => {
         />
       )}
 
-      {/* ✅ BOTTOM NAVIGATION BAR - Fixed */}
+      {/* ✅ BOTTOM NAVIGATION BAR */}
       <BottomNavigationBar
         onHome={() => navigate('/home')}
         onMarkComplete={handleMarkComplete}
