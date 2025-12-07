@@ -49,10 +49,16 @@ const ModuleSidebar = ({
         {isOpen ? <ChevronRightIcon color="white" /> : <ChevronLeftIcon color="white" />}
       </div>
 
-      {isOpen && <div className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden" onClick={onClose} />}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/30 backdrop-blur-[1px] z-30 lg:hidden"
+          onClick={onClose}
+          aria-hidden="true"
+        />
+      )}
 
       <div
-        className={`fixed h-full  top-0 right-0 w-80 pt-32 bg-white border-l border-gray-200 px-6 overflow-y-auto z-20 transform transition-transform duration-300 ease-in-out ${
+        className={`fixed h-full top-0 right-0 w-80 pt-32 bg-white border-l border-gray-200 px-6 overflow-y-auto z-20 transform transition-transform duration-300 ease-in-out ${
           isOpen ? 'translate-x-0' : 'translate-x-120'
         }`}
       >
@@ -265,8 +271,9 @@ const LearningPage = () => {
       </div>
 
       {/* Main Content - with top and bottom padding for fixed bars */}
-      {/* ✅ FIX: Added min-h-screen for full background + changed pr-48 to pr-80 */}
-      <div className={`flex-1 overflow-y-auto pt-20 pb-24 min-h-screen ${sidebarOpen ? 'pr-80' : ''} transition-all duration-300`}>
+      <div
+        className={`flex-1 overflow-y-auto pt-20 pb-24 min-h-screen ${sidebarOpen ? 'pr-80' : ''} transition-all duration-300`}
+      >
         <div className="max-w-4xl mx-auto px-8">
           {/* ✅ HEADER IN CARD */}
           <Card className="mb-8">
@@ -279,11 +286,16 @@ const LearningPage = () => {
             {/* Progress Bar */}
             <div className="mb-6">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-700">Submodul {currentIndex + 1}/{totalModules}</span>
+                <span className="text-sm font-medium text-gray-700">
+                  Submodul {currentIndex + 1}/{totalModules}
+                </span>
                 <span className="text-sm font-semibold text-green-600">{Math.round(progressPercentage)}%</span>
               </div>
               <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                <div className="h-full bg-green-500 transition-all duration-300" style={{ width: `${progressPercentage}%` }} />
+                <div
+                  className="h-full bg-green-500 transition-all duration-300"
+                  style={{ width: `${progressPercentage}%` }}
+                />
               </div>
             </div>
           </Card>
