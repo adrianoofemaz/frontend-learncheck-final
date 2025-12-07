@@ -2,13 +2,12 @@
  * Tutorial Service
  * Handle tutorials/learning materials
  */
-
 import api from './api';
 import { API_ENDPOINTS } from '../constants/apiEndpoints';
 import { MODULES_DATA } from '../constants/modulesData';
 import authService from './authService';
 
-// Mock tutorials - ONLY untuk sidebar/title references (BUKAN fallback)
+// Mock tutorials - ONLY untuk sidebar/title references (BUKAN fallback konten)
 const MOCK_TUTORIALS = [
   { id: 35363, title: 'Penerapan AI dalam Dunia Nyata' },
   { id: 35368, title: 'Pengenalan AI' },
@@ -24,14 +23,14 @@ const MOCK_TUTORIALS = [
 
 export const tutorialService = {
   /**
-   * Get all modules (statis data)
+   * Get all modules (static data)
    */
   getModules: async () => {
     return MODULES_DATA;
   },
 
   /**
-   * Get module by ID (statis)
+   * Get module by ID (static)
    */
   getModule: async (id) => {
     const module = MODULES_DATA.find((m) => m.id == id);
@@ -57,13 +56,17 @@ export const tutorialService = {
 
   /**
    * Get tutorial detail by ID from backend
-   * Response: { status, message, data: { content, title, ... } }
+   * Menangani struktur:
+   * {
+   *   tutorial: { status, message, data: { content, title? } },
+   *   progress: { ... }
+   * }
+   * atau variasi lain.
    */
   getTutorialDetail: async (id) => {
     console.log('🔍 Fetching tutorial detail for ID:', id);
     try {
       const token = authService.getToken();
-
       if (!token) {
         console.log('❌ No token - user not authenticated');
         throw new Error('Silakan login terlebih dahulu');
@@ -75,26 +78,49 @@ export const tutorialService = {
       const response = await api.get(url);
       console.log('✅ Tutorial detail response:', response);
 
-      const tutorialData = response.data?.data;
+      const tutorialEnvelope = response.data?.tutorial;
+      const raw =
+        tutorialEnvelope?.data ??
+        response.data?.data ?? // fallback jika backend menaruh langsung di data
+        response.data;
 
-      // Jika backend tidak mengembalikan konten, anggap tidak ditemukan
-      if (!tutorialData || !tutorialData.content) {
+      // Ambil konten dari berbagai kemungkinan field yang mungkin dipakai backend
+      const content =
+        raw?.content ??
+        raw?.material ??
+        raw?.materi ??
+        raw?.body ??
+        raw?.text ??
+        raw?.html ??
+        null;
+
+      // Fallback: jika raw adalah string/array
+      const fallbackContent =
+        typeof raw === 'string' ? raw : Array.isArray(raw) ? JSON.stringify(raw, null, 2) : null;
+
+      const finalContent = content ?? fallbackContent;
+
+      if (!finalContent) {
+        console.warn(`⚠️ Tutorial ${id} tidak punya field konten yang dikenali`);
         return null;
       }
 
-      // Format ke struktur yang diharapkan oleh component
       const tutorial = {
         id,
-        title: tutorialData.title || tutorialService.getMockTutorialTitle(id),
+        title:
+          raw?.title ||
+          tutorialEnvelope?.title ||
+          tutorialService.getMockTutorialTitle(id),
         data: {
-          content: tutorialData.content,
+          content: finalContent,
         },
+        // jika mau pakai progress dari backend:
+        progress: response.data?.progress || null,
       };
 
-      console.log('✅ Found tutorial:', tutorial);
+      console.log('✅ Mapped tutorial:', tutorial);
       return tutorial;
     } catch (err) {
-      // Jika backend balas 404, kembalikan null agar UI bisa fallback
       if (err.response?.status === 404) {
         console.warn(`⚠️ Tutorial ${id} tidak ditemukan (404)`);
         return null;
