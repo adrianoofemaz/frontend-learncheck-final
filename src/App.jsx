@@ -1,37 +1,37 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import './index.css';
+import React from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import "./index.css";
 
 // Providers/Contexts
-import { AuthProvider } from './context/AuthContext';
-import { UserProvider } from './context/UserContext';
-import { LearningProvider } from './context/LearningContext';
-import { QuizProvider } from './context/QuizContext';
-import { ProgressProvider } from './context/ProgressContext';
+import { AuthProvider } from "./context/AuthContext";
+import { UserProvider } from "./context/UserContext";
+import { LearningProvider } from "./context/LearningContext";
+import { QuizProvider } from "./context/QuizContext";
+import { ProgressProvider } from "./context/ProgressContext";
 
 // Layout
-import LayoutWrapper from './components/layout/LayoutWrapper';
+import LayoutWrapper from "./components/Layout/LayoutWrapper";
 
 // Pages - Auth
-import LoginPage from './pages/auth/LoginPage';
-import RegisterPage from './pages/auth/RegisterPage';
+import LoginPage from "./pages/auth/LoginPage";
+import RegisterPage from "./pages/auth/RegisterPage";
 
 // Pages - Main
-import ClassDetailPage from './pages/ClassDetailPage';
-import LearningPage from './pages/LearningPage';
-import QuizPage from './pages/QuizPage';
-import QuizIntroPage from './pages/QuizIntroPage';
-import ResultsPage from './pages/ResultsPage';
-import NotFoundPage from './pages/NotFoundPage';
+import ClassDetailPage from "./pages/ClassDetailPage";
+import LearningPage from "./pages/LearningPage";
+import QuizPage from "./pages/QuizPage";
+import QuizIntroPage from "./pages/QuizIntroPage";
+import ResultsPage from "./pages/ResultsPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
 // Pages - Final Quiz & Dashboard Modul
-import FinalQuizIntroPage from './pages/FinalQuizIntroPage';
-import FinalQuizPage from './pages/FinalQuizPage';
-import FinalQuizResultPage from './pages/FinalQuizResultPage';
-import DashboardModulPage from './pages/DashboardModulPage';
+import FinalQuizIntroPage from "./pages/FinalQuizIntroPage";
+import FinalQuizPage from "./pages/FinalQuizPage";
+import FinalQuizResultPage from "./pages/FinalQuizResultPage";
+import DashboardModulPage from "./pages/DashboardModulPage";
 
 // Routes
-import { ROUTES } from './constants/routes';
+import { ROUTES } from "./constants/routes";
 
 function App() {
   return (
@@ -46,7 +46,10 @@ function App() {
                 <Route path={ROUTES.LOGIN} element={<LoginPage />} />
 
                 {/* Redirect root to home */}
-                <Route path="/" element={<Navigate to={ROUTES.HOME} replace />} />
+                <Route
+                  path="/"
+                  element={<Navigate to={ROUTES.HOME} replace />}
+                />
 
                 {/* ✅ HOME - ClassDetailPage (dengan Footer) */}
                 <Route
