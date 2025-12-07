@@ -1,114 +1,147 @@
-/**
- * Navbar Component
- * Top navigation bar - dengan Hide on Scroll effect
- */
-
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
-import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/solid';
-import Button from '../common/Button';
+import React, { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/solid";
+import Button from "../Common/Button";
+import { UserContext } from "../../context/UserContext";
+import ThemeToggle from "../Common/ThemeToggle";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user, logout } = useAuth();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isHidden, setIsHidden] = useState(false);
-  const [lastScrollTop, setLastScrollTop] = useState(0);
+  const { preferences, changeTheme, changeFontSize } = useContext(UserContext);
 
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // HANDLE LOGOUT
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate("/login");
   };
 
-  // ✅ Hide navbar on scroll down
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY || document.documentElement.scrollTop;
-      
-      if (scrollTop > lastScrollTop && scrollTop > 100) {
-        // Scrolling DOWN
-        setIsHidden(true);
-      } else {
-        // Scrolling UP
-        setIsHidden(false);
-      }
-      
-      setLastScrollTop(scrollTop <= 0 ? 0 : scrollTop);
-    };
+  // HANDLE THEME TOGGLE
+  const handleThemeToggle = () => {
+    const newTheme = preferences.theme === "light" ? "dark" : "light";
+    changeTheme(newTheme);
+  };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollTop]);
+  // HANDLE FONT SIZE CHANGE
+  const handleFontSizeChange = (e) => {
+    changeFontSize(e.target.value);
+  };
 
-  return(
-    <nav 
-      className={`bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm transition-all duration-300 ${
-        isHidden ? '-translate-y-full' : 'translate-y-0'
+  return (
+    <nav
+      className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300  ${
+        preferences.theme === "light"
+          ? "bg-gray-50 text-gray-900 drop-shadow-xl drop-shadow-blue-200"
+          : "bg-gray-900 text-white drop-shadow-xl drop-shadow-blue-950"
       }`}
     >
       <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-20">
         <div className="flex justify-between items-center h-16">
-          {/* Logo */}
+          {/* LOGO */}
           <div className="shrink-0">
             <button
-              onClick={() => navigate('/')}
-              className="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors"
+              onClick={() => navigate("/")}
+              className="text-2xl font-bold transition-colors"
             >
               LearnCheck
             </button>
           </div>
 
-          {/* Desktop Menu */}
+          {/* RIGHT DESKTOP MENU */}
           <div className="hidden md:flex items-center gap-6">
-            {isAuthenticated?(
+            {/* THEME TOGGLE */}
+            <ThemeToggle
+              isDark={preferences.theme === "dark"}
+              onToggle={handleThemeToggle}
+            />
+
+            {/* FONT SIZE SELECT */}
+            <select
+              value={preferences.font_size}
+              onChange={handleFontSizeChange}
+              className="text-sm font-medium"
+            >
+              <option value="sm">Small</option>
+              <option value="md">Medium</option>
+              <option value="lg">Large</option>
+            </select>
+
+            {/* USER */}
+            {isAuthenticated ? (
               <>
-                <div className="flex items-center gap-3">
-                  <div className="text-right">
-                    <p className="text-gray-900 font-semibold text-sm">
-                      Halo, {user?.name || 'User'}
-                    </p>
-                    <p className="text-gray-500 text-xs">
-                      {user?.name + '@email.com'}
-                    </p>
+                <div className="flex gap-3 item-center">
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <p className="font-semibold text-sm">{`Halo, ${
+                        user?.name || "User"
+                      }`}</p>
+                      <p className="text-xs text-gray-400">
+                        {user?.name + "@email.com"}
+                      </p>
+                    </div>
+
+                    {/* Avatar */}
+                    <div className="w-10 h-10 bg-blue-200 rounded-full flex items-center justify-center">
+                      <span className="text-blue-600 font-semibold">
+                        {user?.name?.[0]?.toUpperCase() || "U"}
+                      </span>
+                    </div>
                   </div>
-                  {/* User Avatar */}
-                  <div className="w-10 h-10 bg-blue-200 rounded-full flex items-center justify-center">
-                    <span className="text-blue-600 font-semibold">
-                      {user?.name?.[0]?.toUpperCase() || 'U'}
-                    </span>
-                  </div>
-                </div>
-                <div className="border-l border-gray-200 pl-6">
-                  <Button
-                    onClick={handleLogout}
-                    variant="secondary"
-                    size="sm"
-                    className="text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
+
+                  {/* gabungan profil dengan logout */}
+                  <div
+                    className={`border-l ${
+                      preferences.theme === "light"
+                        ? "border-gray-300"
+                        : "border-gray-600"
+                    } item-center pt-1`}
                   >
-                    Logout
-                  </Button>
+                    <Button
+                      onClick={handleLogout}
+                      variant="secondary"
+                      size="sm"
+                      className="text-red-500 text-xs border-none hover:bg-transparent bg-transparent flex items-center"
+                    >
+                      <img
+                        src="/public/assets/images/icon-logout.png"
+                        className="w-8 h-8 item-center ml-2"
+                        alt=""
+                      />
+                      Logout
+                    </Button>
+                  </div>
                 </div>
               </>
-            ):(
+            ) : (
               <>
-                <Button onClick={() => navigate('/login')} variant="secondary" size="sm">
+                <Button
+                  onClick={() => navigate("/login")}
+                  variant="secondary"
+                  size="sm"
+                >
                   Masuk
                 </Button>
-                <Button onClick={() => navigate('/register')} variant="primary" size="sm">
+                <Button
+                  onClick={() => navigate("/register")}
+                  variant="primary"
+                  size="sm"
+                >
                   Daftar
                 </Button>
               </>
             )}
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* MOBILE MENU BUTTON */}
           <div className="md:hidden">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-gray-600 hover:text-gray-900 transition-colors"
+              className="text-gray-200 dark:text-gray-200 hover:text-gray-100 transition-colors cursor-pointer"
             >
-              {mobileMenuOpen ?  (
+              {mobileMenuOpen ? (
                 <XMarkIcon className="w-6 h-6" />
               ) : (
                 <Bars3Icon className="w-6 h-6" />
@@ -117,45 +150,47 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* MOBILE MENU CONTENT */}
         {mobileMenuOpen && (
-          <div className="md:hidden pb-4 space-y-2 border-t border-gray-200 pt-4">
-            {isAuthenticated ? (
-              <>
-                <div className="px-4 py-3 bg-gray-50 rounded-lg">
-                  <p className="text-gray-900 font-semibold text-sm">
-                    Halo, {user?.name}
-                  </p>
-                  <p className="text-gray-500 text-xs mt-1">
-                    {user?.name + '@email.com'}
-                  </p>
-                </div>
-                <Button
-                  onClick={handleLogout}
-                  variant="secondary"
-                  fullWidth
-                  className="text-red-600 hover:text-red-700 border-red-200 justify-center"
-                >
-                  Logout
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button
-                  onClick={() => navigate('/login')}
-                  variant="secondary"
-                  fullWidth
-                >
-                  Masuk
-                </Button>
-                <Button
-                  onClick={() => navigate('/register')}
-                  variant="primary"
-                  fullWidth
-                >
-                  Daftar
-                </Button>
-              </>
+          <div className="md:hidden pb-4 space-y-2 border-t border-gray-200 dark:border-gray-700 pt-4">
+            {/* USER */}
+            {isAuthenticated && (
+              <div className="px-4 py-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <p className="text-gray-900 dark:text-gray-200 font-semibold text-sm">
+                  Halo, {user?.name}
+                </p>
+                <p className="text-gray-500 dark:text-gray-400 text-xs mt-1">
+                  {user?.name + "@email.com"}
+                </p>
+              </div>
+            )}
+
+            {/* THEME TOGGLE */}
+            <ThemeToggle
+              isDark={preferences.theme === "dark"}
+              onToggle={handleThemeToggle}
+            />
+
+            {/* FONT SIZE */}
+            <select
+              value={preferences.font_size}
+              onChange={handleFontSizeChange}
+              className="px-4 py-2"
+            >
+              <option value="sm">Small</option>
+              <option value="md">Medium</option>
+              <option value="lg">Large</option>
+            </select>
+
+            {/* LOGOUT */}
+            {isAuthenticated && (
+              <Button
+                onClick={handleLogout}
+                fullWidth
+                className="text-red-600 justify-center bg-red-500 hover:bg-red-600"
+              >
+                Logout
+              </Button>
             )}
           </div>
         )}

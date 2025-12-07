@@ -1,13 +1,8 @@
-/**
- * LayoutWrapper Component
- * Main layout wrapper dengan Navbar, Footer
- * Sidebar TIDAK ada di sini
- */
-
-import React from "react";
-import Navbar from "./Navbar";
+import React, { useContext } from "react";
+import Navbar from "../Layout/Navbar";
 import Footer from "./Footer";
 import BottomNav from "./BottomNav";
+import { UserContext } from "../../context/UserContext";
 
 const LayoutWrapper = ({
   children,
@@ -16,9 +11,13 @@ const LayoutWrapper = ({
   showBottomNav = true,
   fullHeight = false,
 }) => {
+  const { preferences } = useContext(UserContext); // Mengambil preferensi dari context
+
   return (
     <div
-      className={`relative min-h-screen bg-blue-50 ${
+      className={`theme-${
+        preferences.theme
+      } relative min-h-screen bg-blue-50 dark:bg-gray-900 transition-all duration-300 ${
         fullHeight ? "h-screen" : ""
       }`}
     >
@@ -48,7 +47,7 @@ const LayoutWrapper = ({
       </div>
 
       {/* BottomNav jika ada */}
-      {/* {showBottomNav && <BottomNav />} */}
+      {showBottomNav && <BottomNav />}
     </div>
   );
 };

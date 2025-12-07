@@ -3,21 +3,22 @@
  * Manage user profile & preferences
  */
 
-import React, { createContext, useState, useCallback } from 'react';
-import userService from '../services/userService';
-import { STORAGE_KEYS } from '../constants/config';
+import React, { createContext, useState, useCallback } from "react";
+import userService from "../services/userService";
+import { STORAGE_KEYS } from "../constants/config";
 
 export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
   const [preferences, setPreferences] = useState(
     JSON.parse(sessionStorage.getItem(STORAGE_KEYS.preferences)) || {
-      theme: 'light',
-      font_size: 'md',
-      font: 'sans',
-      layout_width: 'fluid',
+      theme: "light",
+      font_size: "md",
+      font: "sans",
+      layout_width: "fluid",
     }
   );
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -27,12 +28,22 @@ export const UserProvider = ({ children }) => {
   const fetchPreferences = useCallback(async () => {
     setLoading(true);
     setError(null);
+
     try {
       const response = await userService.getPreferences();
-      setPreferences(response);
+
+      // Set preference to state
+      setPreferences(response.preference);
+
+      // Save to sessionStorage
+      sessionStorage.setItem(
+        STORAGE_KEYS.preferences,
+        JSON.stringify(response.preference)
+      );
+
       setLoading(false);
     } catch (err) {
-      setError(err.message || 'Failed to fetch preferences');
+      setError(err.message || "Failed to fetch preferences");
       setLoading(false);
     }
   }, []);
@@ -43,20 +54,23 @@ export const UserProvider = ({ children }) => {
   const updatePreferences = useCallback(async (newPreferences) => {
     setLoading(true);
     setError(null);
+
     try {
       const response = await userService.updatePreferences(newPreferences);
-      setPreferences(response. preference);
-      
-      // Save to sessionStorage
-      sessionStorage. setItem(
+
+      // UPDATE state
+      setPreferences(response.preference);
+
+      // UPDATE session storage
+      sessionStorage.setItem(
         STORAGE_KEYS.preferences,
         JSON.stringify(response.preference)
       );
-      
+
       setLoading(false);
       return response;
     } catch (err) {
-      setError(err.message || 'Failed to update preferences');
+      setError(err.message || "Failed to update preferences");
       setLoading(false);
       throw err;
     }
@@ -65,26 +79,22 @@ export const UserProvider = ({ children }) => {
   /**
    * Change theme
    */
-  const changeTheme = useCallback(async (theme) => {
-    try {
-      const updated = await updatePreferences({ ... preferences, theme });
-      return updated;
-    } catch (err) {
-      throw err;
-    }
-  }, [preferences, updatePreferences]);
+  const changeTheme = useCallback(
+    async (theme) => {
+      return updatePreferences({ ...preferences, theme });
+    },
+    [preferences, updatePreferences]
+  );
 
   /**
    * Change font size
    */
-  const changeFontSize = useCallback(async (fontSize) => {
-    try {
-      const updated = await updatePreferences({ ...preferences, font_size: fontSize });
-      return updated;
-    } catch (err) {
-      throw err;
-    }
-  }, [preferences, updatePreferences]);
+  const changeFontSize = useCallback(
+    async (fontSize) => {
+      return updatePreferences({ ...preferences, font_size: fontSize });
+    },
+    [preferences, updatePreferences]
+  );
 
   const value = {
     preferences,
@@ -96,11 +106,7 @@ export const UserProvider = ({ children }) => {
     changeFontSize,
   };
 
-  return (
-    <UserContext.Provider value={value}>
-      {children}
-    </UserContext.Provider>
-  );
+  return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 };
 
 export default UserContext;
