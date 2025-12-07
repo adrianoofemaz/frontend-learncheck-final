@@ -3,6 +3,7 @@
  */
 
 import React, { createContext, useState, useEffect } from 'react';
+import { STORAGE_KEYS } from '../constants/config';
 
 export const AuthContext = createContext();
 
@@ -13,8 +14,8 @@ export const AuthProvider = ({ children }) => {
 
   // Load user & token from sessionStorage on mount
   useEffect(() => {
-    const savedToken = sessionStorage.getItem('token');
-    const savedUser = sessionStorage.getItem('user');
+    const savedToken = sessionStorage.getItem(STORAGE_KEYS.authToken);
+    const savedUser = sessionStorage.getItem(STORAGE_KEYS.user);
 
     if (savedToken) {
       setToken(savedToken);

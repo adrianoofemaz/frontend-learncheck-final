@@ -24,6 +24,12 @@ import QuizIntroPage from './pages/QuizIntroPage';
 import ResultsPage from './pages/ResultsPage';
 import NotFoundPage from './pages/NotFoundPage';
 
+// Pages - Final Quiz & Dashboard Modul
+import FinalQuizIntroPage from './pages/FinalQuizIntroPage';
+import FinalQuizPage from './pages/FinalQuizPage';
+import FinalQuizResultPage from './pages/FinalQuizResultPage';
+import DashboardModulPage from './pages/DashboardModulPage';
+
 // Routes
 import { ROUTES } from './constants/routes';
 
@@ -36,11 +42,11 @@ function App() {
             <QuizProvider>
               <Routes>
                 {/* Auth Routes */}
-                <Route path={ROUTES. REGISTER} element={<RegisterPage />} />
+                <Route path={ROUTES.REGISTER} element={<RegisterPage />} />
                 <Route path={ROUTES.LOGIN} element={<LoginPage />} />
 
                 {/* Redirect root to home */}
-                <Route path="/" element={<Navigate to={ROUTES. HOME} replace />} />
+                <Route path="/" element={<Navigate to={ROUTES.HOME} replace />} />
 
                 {/* ✅ HOME - ClassDetailPage (dengan Footer) */}
                 <Route
@@ -54,7 +60,7 @@ function App() {
 
                 {/* ✅ LearningPage - TANPA Footer */}
                 <Route
-                  path={ROUTES. LEARNING}
+                  path={ROUTES.LEARNING}
                   element={
                     <LayoutWrapper showFooter={false} showBottomNav={false}>
                       <LearningPage />
@@ -92,8 +98,48 @@ function App() {
                   }
                 />
 
+                {/* ✅ Final Quiz Intro - TANPA Footer */}
+                <Route
+                  path={ROUTES.QUIZ_FINAL_INTRO}
+                  element={
+                    <LayoutWrapper showFooter={false} showBottomNav={false}>
+                      <FinalQuizIntroPage />
+                    </LayoutWrapper>
+                  }
+                />
+
+                {/* ✅ Final Quiz Page - TANPA Footer */}
+                <Route
+                  path={ROUTES.QUIZ_FINAL}
+                  element={
+                    <LayoutWrapper showFooter={false} showBottomNav={false}>
+                      <FinalQuizPage />
+                    </LayoutWrapper>
+                  }
+                />
+
+                {/* ✅ Final Quiz Result - TANPA Footer */}
+                <Route
+                  path={ROUTES.QUIZ_FINAL_RESULT}
+                  element={
+                    <LayoutWrapper showFooter={false} showBottomNav={false}>
+                      <FinalQuizResultPage />
+                    </LayoutWrapper>
+                  }
+                />
+
+                {/* ✅ Dashboard Modul - TANPA Footer */}
+                <Route
+                  path={ROUTES.DASHBOARD_MODUL}
+                  element={
+                    <LayoutWrapper showFooter={false} showBottomNav={false}>
+                      <DashboardModulPage />
+                    </LayoutWrapper>
+                  }
+                />
+
                 {/* 404 - Not Found */}
-                <Route path={ROUTES. NOT_FOUND} element={<NotFoundPage />} />
+                <Route path={ROUTES.NOT_FOUND} element={<NotFoundPage />} />
               </Routes>
             </QuizProvider>
           </LearningProvider>

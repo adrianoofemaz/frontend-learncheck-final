@@ -8,7 +8,7 @@ import { useLearning } from "../hooks/useLearning";
 import { useProgress } from "../context/ProgressContext";
 import { MaterialContent } from "../components/features/learning";
 import { Alert } from "../components/common";
-import Button from "../components/common/Button";
+import Button from "../components/Common/Button";
 import Loading from "../components/common/Loading";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 
