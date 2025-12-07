@@ -29,22 +29,22 @@ export const authService = {
   register: async (username, password, name) => {
     try {
       console.log('Register attempt:', { name, username, passwordLength: password.length });
-      
-      const response = await api.post(API_ENDPOINTS. REGISTER, {
+
+      const response = await api.post(API_ENDPOINTS.REGISTER, {
         name,
         username,
         password,
       });
-      
-      console.log('Register response:', response.data);
-      
+
+      console. log('Register response:', response.data);
+
       // Register response might not include token, user should login after
       // But if token exists, save it
-      if (response.data.user?. token) {
+      if (response.data. user?. token) {
         sessionStorage. setItem(STORAGE_KEYS.authToken, response.data. user.token);
         sessionStorage.setItem(STORAGE_KEYS.user, JSON.stringify(response.data.user));
       }
-      
+
       return response.data;
     } catch (error) {
       console.error('Register error:', error. response?.data);
@@ -58,28 +58,28 @@ export const authService = {
   login: async (username, password) => {
     try {
       console.log('Login attempt:', { username, passwordLength: password.length });
-      
-      const response = await api. post(API_ENDPOINTS.LOGIN, {
+
+      const response = await api.post(API_ENDPOINTS.LOGIN, {
         username,
         password,
       });
-      
+
       console.log('Login response:', response.data);
-      
-      // ✅ TOKEN IS INSIDE response.data. user. token
+
+      // ✅ TOKEN IS INSIDE response.data.user.token
       if (response.data.user?.token) {
-        const token = response.data.user.token;
-        sessionStorage.setItem(STORAGE_KEYS.authToken, token);
+        const token = response.data.user. token;
+        sessionStorage.setItem(STORAGE_KEYS. authToken, token);
         sessionStorage.setItem(STORAGE_KEYS.user, JSON.stringify(response.data.user));
-        
+
         console.log('Token saved:', token. substring(0, 20) + '...');
       } else {
         console.warn('No token in response! ');
       }
-      
+
       return response.data;
     } catch (error) {
-      console.error('Login error:', error. response?.data);
+      console.error('Login error:', error.response?. data);
       throw error.response?.data || error;
     }
   },
@@ -88,8 +88,8 @@ export const authService = {
    * Logout user
    */
   logout: () => {
-    sessionStorage.removeItem(STORAGE_KEYS.authToken);
-    sessionStorage.removeItem(STORAGE_KEYS.user);
+    sessionStorage.removeItem(STORAGE_KEYS. authToken);
+    sessionStorage. removeItem(STORAGE_KEYS.user);
     console.log('User logged out');
   },
 

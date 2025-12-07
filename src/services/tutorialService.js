@@ -8,57 +8,47 @@ import { API_ENDPOINTS } from '../constants/apiEndpoints';
 import { MODULES_DATA } from '../constants/modulesData';
 import authService from './authService';
 
-// Mock tutorials - temporary fallback while backend is being fixed
+// Mock tutorials - ONLY untuk sidebar/title references (BUKAN fallback)
 const MOCK_TUTORIALS = [
   {
     id: 35363,
-    title: "Penerapan AI dalam Dunia Nyata",
-    content: "<h2>Penerapan AI dalam Dunia Nyata</h2><p>Mari kita mulai pembelajaran ini dengan mengenal penerapan AI di dunia nyata... </p>"
+    title: 'Penerapan AI dalam Dunia Nyata',
   },
   {
     id: 35368,
-    title: "Pengenalan AI",
-    content: "<h2>Pengenalan AI</h2><p>Artificial Intelligence (AI) adalah cabang dari ilmu komputer... </p>"
+    title: 'Pengenalan AI',
   },
   {
     id: 35373,
-    title: "Taksonomi AI",
-    content: "<h2>Taksonomi AI</h2><p>Taksonomi AI mencakup berbagai cabang dan subdisiplin...</p>"
+    title: 'Taksonomi AI',
   },
   {
     id: 35378,
-    title: "AI Workflow",
-    content: "<h2>AI Workflow</h2><p>Workflow AI adalah proses sistematis... </p>"
+    title: 'AI Workflow',
   },
   {
     id: 35383,
-    title: "[Story] Belajar Mempermudah Pekerjaan dengan AI",
-    content: "<h2>[Story] Belajar Mempermudah Pekerjaan dengan AI</h2><p>Cerita tentang bagaimana AI dapat digunakan... </p>"
+    title: '[Story] Belajar Mempermudah Pekerjaan dengan AI',
+  },
+  {
+    id: 35388,
+    title: 'Kriteria Data untuk AI',
+  },
+  {
+    id: 35393,
+    title: 'Pengenalan Data',
   },
   {
     id: 35398,
-    title: "Pengenalan Data",
-    content: "<h2>Pengenalan Data</h2><p>Data adalah informasi yang diproses...</p>"
+    title: 'Dataset Preparation',
   },
   {
     id: 35403,
-    title: "Kriteria Data untuk AI",
-    content: "<h2>Kriteria Data untuk AI</h2><p>Data berkualitas tinggi adalah kunci kesuksesan... </p>"
-  },
-  {
-    id: 35793,
-    title: "Infrastruktur Data di Industri",
-    content: "<h2>Infrastruktur Data di Industri</h2><p>Infrastruktur data modern memerlukan sistem... </p>"
-  },
-  {
-    id: 35408,
-    title: "[Story] Apa yang Diperlukan untuk Membuat AI?",
-    content: "<h2>[Story] Apa yang Diperlukan untuk Membuat AI?</h2><p>Panduan lengkap tentang semua komponen...</p>"
+    title: 'Model Training',
   },
   {
     id: 35428,
-    title: "Tipe-Tipe Machine Learning",
-    content: "<h2>Tipe-Tipe Machine Learning</h2><p>Machine Learning dibagi menjadi beberapa tipe...</p>"
+    title: 'Tipe-Tipe Machine Learning',
   },
 ];
 
@@ -74,60 +64,67 @@ export const tutorialService = {
    * Get module by ID (statis)
    */
   getModule: async (id) => {
-    const module = MODULES_DATA.find(m => m.id == id);
+    const module = MODULES_DATA.find((m) => m.id == id);
     return module || null;
   },
 
   /**
-   * Get tutorials/submodules for a module
-   * Try backend, fallback ke mock jika error
+   * Get mock tutorial title by ID
+   * HANYA untuk sidebar/reference - bukan actual content
    */
-  getTutorials: async (moduleId) => {
-    try {
-      const token = authService.getToken();
-      
-      if (!token) {
-        console.log('No token - using mock tutorials');
-        return MOCK_TUTORIALS;
-      }
+  getMockTutorialTitle: (id) => {
+    const tutorial = MOCK_TUTORIALS. find((t) => t.id === id);
+    return tutorial?.title || `Tutorial ${id}`;
+  },
 
-      const url = API_ENDPOINTS.TUTORIALS;
-      console.log('Fetching tutorials from:', url);
-      
-      const response = await api.get(url);
-      console.log('Tutorials response:', response);
-      
-      const tutorials = response.data?.  data?. tutorials || [];
-      console. log('Tutorials extracted:', tutorials. length);
-      
-      if (tutorials.length > 0) {
-        return tutorials;
-      }
-    } catch (err) {
-      console.warn('Backend failed, using mock tutorials:', err. message);
-    }
-    
-    // Fallback ke mock jika error atau kosong
+  /**
+   * Get tutorials list for sidebar
+   * Returns mock data untuk titles/sidebar reference
+   */
+  getMockTutorials: () => {
     return MOCK_TUTORIALS;
   },
 
   /**
-   * Get tutorial detail by ID
-   * Cari dari tutorials list
+   * Get tutorial detail by ID from backend
+   * Response: { status, message, data: { content, title, ...  } }
    */
   getTutorialDetail: async (id) => {
-          console.log('Fetching tutorial detail for ID:', id);
+    console.log('🔍 Fetching tutorial detail for ID:', id);
     try {
-      const tutorial = await api.get(API_ENDPOINTS.TUTORIAL_DETAIL(id));
+      const token = authService.getToken();
 
-      if (tutorial) {
-        console.log('Found tutorial:', tutorial.data.tutorial);
-        return tutorial;
+      if (!token) {
+        console.log('❌ No token - user not authenticated');
+        throw new Error('Silakan login terlebih dahulu');
       }
-      
-      throw new Error(`Tutorial ${id} not found`);
+
+      const url = API_ENDPOINTS.TUTORIAL_DETAIL(id);
+      console.log('🔗 URL:', url);
+
+      const response = await api.get(url);
+      console.log('✅ Tutorial detail response:', response);
+
+      // ✅ Backend returns: { status, message, data: { content, title, ... } }
+      const tutorialData = response.data?. data;
+
+      if (!tutorialData || !tutorialData.content) {
+        throw new Error(`Tutorial ${id} tidak ditemukan`);
+      }
+
+      // Format ke struktur yang diharapkan oleh component
+      const tutorial = {
+        id: id,
+        title: tutorialData.title || this.getMockTutorialTitle(id),
+        data: {
+          content: tutorialData.content,
+        },
+      };
+
+      console.log('✅ Found tutorial:', tutorial);
+      return tutorial;
     } catch (err) {
-      console.error('Error fetching tutorial detail:', err. message);
+      console.error('❌ Error fetching tutorial detail:', err. message);
       throw err;
     }
   },
@@ -139,14 +136,18 @@ export const tutorialService = {
     try {
       const token = authService.getToken();
       if (!token) {
-        throw new Error('No authentication token.  Please login first.');
+        throw new Error('Silakan login terlebih dahulu');
       }
 
       const url = API_ENDPOINTS.ASSESSMENT(tutorialId);
+      console.log('🔗 Fetching assessment from:', url);
+
       const response = await api.get(url);
+      console.log('✅ Assessment response:', response);
+
       return response.data;
     } catch (error) {
-      console.error('Error fetching assessment:', error);
+      console.error('❌ Error fetching assessment:', error.message);
       throw error;
     }
   },
@@ -158,14 +159,18 @@ export const tutorialService = {
     try {
       const token = authService.getToken();
       if (!token) {
-        throw new Error('No authentication token. Please login first.');
+        throw new Error('Silakan login terlebih dahulu');
       }
 
-      const url = API_ENDPOINTS. SUBMIT_ASSESSMENT(tutorialId, assessmentId);
+      const url = API_ENDPOINTS.SUBMIT_ASSESSMENT(tutorialId, assessmentId);
+      console.log('🔗 Submitting answers to:', url);
+
       const response = await api.post(url, { answers });
+      console.log('✅ Answers submitted, response:', response);
+
       return response.data;
     } catch (error) {
-      console.error('Error submitting answers:', error);
+      console.error('❌ Error submitting answers:', error.message);
       throw error;
     }
   },
