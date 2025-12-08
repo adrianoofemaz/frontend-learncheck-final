@@ -1,4 +1,9 @@
-import React, { useEffect, useState, useRef } from 'react';
+/**
+ * QuizPage
+ * Main quiz page - display questions & handle answers
+ */
+
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuizProgress } from '../hooks/useQuizProgress';
 import { useQuiz } from '../hooks/useQuiz';
@@ -23,20 +28,16 @@ const QuizPage = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
-  const fetchedRef = useRef(false);
 
-  // ✅ FETCH dengan tutorialId (hindari double fetch StrictMode)
+  // ✅ FETCH dengan tutorialId
   useEffect(() => {
-    if (!tutorialId) {
+    if (tutorialId) {
+      console.log('Fetching quiz for tutorial:', tutorialId);
+      fetchQuestions(parseInt(tutorialId));
+      initializeQuiz();
+    } else {
       setSubmitError('Tutorial ID tidak ditemukan');
-      return;
     }
-    if (fetchedRef.current) return;
-    fetchedRef.current = true;
-
-    console.log('Fetching quiz for tutorial:', tutorialId);
-    fetchQuestions(parseInt(tutorialId));
-    initializeQuiz();
   }, [tutorialId, fetchQuestions, initializeQuiz]);
 
   if (loading) {
@@ -48,7 +49,7 @@ const QuizPage = () => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="max-w-2xl mx-auto text-center">
           <Alert type="error" title="Error" message={error} />
-          <Button onClick={() => navigate(-1)} variant="primary" className="mt-4 cursor-pointer">
+          <Button onClick={() => navigate(-1)} variant="primary" className="mt-4">
             Kembali
           </Button>
         </div>
@@ -79,31 +80,33 @@ const QuizPage = () => {
     setSubmitError(null);
 
     try {
-      console.log('Submitting quiz answers...');
+      console.log('Submitting quiz answers..  .');
 
-      // ✅ FORMAT JAWABAN SESUAI BACKEND (soal_id + correct)
+      // ✅ FORMAT JAWABAN SESUAI BACKEND
       const answersData = Object.entries(answers).map(([questionIndex, answerIndex]) => {
         const question = questions[parseInt(questionIndex)];
-        const selectedOption = question?.multiple_choice[answerIndex];
-
+        const selectedOption = question?. multiple_choice[answerIndex];
+        
         return {
           soal_id: question?.id,
-          correct: selectedOption?.correct || false,
+          correct: selectedOption?.correct || false,  // ✅ CEK field correct dari option
         };
       });
 
       console.log('Answers to submit:', answersData);
-      console.log('Assessment ID:', assessmentId);
+      console. log('Assessment ID:', assessmentId);
 
-      const result = await submitAnswers(parseInt(tutorialId), assessmentId, answersData);
+      const result = await submitAnswers(
+        parseInt(tutorialId),
+        assessmentId,
+        answersData
+      );
 
       console.log('Submit result:', result);
       navigate('/quiz-results', { state: { result } });
     } catch (err) {
-      console.error('Submit error:', err);
-      // tampilkan details dari backend jika ada (contoh: error GoogleGenerativeAI)
-      const friendly = err?.raw?.details || err?.message || 'Gagal mengirim jawaban';
-      setSubmitError(friendly);
+      console. error('Submit error:', err);
+      setSubmitError(err. message || 'Gagal mengirim jawaban');
       setIsSubmitting(false);
     }
   };
@@ -155,7 +158,11 @@ const QuizPage = () => {
 
         {/* Navigation Buttons */}
         <div className="mt-8 flex gap-4">
-          <Button onClick={previousQuestion} variant="secondary" disabled={currentQuestionIndex === 0}>
+          <Button
+            onClick={previousQuestion}
+            variant="secondary"
+            disabled={currentQuestionIndex === 0}
+          >
             ← Sebelumnya
           </Button>
 
@@ -163,14 +170,14 @@ const QuizPage = () => {
             <Button
               onClick={handleSubmitQuiz}
               variant="primary"
-              disabled={!allAnswered || isSubmitting}
+              disabled={! allAnswered || isSubmitting}
               fullWidth
             >
               {isSubmitting ? 'Mengirim...' : '✓ Selesai & Kirim'}
             </Button>
           ) : (
             <Button
-              onClick={() => nextQuestion(questions.length)}
+              onClick={() => nextQuestion(questions. length)}
               variant="primary"
               disabled={currentAnswer === undefined}
               fullWidth
