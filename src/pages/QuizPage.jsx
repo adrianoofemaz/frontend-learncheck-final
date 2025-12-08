@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
+import Swal from 'sweetalert2';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuizProgress } from '../hooks/useQuizProgress';
 import { useQuiz } from '../hooks/useQuiz';
@@ -10,22 +11,53 @@ import Loading from '../components/common/Loading';
 const QuizPage = () => {
   const navigate = useNavigate();
   const { tutorialId } = useParams();
+  const storageKey = tutorialId ? `quiz-progress-${tutorialId}` : null;
+
   const { questions, loading, error, assessmentId, fetchQuestions, submitAnswers } = useQuiz();
   const {
     currentQuestionIndex,
+    setCurrentQuestionIndex,
     answers,
     recordAnswer,
     getCurrentAnswer,
     nextQuestion,
-    previousQuestion,
     initializeQuiz,
   } = useQuizProgress();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
+  const [lockedAnswers, setLockedAnswers] = useState({});
   const fetchedRef = useRef(false);
+  const timeUpHandledRef = useRef(null);
 
-  // Hooks pertama, baru lalu segala kondisi render
+  // Load saved progress
+  useEffect(() => {
+    if (!storageKey) return;
+    const saved = localStorage.getItem(storageKey);
+    if (!saved) return;
+    try {
+      const parsed = JSON.parse(saved);
+      if (parsed?.tutorialId === tutorialId) {
+        if (parsed.completed && parsed.result) {
+          navigate('/quiz-results', { state: { result: parsed.result } });
+          return;
+        }
+        if (parsed.answers) {
+          Object.entries(parsed.answers).forEach(([qIdx, ans]) => {
+            recordAnswer(parseInt(qIdx), ans);
+          });
+        }
+        if (parsed.lockedAnswers) setLockedAnswers(parsed.lockedAnswers);
+        if (typeof parsed.currentQuestionIndex === 'number') {
+          setCurrentQuestionIndex(parsed.currentQuestionIndex);
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to parse saved quiz progress', e);
+    }
+  }, [storageKey, tutorialId, navigate, recordAnswer, setCurrentQuestionIndex]);
+
+  // Fetch questions
   useEffect(() => {
     if (!tutorialId) {
       setSubmitError('Tutorial ID tidak ditemukan');
@@ -37,29 +69,77 @@ const QuizPage = () => {
     initializeQuiz();
   }, [tutorialId, fetchQuestions, initializeQuiz]);
 
+  // Persist progress
+  useEffect(() => {
+    if (!storageKey || !tutorialId) return;
+    const payload = {
+      tutorialId,
+      assessmentId,
+      currentQuestionIndex,
+      answers,
+      lockedAnswers,
+      completed: false,
+    };
+    localStorage.setItem(storageKey, JSON.stringify(payload));
+  }, [storageKey, tutorialId, assessmentId, currentQuestionIndex, answers, lockedAnswers]);
+
+  // reset guard tiap pindah soal
+  useEffect(() => {
+    timeUpHandledRef.current = null;
+  }, [currentQuestionIndex]);
+
   const handleSubmitQuiz = useCallback(async () => {
     setIsSubmitting(true);
     setSubmitError(null);
     try {
-      const answersData = Object.entries(answers).map(([questionIndex, answerIndex]) => {
-        const question = questions[parseInt(questionIndex)];
-        const selectedOption = question?.multiple_choice[answerIndex];
+      // Jawaban kosong dianggap salah (correct: false)
+      const answersData = questions.map((question, idx) => {
+        const answerIndex = answers[idx];
+        const selectedOption =
+          answerIndex !== undefined ? question?.multiple_choice?.[answerIndex] : null;
         return {
           soal_id: question?.id,
           correct: selectedOption?.correct || false,
         };
       });
+
       const result = await submitAnswers(parseInt(tutorialId), assessmentId, answersData);
+
+      if (storageKey) {
+        const saved = {
+          tutorialId,
+          assessmentId,
+          currentQuestionIndex,
+          answers,
+          lockedAnswers,
+          completed: true,
+          result,
+        };
+        localStorage.setItem(storageKey, JSON.stringify(saved));
+      }
+
       navigate('/quiz-results', { state: { result } });
     } catch (err) {
       const friendly = err?.raw?.details || err?.message || 'Gagal mengirim jawaban';
       setSubmitError(friendly);
       setIsSubmitting(false);
     }
-  }, [answers, assessmentId, navigate, questions, submitAnswers, tutorialId]);
+  }, [
+    answers,
+    assessmentId,
+    navigate,
+    questions,
+    submitAnswers,
+    tutorialId,
+    storageKey,
+    lockedAnswers,
+    currentQuestionIndex,
+  ]);
 
   const handleTimeUp = useCallback(() => {
-    // Kalau belum soal terakhir → next; kalau terakhir → submit
+    if (timeUpHandledRef.current === currentQuestionIndex) return;
+    timeUpHandledRef.current = currentQuestionIndex;
+
     if (currentQuestionIndex >= questions.length - 1) {
       handleSubmitQuiz();
     } else {
@@ -67,7 +147,38 @@ const QuizPage = () => {
     }
   }, [currentQuestionIndex, questions.length, handleSubmitQuiz, nextQuestion]);
 
-  // ---- Setelah semua hooks & callbacks, baru boleh conditional render ----
+  const handleSelectAnswer = (index) => {
+    if (lockedAnswers[currentQuestionIndex]) return;
+    recordAnswer(currentQuestionIndex, index);
+    setLockedAnswers((prev) => ({ ...prev, [currentQuestionIndex]: true }));
+  };
+
+  const currentQuestion = questions[currentQuestionIndex];
+  const currentAnswer = getCurrentAnswer();
+  const isLastQuestion = currentQuestionIndex === questions.length - 1;
+  const progressPercent = Math.round(((currentQuestionIndex + 1) / questions.length) * 100);
+
+  const handleNextClick = () => {
+    if (currentAnswer !== undefined) {
+      nextQuestion(questions.length);
+      return;
+    }
+    Swal.fire({
+      title: 'Belum menjawab',
+      text: 'Anda belum memilih jawaban untuk soal ini. Tetap lanjut?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Tetap Lanjut',
+      cancelButtonText: 'Batal',
+      reverseButtons: true,
+      allowOutsideClick: false,
+    }).then((res) => {
+      if (res.isConfirmed) {
+        nextQuestion(questions.length); // jawaban kosong -> salah
+      }
+    });
+  };
+
   if (loading) return <Loading fullScreen text="Memuat kuis..." />;
 
   if (error) {
@@ -96,12 +207,6 @@ const QuizPage = () => {
     );
   }
 
-  const currentQuestion = questions[currentQuestionIndex];
-  const currentAnswer = getCurrentAnswer();
-  const isLastQuestion = currentQuestionIndex === questions.length - 1;
-  const allAnswered = Object.keys(answers).length === questions.length;
-  const progressPercent = Math.round(((currentQuestionIndex + 1) / questions.length) * 100);
-
   return (
     <div className="min-h-screen py-14 px-4">
       <div className="max-w-4xl mx-auto space-y-5 mt-10 sm:mt-12">
@@ -120,7 +225,7 @@ const QuizPage = () => {
                 isActive={true}
                 onTimeUp={handleTimeUp}
                 variant="light"
-                resetKey={currentQuestionIndex} // reset timer tiap pindah soal
+                resetKey={currentQuestionIndex}
               />
             </div>
           </div>
@@ -136,10 +241,34 @@ const QuizPage = () => {
           <QuizCard
             question={currentQuestion}
             selectedAnswer={currentAnswer}
-            onSelectAnswer={(index) => recordAnswer(currentQuestionIndex, index)}
+            onSelectAnswer={handleSelectAnswer}
             questionNumber={currentQuestionIndex + 1}
             totalQuestions={questions.length}
+            locked={!!lockedAnswers[currentQuestionIndex]}
           />
+
+          {/* Tombol di dalam card, ukuran lebih kecil */}
+          <div className="mt-6 flex justify-end">
+            {isLastQuestion ? (
+              <Button
+                onClick={handleSubmitQuiz}
+                variant="primary"
+                disabled={isSubmitting}
+                className="bg-[#0f5eff] hover:bg-[#0d52db] px-4 py-2 text-sm"
+              >
+                {isSubmitting ? 'Mengirim...' : '✓ Selesai & Kirim'}
+              </Button>
+            ) : (
+              <Button
+                onClick={handleNextClick}
+                variant="primary"
+                disabled={false}
+                className="bg-[#0f5eff] hover:bg-[#0d52db] px-4 py-2 text-sm"
+              >
+                Lanjut →
+              </Button>
+            )}
+          </div>
         </div>
 
         {submitError && (
@@ -151,47 +280,6 @@ const QuizPage = () => {
             onClose={() => setSubmitError(null)}
           />
         )}
-
-        <div className="flex flex-col sm:flex-row gap-4 sm:items-center">
-          <div className="flex-1 sm:flex-none">
-            {currentQuestionIndex > 0 ? (
-              <Button
-                onClick={previousQuestion}
-                variant="secondary"
-                fullWidth
-                className="bg-gray-100 text-gray-700 border border-gray-200 hover:bg-gray-200"
-              >
-                ← Sebelumnya
-              </Button>
-            ) : (
-              <div className="h-10" />
-            )}
-          </div>
-
-          <div className="flex-[2]">
-            {isLastQuestion ? (
-              <Button
-                onClick={handleSubmitQuiz}
-                variant="primary"
-                disabled={!allAnswered || isSubmitting}
-                fullWidth
-                className="bg-[#0f5eff] hover:bg-[#0d52db]"
-              >
-                {isSubmitting ? 'Mengirim...' : '✓ Selesai & Kirim'}
-              </Button>
-            ) : (
-              <Button
-                onClick={() => nextQuestion(questions.length)}
-                variant="primary"
-                disabled={currentAnswer === undefined}
-                fullWidth
-                className="bg-[#0f5eff] hover:bg-[#0d52db]"
-              >
-                Lanjut →
-              </Button>
-            )}
-          </div>
-        </div>
       </div>
     </div>
   );

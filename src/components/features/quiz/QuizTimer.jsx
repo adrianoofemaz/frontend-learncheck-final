@@ -1,14 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { ClockIcon } from '@heroicons/react/24/solid';
 
-/**
- * QuizTimer
- * resetKey: ubah (mis. dengan question index) agar timer reset ke duration tiap pindah soal
- */
 const QuizTimer = ({ duration = 30, onTimeUp, isActive = true, variant = 'dark', resetKey }) => {
   const [timeLeft, setTimeLeft] = useState(duration);
 
-  // Reset waktu ketika resetKey berubah
   useEffect(() => {
     setTimeLeft(duration);
   }, [duration, resetKey]);
@@ -29,7 +24,7 @@ const QuizTimer = ({ duration = 30, onTimeUp, isActive = true, variant = 'dark',
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [isActive, onTimeUp]);
+  }, [isActive, onTimeUp, resetKey, duration]);
 
   const isWarning = timeLeft <= 10;
   const formatTime = (s) => {

@@ -1,7 +1,4 @@
-/**
- * QuizIntroPage
- */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
 import { useQuiz } from '../hooks/useQuiz';
@@ -11,7 +8,7 @@ import Button from '../components/common/Button';
 import Loading from '../components/common/Loading';
 import { Alert } from '../components/common';
 
-// ============ SIDEBAR COMPONENT (SAME AS LEARNING PAGE) ============
+// ============ SIDEBAR COMPONENT ============
 const ModuleSidebar = ({ tutorials, currentTutorial, getTutorialProgress, onSelectTutorial, isOpen, onClose }) => {
   const getStatusColor = (tutorialId, isCompleted) => {
     if (isCompleted) return 'text-green-500';
@@ -34,7 +31,6 @@ const ModuleSidebar = ({ tutorials, currentTutorial, getTutorialProgress, onSele
         {isOpen ? <ChevronRightIcon color="white" /> : <ChevronLeftIcon color="white" />}
       </div>
 
-      {/* ✅ OVERLAY - close sidebar when click outside (mobile only) */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-transparent bg-opacity-50 z-30 lg:hidden"
@@ -42,7 +38,6 @@ const ModuleSidebar = ({ tutorials, currentTutorial, getTutorialProgress, onSele
         />
       )}
 
-      {/* ✅ SIDEBAR - Fixed on mobile, sticky on desktop */}
       <div
         className={`fixed h-full lg:absolute top-0 right-0 w-80 pt-20 bg-white border-l border-gray-200 
           px-6 overflow-y-auto z-20 transform transition-transform duration-300 ease-in-out ${
@@ -129,7 +124,6 @@ const QuizIntroPage = () => {
   const loading = quizLoading || learningLoading;
   const error = quizError;
 
-  // ✅ FETCH tutorials pada mount
   useEffect(() => {
     if (!tutorialsFetched && tutorialId) {
       const parsedId = parseInt(tutorialId);
@@ -140,7 +134,6 @@ const QuizIntroPage = () => {
     }
   }, [tutorialId, tutorialsFetched, fetchTutorials]);
 
-  // ✅ SELECT current tutorial
   useEffect(() => {
     if (tutorialId && tutorials.length > 0) {
       const parsedId = parseInt(tutorialId);
@@ -152,7 +145,6 @@ const QuizIntroPage = () => {
     }
   }, [tutorialId, tutorials, selectTutorial]);
 
-  // ✅ FETCH questions untuk tau jumlah soal
   useEffect(() => {
     if (tutorialId) {
       fetchQuestions(parseInt(tutorialId)).catch((err) => {
@@ -162,6 +154,19 @@ const QuizIntroPage = () => {
     }
   }, [tutorialId, fetchQuestions]);
 
+  const totalQuestions = questions.length || 3;
+  const timePerQuestion = 30;
+
+  const submodNumber = useMemo(() => {
+    if (!currentTutorial || !tutorials?.length) return null;
+    const idx = tutorials.findIndex((t) => t.id === currentTutorial.id);
+    return idx >= 0 ? idx + 1 : null;
+  }, [currentTutorial, tutorials]);
+
+  const submodLabel = submodNumber
+    ? `Quiz Submodul ${submodNumber}: ${currentTutorial?.title || ''}`
+    : currentTutorial?.title || 'Quiz Submodul';
+
   const handleStartQuiz = () => {
     if (tutorialId) {
       navigate(`/quiz/${tutorialId}`);
@@ -170,12 +175,15 @@ const QuizIntroPage = () => {
     }
   };
 
-  const setSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
-
   const handleSelectTutorial = (id) => {
     navigate(`/quiz-intro/${id}`);
+  };
+
+  const setSidebar = () => setSidebarOpen(!sidebarOpen);
+
+  // margin-right dinamis agar konten kiri tidak ketutup sidebar; tetap center
+  const mainStyle = {
+    marginRight: sidebarOpen ? 340 : 0, // lebar sidebar + sedikit gap
   };
 
   if (loading) {
@@ -199,46 +207,42 @@ const QuizIntroPage = () => {
     );
   }
 
-  // ✅ GET dari questions array
-  const totalQuestions = questions.length || 0;
-  const timePerQuestion = 30; // seconds
-
   return (
     <div className="flex h-screen">
-      {/* Main Content - scrollable & responsive */}
-      <div className={`flex-1 overflow-y-auto pb-24 pt-8 ${sidebarOpen ? 'pr-48' : ''}`}>
+      <div
+        className="flex-1 overflow-y-auto pb-16 pt-8 px-4 sm:px-6"
+        style={mainStyle}
+      >
         <div className="quiz-intro-wrapper">
           <div className="quiz-hero">
-            {/* Window dots */}
-            <div className="window-controls">
-              <span className="window-dot dot-red" />
-              <span className="window-dot dot-yellow" />
-              <span className="window-dot dot-green" />
-            </div>
-
-            {/* Badge */}
-            <div className="flex justify-center relative z-20">
-              <span className="quiz-badge">Quiz Submodul</span>
+            {/* Top bar (dots only) */}
+            <div className="quiz-hero-top">
+              <div className="window-controls">
+                <span className="window-dot dot-red" />
+                <span className="window-dot dot-yellow" />
+                <span className="window-dot dot-green" />
+              </div>
             </div>
 
             {/* Body */}
             <div className="quiz-hero-body">
+              <div className="quiz-pill">Quiz Submodul</div>
               <h1>LearnCheck!</h1>
               <p className="lead">“Let’s have some fun and test your understanding!”</p>
 
-              {/* Info card */}
               <div className="quiz-info-card">
-                <h2>{currentTutorial?.title || 'Quiz'}</h2>
-                <div className="info-rows">
-                  <div className="info-row">
+                <h2 className="text-center text-lg font-semibold text-gray-900 mb-4">
+                  {submodLabel}
+                </h2>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center gap-4 sm:gap-8">
+                  <div className="flex items-center gap-3">
                     <span className="icon-circle">≡</span>
                     <div>
                       <p className="text-gray-600 text-sm">Jumlah Soal</p>
                       <p className="text-xl font-bold text-gray-900">{totalQuestions} Soal</p>
                     </div>
                   </div>
-
-                  <div className="info-row">
+                  <div className="flex items-center gap-3">
                     <span className="icon-circle">⏱</span>
                     <div>
                       <p className="text-gray-600 text-sm">Durasi</p>
@@ -248,8 +252,7 @@ const QuizIntroPage = () => {
                 </div>
               </div>
 
-              {/* CTA */}
-              <div className="flex justify-center">
+              <div className="flex justify-center mt-4">
                 <Button
                   onClick={handleStartQuiz}
                   variant="primary"
@@ -263,7 +266,6 @@ const QuizIntroPage = () => {
         </div>
       </div>
 
-      {/* ✅ RIGHT SIDEBAR - Same as LearningPage */}
       {tutorials && tutorials.length > 0 && (
         <ModuleSidebar
           tutorials={tutorials}
