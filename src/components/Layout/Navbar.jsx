@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/solid";
-import Button from "../Common/Button";
+import Button from "../common/Button";
 import { UserContext } from "../../context/UserContext";
 import ThemeToggle from "../Common/ThemeToggle";
 

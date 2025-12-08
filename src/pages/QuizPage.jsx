@@ -3,19 +3,26 @@
  * Main quiz page - display questions & handle answers
  */
 
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useQuizProgress } from '../hooks/useQuizProgress';
-import { useQuiz } from '../hooks/useQuiz';
-import { QuizCard, QuizTimer } from '../components/features/quiz';
-import { Alert } from '../components/common';
-import Button from '../components/common/Button';
-import Loading from '../components/common/Loading';
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useQuizProgress } from "../hooks/useQuizProgress";
+import { useQuiz } from "../hooks/useQuiz";
+import { QuizCard, QuizTimer } from "../components/features/quiz";
+import { Alert } from "../components/common";
+import Button from "../components/common/Button";
+import Loading from "../components/common/Loading";
 
 const QuizPage = () => {
   const navigate = useNavigate();
   const { tutorialId } = useParams();
-  const { questions, loading, error, assessmentId, fetchQuestions, submitAnswers } = useQuiz();
+  const {
+    questions,
+    loading,
+    error,
+    assessmentId,
+    fetchQuestions,
+    submitAnswers,
+  } = useQuiz();
   const {
     currentQuestionIndex,
     answers,
@@ -29,14 +36,12 @@ const QuizPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
 
-  // ✅ FETCH dengan tutorialId
   useEffect(() => {
     if (tutorialId) {
-      console.log('Fetching quiz for tutorial:', tutorialId);
       fetchQuestions(parseInt(tutorialId));
       initializeQuiz();
     } else {
-      setSubmitError('Tutorial ID tidak ditemukan');
+      setSubmitError("Tutorial ID tidak ditemukan");
     }
   }, [tutorialId, fetchQuestions, initializeQuiz]);
 
@@ -49,7 +54,11 @@ const QuizPage = () => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="max-w-2xl mx-auto text-center">
           <Alert type="error" title="Error" message={error} />
-          <Button onClick={() => navigate(-1)} variant="primary" className="mt-4">
+          <Button
+            onClick={() => navigate(-1)}
+            variant="primary"
+            className="mt-4"
+          >
             Kembali
           </Button>
         </div>
@@ -80,21 +89,17 @@ const QuizPage = () => {
     setSubmitError(null);
 
     try {
-      console.log('Submitting quiz answers..  .');
+      const answersData = Object.entries(answers).map(
+        ([questionIndex, answerIndex]) => {
+          const question = questions[parseInt(questionIndex)];
+          const selectedOption = question?.multiple_choice[answerIndex];
 
-      // ✅ FORMAT JAWABAN SESUAI BACKEND
-      const answersData = Object.entries(answers).map(([questionIndex, answerIndex]) => {
-        const question = questions[parseInt(questionIndex)];
-        const selectedOption = question?. multiple_choice[answerIndex];
-        
-        return {
-          soal_id: question?.id,
-          correct: selectedOption?.correct || false,  // ✅ CEK field correct dari option
-        };
-      });
-
-      console.log('Answers to submit:', answersData);
-      console. log('Assessment ID:', assessmentId);
+          return {
+            soal_id: question?.id,
+            correct: selectedOption?.correct || false,
+          };
+        }
+      );
 
       const result = await submitAnswers(
         parseInt(tutorialId),
@@ -102,19 +107,16 @@ const QuizPage = () => {
         answersData
       );
 
-      console.log('Submit result:', result);
-      navigate('/quiz-results', { state: { result } });
+      navigate("/quiz-results", { state: { result } });
     } catch (err) {
-      console. error('Submit error:', err);
-      setSubmitError(err. message || 'Gagal mengirim jawaban');
+      setSubmitError(err.message || "Gagal mengirim jawaban");
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-2xl mx-auto">
-        {/* Header with Timer */}
+    <div className=" bg-white py-8 pt-30 max-w-4xl mx-auto flex items-center justify-center rounded-lg min-h-screen">
+      <div className="max-w-2xl mx-auto bg-white p-6 shadow-lg rounded-lg">
         <div className="mb-8 flex justify-between items-center">
           <div>
             <p className="text-sm font-medium text-gray-700">
@@ -124,18 +126,24 @@ const QuizPage = () => {
               Dijawab: {Object.keys(answers).length}/{questions.length}
             </p>
           </div>
-          <QuizTimer duration={30} isActive={true} onTimeUp={() => nextQuestion(questions.length)} />
-        </div>
-
-        {/* Progress Bar */}
-        <div className="mb-8 w-full bg-gray-200 rounded-full h-2">
-          <div
-            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
+          <QuizTimer
+            duration={30}
+            isActive={true}
+            onTimeUp={() => nextQuestion(questions.length)}
           />
         </div>
 
-        {/* Question Card */}
+        <div className="mb-8 w-full bg-gray-200 rounded-full h-2">
+          <div
+            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+            style={{
+              width: `${
+                ((currentQuestionIndex + 1) / questions.length) * 100
+              }%`,
+            }}
+          />
+        </div>
+
         <QuizCard
           question={currentQuestion}
           selectedAnswer={currentAnswer}
@@ -144,7 +152,6 @@ const QuizPage = () => {
           totalQuestions={questions.length}
         />
 
-        {/* Error Message */}
         {submitError && (
           <Alert
             type="error"
@@ -156,7 +163,6 @@ const QuizPage = () => {
           />
         )}
 
-        {/* Navigation Buttons */}
         <div className="mt-8 flex gap-4">
           <Button
             onClick={previousQuestion}
@@ -170,14 +176,14 @@ const QuizPage = () => {
             <Button
               onClick={handleSubmitQuiz}
               variant="primary"
-              disabled={! allAnswered || isSubmitting}
+              disabled={!allAnswered || isSubmitting}
               fullWidth
             >
-              {isSubmitting ? 'Mengirim...' : '✓ Selesai & Kirim'}
+              {isSubmitting ? "Mengirim..." : "✓ Selesai & Kirim"}
             </Button>
           ) : (
             <Button
-              onClick={() => nextQuestion(questions. length)}
+              onClick={() => nextQuestion(questions.length)}
               variant="primary"
               disabled={currentAnswer === undefined}
               fullWidth

@@ -25,7 +25,7 @@ const Sidebar = () => {
   const completionPercentage = getCompletionPercentage();
 
   return (
-    <aside className="hidden lg:block w-64  bg-white border-r border-gray-200 sticky top-16 h-[calc(100vh-64px)] overflow-y-auto">
+    <aside className="hidden lg:block w-64 bg-gray-900 border-r border-gray-200 sticky top-16 h-[calc(100vh-64px)] overflow-y-auto">
       <div className="p-6">
         {/* Progress Widget */}
         <div className="mb-8 p-4 bg-blue-50 rounded-lg">

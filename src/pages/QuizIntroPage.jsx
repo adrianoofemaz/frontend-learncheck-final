@@ -1,7 +1,7 @@
 /**
  * QuizIntroPage
  */
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 import { useQuiz } from "../hooks/useQuiz";
@@ -10,6 +10,7 @@ import { useProgress } from "../context/ProgressContext";
 import Button from "../components/common/Button";
 import Loading from "../components/common/Loading";
 import { Alert } from "../components/common";
+import { UserContext } from "../context/UserContext";
 
 // ============ SIDEBAR COMPONENT (SAME AS LEARNING PAGE) ============
 const ModuleSidebar = ({
@@ -20,6 +21,8 @@ const ModuleSidebar = ({
   isOpen,
   onClose,
 }) => {
+  const { preferences } = useContext(UserContext);
+
   const getStatusColor = (tutorialId, isCompleted) => {
     if (isCompleted) return "text-green-500";
     if (currentTutorial?.id === tutorialId) return "text-blue-600";
@@ -59,13 +62,19 @@ const ModuleSidebar = ({
 
       {/* ✅ SIDEBAR - Fixed on mobile, sticky on desktop */}
       <div
-        className={`fixed h-full lg:absolute top-0 right-0 w-80 pt-20 bg-white border-l border-gray-200 
+        className={`fixed h-full lg:absolute top-0 right-0 w-80 pt-20 bg-gray-600 border-l border-gray-200 
           px-6 overflow-y-auto z-20 transform transition-transform duration-300 ease-in-out ${
             isOpen ? "translate-x-0" : "translate-x-120"
-          }`}
+          } ${preferences?.theme === "dark" ? "bg-gray-800" : "bg-white"}`}
       >
         <div className="mb-2 lg:pt-10 pt-10">
-          <h3 className="text-lg font-bold text-gray-900">Daftar Submodul</h3>
+          <h3
+            className={`text-lg font-bold text-gray-900${
+              preferences?.theme === "dark" ? " text-white" : "text-gray-900"
+            }`}
+          >
+            Daftar Submodul
+          </h3>
         </div>
 
         <div className="space-y-2">
@@ -99,7 +108,13 @@ const ModuleSidebar = ({
                       <div className="flex-1 min-w-0">
                         <p
                           className={`text-sm font-medium truncate ${
-                            isCurrent ? "text-blue-600" : "text-gray-900"
+                            isCurrent
+                              ? preferences?.theme === "dark"
+                                ? "text-blue-500"
+                                : "text-blue-600"
+                              : preferences?.theme === "dark"
+                              ? "text-blue-300"
+                              : "text-gray-900"
                           }`}
                         >
                           {tutorial.title}

@@ -5,7 +5,7 @@
  * ✅ Fix: Full background + Dynamic title per submodul
  */
 
-import { useEffect, useState } from "react";
+import { use, useContext, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useLearning } from "../hooks/useLearning";
 import { useProgress } from "../context/ProgressContext";
@@ -13,9 +13,9 @@ import { MaterialContent } from "../components/features/learning";
 import { Alert } from "../components/common";
 import Button from "../components/common/Button";
 import Card from "../components/common/Card";
-
 import Loading from "../components/common/Loading";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
+import { UserContext } from "../context/UserContext";
 
 // ============ SIDEBAR COMPONENT ============
 
@@ -39,6 +39,7 @@ const ModuleSidebar = ({
     return "○";
   };
 
+  const { preferences } = useContext(UserContext);
   return (
     <>
       <div
@@ -58,19 +59,29 @@ const ModuleSidebar = ({
 
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/30 backdrop-blur-[1px] z-30 lg:hidden"
+          className="fixed inset-0 bg-transparent z-30 lg:hidden"
           onClick={onClose}
           aria-hidden="true"
         />
       )}
-
+      {/* ini sidebar */}
       <div
-        className={`fixed h-full top-0 right-0 w-80 pt-32 bg-white border-l border-gray-200 px-6 overflow-y-auto z-20 transform transition-transform duration-300 ease-in-out ${
-          isOpen ? "translate-x-0" : "translate-x-120"
-        }`}
+        className={`fixed h-full top-0 right-0 w-80 pt-32 px-6 overflow-y-auto z-20 transform transition-transform duration-300 ease-in-out 
+    ${
+      preferences?.theme === "dark"
+        ? "bg-gray-800 border-gray-700"
+        : "bg-white border-gray-200"
+    }
+    ${isOpen ? "translate-x-0" : "translate-x-120"}`}
       >
         <div className="mb-2 pt-8 lg:pt-0">
-          <h3 className="text-lg font-bold text-gray-900">Daftar Submodul</h3>
+          <h3
+            className={`text-lg font-bold text-gray-900${
+              preferences?.theme === "dark" ? " text-white" : "text-gray-900"
+            }`}
+          >
+            Daftar Submodul
+          </h3>
         </div>
 
         <div className="space-y-2 h-screen ">
@@ -88,7 +99,7 @@ const ModuleSidebar = ({
                   className={`w-full text-left px-4 py-3 rounded-lg transition-all cursor-pointer ${
                     isCurrent
                       ? "bg-blue-50 border border-blue-300"
-                      : "hover:bg-gray-50 border border-transparent"
+                      : "hover:bg-gray-100 border border-transparent"
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -103,7 +114,13 @@ const ModuleSidebar = ({
                     <div className="flex-1 min-w-0">
                       <p
                         className={`text-sm font-medium truncate ${
-                          isCurrent ? "text-blue-600" : "text-gray-900"
+                          isCurrent
+                            ? preferences?.theme === "dark"
+                              ? "text-blue-500" // Ganti warna untuk dark mode
+                              : "text-blue-600" // Ganti warna untuk light mode
+                            : preferences?.theme === "dark"
+                            ? "text-blue-300" // Warna gelap di dark mode
+                            : "text-gray-900" // Warna terang di light mode
                         }`}
                       >
                         {tutorial.title}
@@ -154,8 +171,16 @@ const BottomNavigationBar = ({
   isCompleted,
   onToggleSidebar,
 }) => {
+  const { preferences } = useContext(UserContext);
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-8 py-4 z-20">
+    <div
+      className={`fixed bottom-0 left-0 right-0 border-t  px-8 py-4 z-20 
+    ${
+      preferences.theme === "dark"
+        ? "bg-gray-900 border-gray-700"
+        : "bg-white border-gray-200"
+    }`}
+    >
       <div className="flex items-center justify-between max-w-7xl mx-auto">
         <Button
           onClick={onHome}
