@@ -70,7 +70,7 @@ const ModuleSidebar = ({
           <h3 className="text-lg font-bold text-gray-900">Daftar Submodul</h3>
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-2 h-screen ">
           {tutorials.map((tutorial, index) => {
             const isCompleted = getTutorialProgress(tutorial.id);
             const isCurrent = currentTutorial?.id === tutorial.id;

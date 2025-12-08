@@ -3,10 +3,14 @@
  * Left sidebar navigation
  */
 
-import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { BookOpenIcon, HomeIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
-import { useProgress } from '../../context/ProgressContext';
+import React from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import {
+  BookOpenIcon,
+  HomeIcon,
+  CheckCircleIcon,
+} from "@heroicons/react/24/outline";
+import { useProgress } from "../../context/ProgressContext";
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -14,8 +18,8 @@ const Sidebar = () => {
   const { getCompletionPercentage } = useProgress();
 
   const menuItems = [
-    { label: 'Beranda', path: '/home', icon: HomeIcon },
-    { label: 'Materi', path: '/learning', icon: BookOpenIcon },
+    { label: "Beranda", path: "/home", icon: HomeIcon },
+    { label: "Materi", path: "/learning", icon: BookOpenIcon },
   ];
 
   const completionPercentage = getCompletionPercentage();
@@ -25,8 +29,12 @@ const Sidebar = () => {
       <div className="p-6">
         {/* Progress Widget */}
         <div className="mb-8 p-4 bg-blue-50 rounded-lg">
-          <h3 className="text-sm font-semibold text-gray-900 mb-3">Progress Belajar</h3>
-          <div className="text-3xl font-bold text-blue-600 mb-2">{completionPercentage}%</div>
+          <h3 className="text-sm font-semibold text-gray-900 mb-3">
+            Progress Belajar
+          </h3>
+          <div className="text-3xl font-bold text-blue-600 mb-2">
+            {completionPercentage}%
+          </div>
           <div className="w-full bg-gray-300 rounded-full h-2">
             <div
               className="bg-blue-600 h-2 rounded-full transition-all"
@@ -39,7 +47,7 @@ const Sidebar = () => {
         <nav className="space-y-2">
           {menuItems.map((item) => {
             const Icon = item.icon;
-            const isActive = location.pathname === item. path;
+            const isActive = location.pathname === item.path;
 
             return (
               <button
@@ -47,8 +55,8 @@ const Sidebar = () => {
                 onClick={() => navigate(item.path)}
                 className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg transition ${
                   isActive
-                    ? 'bg-blue-100 text-blue-600 font-semibold'
-                    : 'text-gray-700 hover:bg-gray-100'
+                    ? "bg-blue-100 text-blue-600 font-semibold"
+                    : "text-gray-700 hover:bg-gray-100"
                 }`}
               >
                 <Icon className="w-5 h-5" />
