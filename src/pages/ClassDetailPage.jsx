@@ -1,20 +1,16 @@
-/**
- * ClassDetailPage
- * Detail page untuk satu class dengan hero & benefits
- * Route: /home (Beranda)
- */
-
-import React, { useEffect } from "react";
+import React, { useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLearning } from "../hooks/useLearning";
 import { useProgress } from "../context/ProgressContext";
-import Button from "../components/Common/Button";
+import Button from "../components/common/Button";
 import Card from "../components/common/Card";
 import Loading from "../components/common/Loading";
 import { Alert } from "../components/common";
+import { UserContext } from "../context/UserContext"; // Import UserContext
 
 // ============ SECTION COMPONENTS ============
 
+// HeroSection Component
 const HeroSection = ({
   module,
   completionPercentage,
@@ -29,9 +25,18 @@ const HeroSection = ({
     }
   };
 
+  // Ambil preferences dari context untuk tema
+  const { preferences } = useContext(UserContext);
+
   return (
     <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-20 pt-30">
-      <div className="flex flex-col md:flex-row items-center mb-8 gap-10 p-8 bg-white rounded-lg shadow-md transition-all duration-500 ease-in-out">
+      <div
+        className={`flex flex-col md:flex-row items-center mb-8 gap-10 p-8  drop-shadow-xl border-1 rounded-lg shadow-md transition-all duration-500 ease-in-out ${
+          preferences.theme === "dark"
+            ? "text-white bg-gray-800 border-gray-800 shadow-gray-900"
+            : "text-gray-900 bg-white border-gray-200"
+        }`}
+      >
         <div className="transition-all transform duration-500 ease-in-out hover:scale-105 w-full md:w-120 h-auto">
           <img
             src="/assets/images/fotomodul.png"
@@ -53,7 +58,11 @@ const HeroSection = ({
             {["AI", "Machine Learning", "Data Science"].map((tag) => (
               <span
                 key={tag}
-                className="py-1 px-4 bg-blue-200 rounded-2xl text-sm transition-all duration-300 ease-in-out hover:bg-blue-300"
+                className={`py-1 px-4  rounded-2xl text-sm transition-all duration-300 ease-in-out  ${
+                  preferences.theme === "dark"
+                    ? "text-white bg-blue-500 hover:bg-blue-700"
+                    : "text-blue-800 bg-blue-200 hover:bg-blue-400"
+                }`}
               >
                 {tag}
               </span>
@@ -79,19 +88,21 @@ const HeroSection = ({
           </span>
 
           <div>
-            <p className="text-sm text-gray-500">Progres Kursus:</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Progres Kursus:
+            </p>
             <div className="flex items-center justify-between w-full">
-              <div className="w-full bg-gray-300 h-1 rounded-full mr-4">
+              <div className="w-full bg-gray-300 dark:bg-gray-700 h-1 rounded-full mr-4">
                 <div
-                  className="bg-blue-600 h-1 rounded-full transition-all duration-300"
+                  className="bg-blue-600 dark:bg-blue-500 h-1 rounded-full transition-all duration-300"
                   style={{ width: `${completionPercentage}%` }}
                 ></div>
               </div>
               <div className="flex gap-2 w-full">
-                <span className="text-xs font-semibold text-blue-600 whitespace-nowrap">
+                <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 whitespace-nowrap">
                   {completionPercentage}% Selesai
                 </span>
-                <span className="text-xs text-gray-500 whitespace-nowrap">
+                <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
                   Waktu Belajar: 21 Jam
                 </span>
               </div>
@@ -115,10 +126,17 @@ const HeroSection = ({
   );
 };
 
+// Benefits Section
 const BenefitsSection = ({ benefits }) => {
+  const { preferences } = useContext(UserContext);
+
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-      <h2 className="text-2xl font-bold mb-8 text-center lg:text-left">
+      <h2
+        className={`text-2xl font-bold mb-8 text-center lg:text-left ${
+          preferences.theme === "dark" ? "text-white" : "text-gray-900"
+        }`}
+      >
         Fitur & Manfaat Kelas
       </h2>
 
@@ -126,15 +144,27 @@ const BenefitsSection = ({ benefits }) => {
         {benefits.map((benefit) => (
           <div
             key={benefit.id}
-            className="flex flex-col h-full items-center text-center bg-white backdrop-blur rounded-xl shadow-sm p-4 sm:p-5"
+            className={`flex flex-col h-full items-center text-center   backdrop-blur rounded-xl shadow-sm p-4 sm:p-5 border-1 hover:shadow-xl transform duration-500 ease-in-out hover:scale-105 ${
+              preferences.theme === "dark"
+                ? "text-white bg-gray-600 border-gray-700 "
+                : "text-gray-900 border-gray-200 bg-white "
+            }`}
           >
-            <div className="w-12 h-12 mb-3 bg-blue-100 rounded-lg flex items-center justify-center text-2xl font-bold text-blue-600">
+            <div className="w-12 h-12 mb-3 bg-blue-100 dark:bg-blue-500 rounded-lg flex items-center justify-center text-2xl font-bold text-blue-600 dark:text-white">
               {benefit.icon}
             </div>
-            <h3 className="font-semibold text-gray-900 mb-2 min-h-[48px] flex items-center justify-center">
+            <h3
+              className={`font-semibold ${
+                preferences.theme === "dark" ? "text-white" : "text-gray-900"
+              } mb-2 min-h-[48px] flex items-center justify-center`}
+            >
               {benefit.title}
             </h3>
-            <p className="text-sm text-gray-600 leading-relaxed">
+            <p
+              className={`text-sm ${
+                preferences.theme === "dark" ? "text-gray-300" : "text-gray-600"
+              } leading-relaxed`}
+            >
               {benefit.desc}
             </p>
           </div>
@@ -144,23 +174,41 @@ const BenefitsSection = ({ benefits }) => {
   );
 };
 
-// ✅ Description Section
+// Description Section
 const DescriptionSection = ({ module }) => {
+  const { preferences } = useContext(UserContext);
+
   if (!module) return null;
 
   return (
     <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-20 my-10">
-      <h2 className="text-2xl font-bold mb-6">Tentang Kelas Ini</h2>
+      <h2
+        className={`text-2xl font-bold mb-6 ${
+          preferences.theme === "dark" ? "text-white" : "text-gray-900"
+        }`}
+      >
+        Tentang Kelas Ini
+      </h2>
 
-      <Card className="p-8">
-        <div className="space-y-6 text-gray-700 leading-relaxed">
+      <Card
+        className={`p-8 border ${
+          preferences.theme === "dark"
+            ? "text-gray-200 bg-gray-700 border-gray-900 rounded-2xl"
+            : "text-gray-900 bg-white border-gray-200 rounded-2xl"
+        }`}
+      >
+        <div className={`space-y-6 text-gray-white leading-relaxed`}>
           <p className="text-lg">
             {module.description ||
               "Pelajari fundamental Artificial Intelligence dengan materi interaktif dan quiz"}
           </p>
 
           <div>
-            <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <h3
+              className={`text-xl font-bold  mb-2 flex items-center gap-3 ${
+                preferences.theme === "dark" ? "text-white" : "text-gray-900"
+              }`}
+            >
               <span className="w-6 h-6 bg-blue-100 rounded flex items-center justify-center text-blue-600 text-lg">
                 ▶
               </span>
@@ -168,30 +216,34 @@ const DescriptionSection = ({ module }) => {
             </h3>
             <ul className="space-y-2 ml-8">
               <li className="flex items-start gap-2">
-                <span className="text-blue-600 font-bold mt-1">•</span>
+                <span className="text-blue-600 font-bold ">•</span>
                 <span>Konsep dasar Artificial Intelligence</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-blue-600 font-bold mt-1">•</span>
+                <span className="text-blue-600 font-bold ">•</span>
                 <span>Machine Learning dan penerapannya</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-blue-600 font-bold mt-1">•</span>
+                <span className="text-blue-600 font-bold">•</span>
                 <span>Data Science fundamentals</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-blue-600 font-bold mt-1">•</span>
+                <span className="text-blue-600 font-bold">•</span>
                 <span>Best practices dalam AI development</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-blue-600 font-bold mt-1">•</span>
+                <span className="text-blue-600 font-bold">•</span>
                 <span>Real-world use cases dan applications</span>
               </li>
             </ul>
           </div>
 
           <div>
-            <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <h3
+              className={`text-xl font-bold text-gray-900 mb-2 flex items-center gap-2 ${
+                preferences.theme === "dark" ? "text-white" : "text-gray-900"
+              }`}
+            >
               <span className="w-6 h-6 bg-yellow-100 rounded flex items-center justify-center text-yellow-600 text-lg">
                 ⚠
               </span>
@@ -204,7 +256,11 @@ const DescriptionSection = ({ module }) => {
           </div>
 
           <div>
-            <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <h3
+              className={`text-xl font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2 ${
+                preferences.theme === "dark" ? "text-white" : "text-gray-900"
+              }`}
+            >
               <span className="w-6 h-6 bg-green-100 rounded flex items-center justify-center text-green-600 text-lg">
                 ✓
               </span>
@@ -221,8 +277,7 @@ const DescriptionSection = ({ module }) => {
   );
 };
 
-// ============ MAIN COMPONENT ============
-
+// Main Component
 const ClassDetailPage = () => {
   const navigate = useNavigate();
   const { modules, tutorials, loading, error, fetchModules, fetchTutorials } =

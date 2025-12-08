@@ -11,24 +11,32 @@ import { Alert } from '../components/common';
 // ============ SIDEBAR COMPONENT ============
 const ModuleSidebar = ({ tutorials, currentTutorial, getTutorialProgress, onSelectTutorial, isOpen, onClose }) => {
   const getStatusColor = (tutorialId, isCompleted) => {
-    if (isCompleted) return 'text-green-500';
-    if (currentTutorial?.id === tutorialId) return 'text-blue-600';
-    return 'text-gray-400';
+    if (isCompleted) return "text-green-500";
+    if (currentTutorial?.id === tutorialId) return "text-blue-600";
+    return "text-gray-400";
   };
 
   const getStatusIcon = (isCompleted, isCurrent) => {
-    if (isCompleted) return '✓';
-    if (isCurrent) return '▶';
-    return '○';
+    if (isCompleted) return "✓";
+    if (isCurrent) return "▶";
+    return "○";
   };
 
   return (
     <>
       <div
         onClick={onClose}
-        className={`absolute ${isOpen ? 'rounded-full translate-x-8' : 'rounded-l-full translate-x-78'} p-2 bg-blue-900 w-8 z-100 top-20 right-76 transform transition-transform duration-300 ease-in-out text-gray-500 hover:text-gray-700 text-2xl`}
+        className={`absolute ${
+          isOpen
+            ? "rounded-full translate-x-8"
+            : "rounded-l-full translate-x-78"
+        } p-2 bg-blue-900 w-8 z-100 top-20 right-76 transform transition-transform duration-300 ease-in-out text-gray-500 hover:text-gray-700 text-2xl`}
       >
-        {isOpen ? <ChevronRightIcon color="white" /> : <ChevronLeftIcon color="white" />}
+        {isOpen ? (
+          <ChevronRightIcon color="white" />
+        ) : (
+          <ChevronLeftIcon color="white" />
+        )}
       </div>
 
       {isOpen && (
@@ -41,8 +49,8 @@ const ModuleSidebar = ({ tutorials, currentTutorial, getTutorialProgress, onSele
       <div
         className={`fixed h-full lg:absolute top-0 right-0 w-80 pt-20 bg-white border-l border-gray-200 
           px-6 overflow-y-auto z-20 transform transition-transform duration-300 ease-in-out ${
-          isOpen ? 'translate-x-0' : 'translate-x-120'
-        }`}
+            isOpen ? "translate-x-0" : "translate-x-120"
+          }`}
       >
         <div className="mb-2 lg:pt-10 pt-10">
           <h3 className="text-lg font-bold text-gray-900">Daftar Submodul</h3>
@@ -63,24 +71,33 @@ const ModuleSidebar = ({ tutorials, currentTutorial, getTutorialProgress, onSele
                     }}
                     className={`w-full text-left px-4 py-3 rounded-lg transition-all cursor-pointer ${
                       isCurrent
-                        ? 'bg-blue-50 border border-blue-300'
-                        : 'hover:bg-gray-50 border border-transparent'
+                        ? "bg-blue-50 border border-blue-300"
+                        : "hover:bg-gray-50 border border-transparent"
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <span className={`text-xl font-bold ${getStatusColor(tutorial.id, isCompleted)}`}>
+                      <span
+                        className={`text-xl font-bold ${getStatusColor(
+                          tutorial.id,
+                          isCompleted
+                        )}`}
+                      >
                         {getStatusIcon(isCompleted, isCurrent)}
                       </span>
                       <div className="flex-1 min-w-0">
                         <p
                           className={`text-sm font-medium truncate ${
-                            isCurrent ? 'text-blue-600' : 'text-gray-900'
+                            isCurrent ? "text-blue-600" : "text-gray-900"
                           }`}
                         >
                           {tutorial.title}
                         </p>
                         <p className="text-xs text-gray-500">
-                          {isCompleted ? 'Selesai' : isCurrent ? 'Sedang Dipelajari' : 'Belum Dimulai'}
+                          {isCompleted
+                            ? "Selesai"
+                            : isCurrent
+                            ? "Sedang Dipelajari"
+                            : "Belum Dimulai"}
                         </p>
                       </div>
                     </div>
@@ -88,8 +105,10 @@ const ModuleSidebar = ({ tutorials, currentTutorial, getTutorialProgress, onSele
 
                   <div className="ml-10 mt-2 h-1 bg-gray-200 rounded-full overflow-hidden">
                     <div
-                      className={`h-full transition-all ${isCompleted ? 'bg-green-500' : 'bg-blue-500'}`}
-                      style={{ width: isCompleted ? '100%' : '0%' }}
+                      className={`h-full transition-all ${
+                        isCompleted ? "bg-green-500" : "bg-blue-500"
+                      }`}
+                      style={{ width: isCompleted ? "100%" : "0%" }}
                     />
                   </div>
 
@@ -114,8 +133,19 @@ const ModuleSidebar = ({ tutorials, currentTutorial, getTutorialProgress, onSele
 const QuizIntroPage = () => {
   const navigate = useNavigate();
   const { tutorialId } = useParams();
-  const { questions, loading: quizLoading, error: quizError, fetchQuestions } = useQuiz();
-  const { tutorials, currentTutorial, selectTutorial, fetchTutorials, loading: learningLoading } = useLearning();
+  const {
+    questions,
+    loading: quizLoading,
+    error: quizError,
+    fetchQuestions,
+  } = useQuiz();
+  const {
+    tutorials,
+    currentTutorial,
+    selectTutorial,
+    fetchTutorials,
+    loading: learningLoading,
+  } = useLearning();
   const { getTutorialProgress } = useProgress();
   const [showError, setShowError] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -139,7 +169,7 @@ const QuizIntroPage = () => {
       const parsedId = parseInt(tutorialId);
       if (!isNaN(parsedId)) {
         selectTutorial(parsedId).catch((err) => {
-          console.error('Error selecting tutorial:', err);
+          console.error("Error selecting tutorial:", err);
         });
       }
     }
@@ -148,7 +178,7 @@ const QuizIntroPage = () => {
   useEffect(() => {
     if (tutorialId) {
       fetchQuestions(parseInt(tutorialId)).catch((err) => {
-        console.error('Error fetching questions:', err);
+        console.error("Error fetching questions:", err);
         setShowError(true);
       });
     }
@@ -171,7 +201,7 @@ const QuizIntroPage = () => {
     if (tutorialId) {
       navigate(`/quiz/${tutorialId}`);
     } else {
-      console.error('Tutorial ID tidak ditemukan');
+      console.error("Tutorial ID tidak ditemukan");
     }
   };
 
@@ -197,9 +227,13 @@ const QuizIntroPage = () => {
           <Alert
             type="error"
             title="Gagal Memuat Kuis"
-            message={error || 'Terjadi kesalahan saat mempersiapkan kuis'}
+            message={error || "Terjadi kesalahan saat mempersiapkan kuis"}
           />
-          <Button onClick={() => navigate(-1)} variant="primary" className="mt-4 cursor-pointer">
+          <Button
+            onClick={() => navigate(-1)}
+            variant="primary"
+            className="mt-4 cursor-pointer"
+          >
             Kembali
           </Button>
         </div>
@@ -228,7 +262,9 @@ const QuizIntroPage = () => {
             <div className="quiz-hero-body">
               <div className="quiz-pill">Quiz Submodul</div>
               <h1>LearnCheck!</h1>
-              <p className="lead">“Let’s have some fun and test your understanding!”</p>
+              <p className="lead">
+                “Let’s have some fun and test your understanding!”
+              </p>
 
               <div className="quiz-info-card">
                 <h2 className="text-center text-lg font-semibold text-gray-900 mb-4">
@@ -239,14 +275,18 @@ const QuizIntroPage = () => {
                     <span className="icon-circle">≡</span>
                     <div>
                       <p className="text-gray-600 text-sm">Jumlah Soal</p>
-                      <p className="text-xl font-bold text-gray-900">{totalQuestions} Soal</p>
+                      <p className="text-xl font-bold text-gray-900">
+                        {totalQuestions} Soal
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="icon-circle">⏱</span>
                     <div>
                       <p className="text-gray-600 text-sm">Durasi</p>
-                      <p className="text-xl font-bold text-gray-900">{timePerQuestion} detik/soal</p>
+                      <p className="text-xl font-bold text-gray-900">
+                        {timePerQuestion} detik/soal
+                      </p>
                     </div>
                   </div>
                 </div>

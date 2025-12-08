@@ -17,18 +17,18 @@ import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
 
 // Pages - Main
-import ClassDetailPage from './pages/ClassDetailPage';
-import LearningPage from './pages/LearningPage';
-import QuizPage from './pages/QuizPage';
-import QuizIntroPage from './pages/QuizIntroPage';
-import ResultsPage from './pages/ResultsPage';
-import NotFoundPage from './pages/NotFoundPage';
+import ClassDetailPage from "./pages/ClassDetailPage";
+import LearningPage from "./pages/LearningPage";
+import QuizPage from "./pages/QuizPage";
+import QuizIntroPage from "./pages/QuizIntroPage";
+import ResultsPage from "./pages/ResultsPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
 // Pages - Final Quiz & Dashboard Modul
-import FinalQuizIntroPage from './pages/FinalQuizIntroPage';
-import FinalQuizPage from './pages/FinalQuizPage';
-import FinalQuizResultPage from './pages/FinalQuizResultPage';
-import DashboardModulPage from './pages/DashboardModulPage';
+import FinalQuizIntroPage from "./pages/FinalQuizIntroPage";
+import FinalQuizPage from "./pages/FinalQuizPage";
+import FinalQuizResultPage from "./pages/FinalQuizResultPage";
+import DashboardModulPage from "./pages/DashboardModulPage";
 
 // Routes
 import { ROUTES } from "./constants/routes";

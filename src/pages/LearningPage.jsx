@@ -5,16 +5,17 @@
  * ✅ Fix: Full background + Dynamic title per submodul
  */
 
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useLearning } from '../hooks/useLearning';
-import { useProgress } from '../context/ProgressContext';
-import { MaterialContent } from '../components/features/learning';
-import { Alert } from '../components/common';
-import Button from '../components/common/Button';
-import Card from '../components/common/Card';
-import Loading from '../components/common/Loading';
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useLearning } from "../hooks/useLearning";
+import { useProgress } from "../context/ProgressContext";
+import { MaterialContent } from "../components/features/learning";
+import { Alert } from "../components/common";
+import Button from "../components/common/Button";
+import Card from "../components/common/Card";
+
+import Loading from "../components/common/Loading";
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 
 // ============ SIDEBAR COMPONENT ============
 
@@ -27,15 +28,15 @@ const ModuleSidebar = ({
   onClose,
 }) => {
   const getStatusColor = (tutorialId, isCompleted) => {
-    if (isCompleted) return 'text-green-500';
-    if (currentTutorial?.id === tutorialId) return 'text-blue-600';
-    return 'text-gray-400';
+    if (isCompleted) return "text-green-500";
+    if (currentTutorial?.id === tutorialId) return "text-blue-600";
+    return "text-gray-400";
   };
 
   const getStatusIcon = (isCompleted, isCurrent) => {
-    if (isCompleted) return '✓';
-    if (isCurrent) return '▶';
-    return '○';
+    if (isCompleted) return "✓";
+    if (isCurrent) return "▶";
+    return "○";
   };
 
   return (
@@ -43,10 +44,16 @@ const ModuleSidebar = ({
       <div
         onClick={onClose}
         className={`absolute ${
-          isOpen ? 'rounded-full translate-x-8' : 'rounded-l-full translate-x-78'
+          isOpen
+            ? "rounded-full translate-x-8"
+            : "rounded-l-full translate-x-78"
         } p-2 bg-blue-900 w-8 z-100 top-20 right-76 transform transition-transform duration-300 ease-in-out text-gray-500 hover:text-gray-700 text-2xl cursor-pointer`}
       >
-        {isOpen ? <ChevronRightIcon color="white" /> : <ChevronLeftIcon color="white" />}
+        {isOpen ? (
+          <ChevronRightIcon color="white" />
+        ) : (
+          <ChevronLeftIcon color="white" />
+        )}
       </div>
 
       {isOpen && (
@@ -59,14 +66,14 @@ const ModuleSidebar = ({
 
       <div
         className={`fixed h-full top-0 right-0 w-80 pt-32 bg-white border-l border-gray-200 px-6 overflow-y-auto z-20 transform transition-transform duration-300 ease-in-out ${
-          isOpen ? 'translate-x-0' : 'translate-x-120'
+          isOpen ? "translate-x-0" : "translate-x-120"
         }`}
       >
         <div className="mb-2 pt-8 lg:pt-0">
           <h3 className="text-lg font-bold text-gray-900">Daftar Submodul</h3>
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-2 h-screen ">
           {tutorials.map((tutorial, index) => {
             const isCompleted = getTutorialProgress(tutorial.id);
             const isCurrent = currentTutorial?.id === tutorial.id;
@@ -79,23 +86,34 @@ const ModuleSidebar = ({
                     onClose();
                   }}
                   className={`w-full text-left px-4 py-3 rounded-lg transition-all cursor-pointer ${
-                    isCurrent ? 'bg-blue-50 border border-blue-300' : 'hover:bg-gray-50 border border-transparent'
+                    isCurrent
+                      ? "bg-blue-50 border border-blue-300"
+                      : "hover:bg-gray-50 border border-transparent"
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <span className={`text-xl font-bold ${getStatusColor(tutorial.id, isCompleted)}`}>
+                    <span
+                      className={`text-xl font-bold ${getStatusColor(
+                        tutorial.id,
+                        isCompleted
+                      )}`}
+                    >
                       {getStatusIcon(isCompleted, isCurrent)}
                     </span>
                     <div className="flex-1 min-w-0">
                       <p
                         className={`text-sm font-medium truncate ${
-                          isCurrent ? 'text-blue-600' : 'text-gray-900'
+                          isCurrent ? "text-blue-600" : "text-gray-900"
                         }`}
                       >
                         {tutorial.title}
                       </p>
                       <p className="text-xs text-gray-500">
-                        {isCompleted ? 'Selesai' : isCurrent ? 'Sedang Dipelajari' : 'Belum Dimulai'}
+                        {isCompleted
+                          ? "Selesai"
+                          : isCurrent
+                          ? "Sedang Dipelajari"
+                          : "Belum Dimulai"}
                       </p>
                     </div>
                   </div>
@@ -103,8 +121,10 @@ const ModuleSidebar = ({
 
                 <div className="ml-10 mt-2 h-1 bg-gray-200 rounded-full overflow-hidden">
                   <div
-                    className={`h-full transition-all ${isCompleted ? 'bg-green-500' : 'bg-blue-500'}`}
-                    style={{ width: isCompleted ? '100%' : '0%' }}
+                    className={`h-full transition-all ${
+                      isCompleted ? "bg-green-500" : "bg-blue-500"
+                    }`}
+                    style={{ width: isCompleted ? "100%" : "0%" }}
                   />
                 </div>
 
@@ -127,24 +147,42 @@ const ModuleSidebar = ({
 
 // ============ BOTTOM NAVIGATION BAR ============
 
-const BottomNavigationBar = ({ onHome, onMarkComplete, onStartQuiz, isCompleted, onToggleSidebar }) => {
+const BottomNavigationBar = ({
+  onHome,
+  onMarkComplete,
+  onStartQuiz,
+  isCompleted,
+  onToggleSidebar,
+}) => {
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-8 py-4 z-20">
       <div className="flex items-center justify-between max-w-7xl mx-auto">
-        <Button onClick={onHome} variant="secondary" className="flex items-center gap-2 cursor-pointer">
+        <Button
+          onClick={onHome}
+          variant="secondary"
+          className="flex items-center gap-2 cursor-pointer"
+        >
           ← Beranda
         </Button>
 
         <div className="flex gap-4">
           {!isCompleted && (
-            <Button onClick={onMarkComplete} variant="secondary" className="cursor-pointer">
+            <Button
+              onClick={onMarkComplete}
+              variant="secondary"
+              className="cursor-pointer"
+            >
               ✓ Tandai Selesai
             </Button>
           )}
         </div>
 
         <div className="flex gap-4 items-center">
-          <Button onClick={onStartQuiz} variant="primary" className="flex items-center gap-2 cursor-pointer">
+          <Button
+            onClick={onStartQuiz}
+            variant="primary"
+            className="flex items-center gap-2 cursor-pointer"
+          >
             ▶️ Mulai Quiz →
           </Button>
 
@@ -153,8 +191,18 @@ const BottomNavigationBar = ({ onHome, onMarkComplete, onStartQuiz, isCompleted,
             className="lg:hidden p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors cursor-pointer"
             title="Toggle sidebar"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
             </svg>
           </button>
         </div>
@@ -169,7 +217,8 @@ const LearningPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   // ✅ KEEP: selectTutorial (working backend)
-  const { currentTutorial, loading, error, selectTutorial, tutorials } = useLearning();
+  const { currentTutorial, loading, error, selectTutorial, tutorials } =
+    useLearning();
   const { updateTutorialProgress, getTutorialProgress } = useProgress();
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
@@ -202,7 +251,7 @@ const LearningPage = () => {
       const parsedId = parseInt(id);
       if (!isNaN(parsedId)) {
         selectTutorial(parsedId).catch((err) => {
-          console.error('Error selecting tutorial:', err);
+          console.error("Error selecting tutorial:", err);
         });
       }
     }
@@ -211,11 +260,13 @@ const LearningPage = () => {
   // ============ STATE CALCULATIONS ============
   const currentIndex = tutorials.findIndex((t) => t.id === currentTutorial?.id);
   const totalModules = tutorials.length;
-  const progressPercentage = totalModules > 0 ? ((currentIndex + 1) / totalModules) * 100 : 0;
+  const progressPercentage =
+    totalModules > 0 ? ((currentIndex + 1) / totalModules) * 100 : 0;
   const isCompleted = getTutorialProgress(currentTutorial?.id);
 
   // ✅ DYNAMIC: Static title dari tutorials array (berubah per submodul)
-  const currentTutorialTitle = tutorials.find((t) => t.id === currentTutorial?.id)?.title || '';
+  const currentTutorialTitle =
+    tutorials.find((t) => t.id === currentTutorial?.id)?.title || "";
 
   // ============ RENDER - LOADING ============
   if (loading) {
@@ -228,7 +279,11 @@ const LearningPage = () => {
       <div className="flex items-center justify-center min-h-screen">
         <div className="max-w-md text-center">
           <Alert type="error" title="Terjadi Kesalahan" message={error} />
-          <Button onClick={() => navigate('/home')} variant="primary" className="mt-4 cursor-pointer">
+          <Button
+            onClick={() => navigate("/home")}
+            variant="primary"
+            className="mt-4 cursor-pointer"
+          >
             Kembali ke Beranda
           </Button>
         </div>
@@ -246,7 +301,11 @@ const LearningPage = () => {
             title="Materi belum tersedia"
             message="Silakan kembali ke beranda atau pilih submodul lain."
           />
-          <Button onClick={() => navigate('/home')} variant="primary" className="mt-4 cursor-pointer">
+          <Button
+            onClick={() => navigate("/home")}
+            variant="primary"
+            className="mt-4 cursor-pointer"
+          >
             Kembali ke Beranda
           </Button>
         </div>
@@ -257,30 +316,23 @@ const LearningPage = () => {
   // ============ RENDER - SUCCESS ============
   return (
     <div className="flex h-screen">
-      {/* ✅ STICKY TOP BAR */}
-      <div className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 px-8 py-4 z-40">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-blue-600">LearnCheck</h1>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600">Halo, user</span>
-            <button className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold cursor-pointer">
-              U
-            </button>
-          </div>
-        </div>
-      </div>
-
       {/* Main Content - with top and bottom padding for fixed bars */}
       <div
-        className={`flex-1 overflow-y-auto pt-20 pb-24 min-h-screen ${sidebarOpen ? 'pr-80' : ''} transition-all duration-300`}
+        className={`flex-1 overflow-y-auto pt-20 pb-24 min-h-screen ${
+          sidebarOpen ? "pr-80" : ""
+        } transition-all duration-300`}
       >
         <div className="max-w-4xl mx-auto px-8">
           {/* ✅ HEADER IN CARD */}
           <Card className="mb-8">
             <div className="mb-6">
-              <h1 className="text-4xl font-bold text-blue-600 mb-2">Belajar Dasar AI</h1>
+              <h1 className="text-4xl font-bold text-blue-600 mb-2">
+                Belajar Dasar AI
+              </h1>
               {/* ✅ DYNAMIC TITLE: Berubah sesuai submodul (Penerapan AI, Pengenalan AI, dll) */}
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">{currentTutorialTitle}</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                {currentTutorialTitle}
+              </h2>
             </div>
 
             {/* Progress Bar */}
@@ -289,7 +341,9 @@ const LearningPage = () => {
                 <span className="text-sm font-medium text-gray-700">
                   Submodul {currentIndex + 1}/{totalModules}
                 </span>
-                <span className="text-sm font-semibold text-green-600">{Math.round(progressPercentage)}%</span>
+                <span className="text-sm font-semibold text-green-600">
+                  {Math.round(progressPercentage)}%
+                </span>
               </div>
               <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
                 <div
@@ -301,10 +355,16 @@ const LearningPage = () => {
           </Card>
 
           {/* Breadcrumb */}
-          <p className="text-sm text-gray-500 mb-6">Belajar / Modul / {currentTutorialTitle}</p>
+          <p className="text-sm text-gray-500 mb-6">
+            Belajar / Modul / {currentTutorialTitle}
+          </p>
 
           {/* ✅ CONTENT: Working with correct path */}
-          <MaterialContent title={currentTutorialTitle} content={currentTutorial.data.content} loading={loading} />
+          <MaterialContent
+            title={currentTutorialTitle}
+            content={currentTutorial.data.content}
+            loading={loading}
+          />
         </div>
       </div>
 
@@ -322,7 +382,7 @@ const LearningPage = () => {
 
       {/* ✅ BOTTOM NAVIGATION BAR */}
       <BottomNavigationBar
-        onHome={() => navigate('/home')}
+        onHome={() => navigate("/home")}
         onMarkComplete={handleMarkComplete}
         onStartQuiz={handleStartQuiz}
         isCompleted={isCompleted}
