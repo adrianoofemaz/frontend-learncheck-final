@@ -22,27 +22,18 @@ const Sidebar = () => {
   const completionPercentage = getCompletionPercentage();
 
   return (
-    <>
-      {/* Toggle button sidebar khusus di mobile */}
-      <button
-        className="lg:hidden fixed top-4 left-4 z-30 bg-white p-2 rounded-md border border-gray-300 shadow"
-        onClick={() => setOpen(true)}
-        aria-label="Buka sidebar"
-      >
-        <Bars3Icon className="w-6 h-6 text-blue-600" />
-      </button>
-
-      {/* Sidebar: di desktop muncul statis, di mobile drawer */}
-      <aside
-        className={`z-40 bg-white border-r border-gray-200 w-64 transition-transform fixed inset-y-0 left-0 overflow-y-auto duration-300 
-          ${open ? "translate-x-0" : "-translate-x-full"} 
-          lg:static lg:block lg:translate-x-0 lg:h-[calc(100vh-64px)] lg:top-16`}
-      >
-        {/* Tombol tutup sidebar di mobile */}
-        <div className="flex justify-end lg:hidden p-2">
-          <button onClick={() => setOpen(false)} aria-label="Tutup sidebar">
-            <XMarkIcon className="w-6 h-6 text-gray-600" />
-          </button>
+    <aside className="hidden lg:block w-64  bg-white border-r border-gray-200 sticky top-16 h-[calc(100vh-64px)] overflow-y-auto">
+      <div className="p-6">
+        {/* Progress Widget */}
+        <div className="mb-8 p-4 bg-blue-50 rounded-lg">
+          <h3 className="text-sm font-semibold text-gray-900 mb-3">Progress Belajar</h3>
+          <div className="text-3xl font-bold text-blue-600 mb-2">{completionPercentage}%</div>
+          <div className="w-full bg-gray-300 rounded-full h-2">
+            <div
+              className="bg-blue-600 h-2 rounded-full transition-all"
+              style={{ width: `${completionPercentage}%` }}
+            />
+          </div>
         </div>
 
         {/* Konten Sidebar */}
@@ -87,17 +78,9 @@ const Sidebar = () => {
             })}
           </nav>
         </div>
+      </div>
       </aside>
-
-      {/* Overlay kalau sidebar mobile terbuka */}
-      {open && (
-        <div
-          className="fixed inset-0 z-20 bg-black bg-opacity-40 lg:hidden"
-          onClick={() => setOpen(false)}
-        />
-      )}
-    </>
-  );
+    );
 };
 
 export default Sidebar;

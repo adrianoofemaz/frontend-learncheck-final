@@ -17,13 +17,18 @@ import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
 
 // Pages - Main
-import HomePage from "./pages/HomePage";
-import ClassDetailPage from "./pages/ClassDetailPage";
-import LearningPage from "./pages/LearningPage";
-import QuizPage from "./pages/QuizPage";
-import QuizIntroPage from "./pages/QuizIntroPage";
-import ResultsPage from "./pages/ResultsPage";
-import NotFoundPage from "./pages/NotFoundPage";
+import ClassDetailPage from './pages/ClassDetailPage';
+import LearningPage from './pages/LearningPage';
+import QuizPage from './pages/QuizPage';
+import QuizIntroPage from './pages/QuizIntroPage';
+import ResultsPage from './pages/ResultsPage';
+import NotFoundPage from './pages/NotFoundPage';
+
+// Pages - Final Quiz & Dashboard Modul
+import FinalQuizIntroPage from './pages/FinalQuizIntroPage';
+import FinalQuizPage from './pages/FinalQuizPage';
+import FinalQuizResultPage from './pages/FinalQuizResultPage';
+import DashboardModulPage from './pages/DashboardModulPage';
 
 // Routes
 import { ROUTES } from "./constants/routes";
@@ -46,63 +51,92 @@ function App() {
                   element={<Navigate to={ROUTES.HOME} replace />}
                 />
 
-                {/* Main Routes */}
-                {/* HomePage - List Kelas */}
+                {/* ✅ HOME - ClassDetailPage (dengan Footer) */}
                 <Route
                   path={ROUTES.HOME}
                   element={
-                    <LayoutWrapper>
-                      <HomePage />
-                    </LayoutWrapper>
-                  }
-                />
-
-                {/* ClassDetailPage - Detail Kelas + Hero + Silabus + Deskripsi */}
-                <Route
-                  path="/class/:classId"
-                  element={
-                    <LayoutWrapper>
+                    <LayoutWrapper showFooter={true}>
                       <ClassDetailPage />
                     </LayoutWrapper>
                   }
                 />
 
-                {/* LearningPage - Baca Materi */}
+                {/* ✅ LearningPage - TANPA Footer */}
                 <Route
                   path={ROUTES.LEARNING}
                   element={
-                    <LayoutWrapper showBottomNav>
+                    <LayoutWrapper showFooter={false} showBottomNav={false}>
                       <LearningPage />
                     </LayoutWrapper>
                   }
                 />
 
-                {/* QuizIntroPage - Info Kuis */}
+                {/* ✅ QuizIntroPage - TANPA Footer */}
                 <Route
-                  path={ROUTES.QUIZ_INTRO}
+                  path="/quiz-intro/:tutorialId"
                   element={
-                    <LayoutWrapper showBottomNav>
+                    <LayoutWrapper showFooter={false} showBottomNav={false}>
                       <QuizIntroPage />
                     </LayoutWrapper>
                   }
                 />
 
-                {/* QuizPage - Jawab Soal (iframe) */}
+                {/* ✅ QuizPage - TANPA Footer */}
                 <Route
-                  path={ROUTES.QUIZ}
+                  path="/quiz/:tutorialId"
                   element={
-                    <LayoutWrapper showBottomNav={false} showSidebar={false}>
+                    <LayoutWrapper showFooter={false} showBottomNav={false}>
                       <QuizPage />
                     </LayoutWrapper>
                   }
                 />
 
-                {/* ResultsPage - Hasil Quiz */}
+                {/* ✅ ResultsPage - TANPA Footer */}
                 <Route
                   path={ROUTES.QUIZ_RESULTS}
                   element={
-                    <LayoutWrapper showBottomNav>
+                    <LayoutWrapper showFooter={false} showBottomNav={false}>
                       <ResultsPage />
+                    </LayoutWrapper>
+                  }
+                />
+
+                {/* ✅ Final Quiz Intro - TANPA Footer */}
+                <Route
+                  path={ROUTES.QUIZ_FINAL_INTRO}
+                  element={
+                    <LayoutWrapper showFooter={false} showBottomNav={false}>
+                      <FinalQuizIntroPage />
+                    </LayoutWrapper>
+                  }
+                />
+
+                {/* ✅ Final Quiz Page - TANPA Footer */}
+                <Route
+                  path={ROUTES.QUIZ_FINAL}
+                  element={
+                    <LayoutWrapper showFooter={false} showBottomNav={false}>
+                      <FinalQuizPage />
+                    </LayoutWrapper>
+                  }
+                />
+
+                {/* ✅ Final Quiz Result - TANPA Footer */}
+                <Route
+                  path={ROUTES.QUIZ_FINAL_RESULT}
+                  element={
+                    <LayoutWrapper showFooter={false} showBottomNav={false}>
+                      <FinalQuizResultPage />
+                    </LayoutWrapper>
+                  }
+                />
+
+                {/* ✅ Dashboard Modul - TANPA Footer */}
+                <Route
+                  path={ROUTES.DASHBOARD_MODUL}
+                  element={
+                    <LayoutWrapper showFooter={false} showBottomNav={false}>
+                      <DashboardModulPage />
                     </LayoutWrapper>
                   }
                 />

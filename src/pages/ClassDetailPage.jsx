@@ -1,24 +1,37 @@
 /**
  * ClassDetailPage
- * Detail page untuk satu class dengan hero & benefits saja
- * Route: /class/:classId
+ * Detail page untuk satu class dengan hero & benefits
+ * Route: /home (Beranda)
  */
 
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useLearning } from '../hooks/useLearning';
-import { useProgress } from '../context/ProgressContext';
-import Button from '../components/common/Button';
-import Card from '../components/common/Card';
+import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useLearning } from "../hooks/useLearning";
+import { useProgress } from "../context/ProgressContext";
+import Button from "../components/Common/Button";
+import Card from "../components/common/Card";
+import Loading from "../components/common/Loading";
+import { Alert } from "../components/common";
 
 // ============ SECTION COMPONENTS ============
 
-const HeroSection = ({ module, completionPercentage, onStartTutorial }) => {
+const HeroSection = ({
+  module,
+  completionPercentage,
+  onStartTutorial,
+  tutorials,
+}) => {
   if (!module) return null;
 
+  const handleBelajarSekarang = () => {
+    if (tutorials && tutorials.length > 0) {
+      onStartTutorial(tutorials[0].id);
+    }
+  };
+
   return (
-    <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-20">
-      <div className="flex flex-col md:flex-row items-center mb-8 gap-10 p-8 bg-blue-50 rounded-lg shadow-md transition-all duration-500 ease-in-out">
+    <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-20 pt-30">
+      <div className="flex flex-col md:flex-row items-center mb-8 gap-10 p-8 bg-white rounded-lg shadow-md transition-all duration-500 ease-in-out">
         <div className="transition-all transform duration-500 ease-in-out hover:scale-105 w-full md:w-120 h-auto">
           <img
             src="/assets/images/fotomodul.png"
@@ -37,7 +50,7 @@ const HeroSection = ({ module, completionPercentage, onStartTutorial }) => {
           </div>
 
           <div className="space-x-3 mb-2">
-            {['AI', 'Machine Learning', 'Data Science'].  map((tag) => (
+            {["AI", "Machine Learning", "Data Science"].map((tag) => (
               <span
                 key={tag}
                 className="py-1 px-4 bg-blue-200 rounded-2xl text-sm transition-all duration-300 ease-in-out hover:bg-blue-300"
@@ -87,12 +100,12 @@ const HeroSection = ({ module, completionPercentage, onStartTutorial }) => {
 
           <div className="flex flex-col sm:flex-row gap-4 mt-2">
             <button
-              onClick={() => onStartTutorial(module.id)}
-              className="bg-blue-500 text-white hover:bg-blue-600 px-7 py-2 rounded-xl w-full sm:w-auto transition-colors duration-300 ease-in-out font-medium"
+              onClick={handleBelajarSekarang}
+              className="bg-blue-500 text-white hover:bg-blue-600 px-7 py-2 rounded-xl w-full sm:w-auto transition-colors duration-300 ease-in-out font-medium cursor-pointer"
             >
-              Belajar Sekarang
+              Mulai Belajar
             </button>
-            <button className="border-2 border-blue-400 hover:text-white hover:bg-blue-500 text-blue-400 px-7 py-1. 5 rounded-xl w-full sm:w-auto transition-colors duration-300 ease-in-out font-medium">
+            <button className="border-2 border-blue-400 hover:text-white hover:bg-blue-500 text-blue-400 px-7 py-2 rounded-xl w-full sm:w-auto transition-colors duration-300 ease-in-out font-medium cursor-pointer">
               Informasi Kelas
             </button>
           </div>
@@ -104,15 +117,26 @@ const HeroSection = ({ module, completionPercentage, onStartTutorial }) => {
 
 const BenefitsSection = ({ benefits }) => {
   return (
-    <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-20 my-10">
-      <h2 className="text-2xl font-bold mb-8">Fitur & Manfaat Kelas</h2>
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h2 className="text-2xl font-bold mb-8 text-center lg:text-left">
+        Fitur & Manfaat Kelas
+      </h2>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 lg:gap-8 items-stretch">
         {benefits.map((benefit) => (
-          <div key={benefit.id} className="text-center">
-            <div className="text-4xl mb-3">{benefit.icon}</div>
-            <h3 className="font-semibold text-gray-900 mb-2">{benefit.title}</h3>
-            <p className="text-sm text-gray-600">{benefit.desc}</p>
+          <div
+            key={benefit.id}
+            className="flex flex-col h-full items-center text-center bg-white backdrop-blur rounded-xl shadow-sm p-4 sm:p-5"
+          >
+            <div className="w-12 h-12 mb-3 bg-blue-100 rounded-lg flex items-center justify-center text-2xl font-bold text-blue-600">
+              {benefit.icon}
+            </div>
+            <h3 className="font-semibold text-gray-900 mb-2 min-h-[48px] flex items-center justify-center">
+              {benefit.title}
+            </h3>
+            <p className="text-sm text-gray-600 leading-relaxed">
+              {benefit.desc}
+            </p>
           </div>
         ))}
       </div>
@@ -120,110 +144,79 @@ const BenefitsSection = ({ benefits }) => {
   );
 };
 
-const TutorialsSection = ({ tutorials, getTutorialProgress, onSelectTutorial, loading }) => {
-  if (loading) {
-    return (
-      <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-20 my-10">
-        <h2 className="text-2xl font-bold mb-8">Materi Pembelajaran</h2>
-        <div className="text-center py-12">
-          <p className="text-gray-600">Memuat materi... </p>
-        </div>
-      </div>
-    );
-  }
-
-  if (! tutorials || tutorials.length === 0) {
-    return (
-      <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-20 my-10">
-        <h2 className="text-2xl font-bold mb-8">Materi Pembelajaran</h2>
-        <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-          <p className="text-gray-600 text-lg mb-4">Belum ada materi tersedia</p>
-        </div>
-      </div>
-    );
-  }
+// ✅ Description Section
+const DescriptionSection = ({ module }) => {
+  if (!module) return null;
 
   return (
     <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-20 my-10">
-      <h2 className="text-2xl font-bold mb-8">Materi Pembelajaran</h2>
+      <h2 className="text-2xl font-bold mb-6">Tentang Kelas Ini</h2>
 
-      <div className="space-y-4">
-        {tutorials.map((tutorial, index) => {
-          const isCompleted = getTutorialProgress(tutorial.id);
-          let status = 'Belum Dimulai';
-          let statusColor = 'text-gray-500';
-          let icon = '○';
+      <Card className="p-8">
+        <div className="space-y-6 text-gray-700 leading-relaxed">
+          <p className="text-lg">
+            {module.description ||
+              "Pelajari fundamental Artificial Intelligence dengan materi interaktif dan quiz"}
+          </p>
 
-          if (isCompleted) {
-            status = 'Selesai';
-            statusColor = 'text-blue-500';
-            icon = '✓';
-          } else if (index === 0) {
-            status = 'Mulai';
-            statusColor = 'text-blue-700';
-            icon = '▶';
-          }
+          <div>
+            <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <span className="w-6 h-6 bg-blue-100 rounded flex items-center justify-center text-blue-600 text-lg">
+                ▶
+              </span>
+              Apa yang akan kamu pelajari?
+            </h3>
+            <ul className="space-y-2 ml-8">
+              <li className="flex items-start gap-2">
+                <span className="text-blue-600 font-bold mt-1">•</span>
+                <span>Konsep dasar Artificial Intelligence</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-blue-600 font-bold mt-1">•</span>
+                <span>Machine Learning dan penerapannya</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-blue-600 font-bold mt-1">•</span>
+                <span>Data Science fundamentals</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-blue-600 font-bold mt-1">•</span>
+                <span>Best practices dalam AI development</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-blue-600 font-bold mt-1">•</span>
+                <span>Real-world use cases dan applications</span>
+              </li>
+            </ul>
+          </div>
 
-          return (
-            <Card key={tutorial.id} className="p-6 hover:shadow-md hover:border-blue-300 transition-all">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-start gap-3 flex-1">
-                  <span className={`text-2xl mt-1 flex-shrink-0 ${statusColor}`}>{icon}</span>
+          <div>
+            <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <span className="w-6 h-6 bg-yellow-100 rounded flex items-center justify-center text-yellow-600 text-lg">
+                ⚠
+              </span>
+              Prasyarat
+            </h3>
+            <p className="ml-8">
+              Tidak ada prasyarat khusus. Kelas ini dirancang untuk pemula yang
+              ingin belajar tentang Artificial Intelligence.
+            </p>
+          </div>
 
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      {tutorial.title}
-                    </h3>
-
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                      {tutorial.content || tutorial.description || 'Pelajari topik ini'}
-                    </p>
-
-                    <div className="flex items-center gap-4 text-sm text-gray-500 flex-wrap">
-                      <div className="flex items-center gap-1">
-                        <span>📄 7 Artikel</span>
-                      </div>
-
-                      <div className="flex items-center gap-1">
-                        <span>✓ 1 Ujian</span>
-                      </div>
-
-                      <div className="flex items-center gap-1">
-                        <span>⏱️ 40 menit</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="ml-4 flex-shrink-0">
-                  <Button
-                    onClick={() => onSelectTutorial(tutorial. id)}
-                    variant={isCompleted ? 'secondary' : 'primary'}
-                    className="whitespace-nowrap"
-                  >
-                    {isCompleted ? 'Lanjutkan' : 'Mulai Belajar'}
-                  </Button>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-1 h-1">
-                {[...Array(9)].map((_, i) => (
-                  <div
-                    key={i}
-                    className={`flex-1 rounded-full h-full ${
-                      i < 7
-                        ? isCompleted
-                          ? 'bg-blue-500'
-                          : 'bg-gray-400'
-                        : 'bg-gray-200'
-                    }`}
-                  />
-                ))}
-              </div>
-            </Card>
-          );
-        })}
-      </div>
+          <div>
+            <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <span className="w-6 h-6 bg-green-100 rounded flex items-center justify-center text-green-600 text-lg">
+                ✓
+              </span>
+              Target Peserta
+            </h3>
+            <p className="ml-8">
+              Kelas ini cocok untuk siapa saja yang tertarik mempelajari AI,
+              baik dari latar belakang teknis maupun non-teknis.
+            </p>
+          </div>
+        </div>
+      </Card>
     </div>
   );
 };
@@ -231,42 +224,39 @@ const TutorialsSection = ({ tutorials, getTutorialProgress, onSelectTutorial, lo
 // ============ MAIN COMPONENT ============
 
 const ClassDetailPage = () => {
-  const { classId } = useParams();
   const navigate = useNavigate();
-  const { modules, tutorials, loading, error, fetchModules, fetchTutorials } = useLearning();
-  const { getCompletionPercentage, getTutorialProgress } = useProgress();
+  const { modules, tutorials, loading, error, fetchModules, fetchTutorials } =
+    useLearning();
+  const { getCompletionPercentage } = useProgress();
 
   useEffect(() => {
     fetchModules();
   }, [fetchModules]);
 
   useEffect(() => {
-    if (classId && modules.length > 0) {
-      fetchTutorials(parseInt(classId));
+    if (modules.length > 0) {
+      fetchTutorials(modules[0].id);
     }
-  }, [classId, modules, fetchTutorials]);
+  }, [modules, fetchTutorials]);
 
   const handleStartTutorial = (tutorialId) => {
     navigate(`/learning/${tutorialId}`);
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4 mx-auto"></div>
-          <p className="text-gray-600">Memuat kelas...</p>
-        </div>
-      </div>
-    );
+    return <Loading fullScreen text="Memuat kelas..." />;
   }
 
   if (error) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Card className="max-w-md text-center">
-          <p className="text-red-600 mb-4">{error}</p>
-          <Button onClick={() => fetchModules()} variant="primary">
+          <Alert type="error" title="Error" message={error} />
+          <Button
+            onClick={() => fetchModules()}
+            variant="primary"
+            className="mt-4"
+          >
             Coba Lagi
           </Button>
         </Card>
@@ -275,57 +265,57 @@ const ClassDetailPage = () => {
   }
 
   const completionPercentage = getCompletionPercentage();
-  const currentModule = modules.find(m => m.id == classId);
+  const currentModule = modules[0];
 
   const benefits = [
     {
       id: 1,
-      icon: '🏅',
-      title: 'Sertifikat Kelulusan',
-      desc: 'Dapatkan sertifikat resmi setelah menyelesaikan kursus.',
+      icon: "📜",
+      title: "Sertifikat Kelulusan",
+      desc: "Dapatkan sertifikat resmi setelah menyelesaikan kursus.",
     },
     {
       id: 2,
-      icon: '👥',
-      title: 'Forum Diskusi Aktif',
-      desc: 'Berinteraksi dengan instruktur dan sesama siswa.',
+      icon: "💬",
+      title: "Forum Diskusi",
+      desc: "Berinteraksi dengan instruktur dan sesama siswa.",
     },
     {
       id: 3,
-      icon: '📖',
-      title: 'Modul Tutorial Lengkap',
-      desc: 'Akses materi belajar interaktif dan terstruktur.',
+      icon: "📚",
+      title: "Modul Lengkap",
+      desc: "Akses materi belajar interaktif dan terstruktur.",
     },
     {
       id: 4,
-      icon: '✍️',
-      title: 'Uji & Latihan',
-      desc: 'Uji pemahaman Anda dengan berbagai soal latihan.',
+      icon: "✏️",
+      title: "Uji & Latihan",
+      desc: "Uji pemahaman Anda dengan berbagai soal latihan.",
     },
     {
       id: 5,
-      icon: '▶️',
-      title: 'Ujian Akhir',
-      desc: 'Evaluasi komprehensif untuk mengukur pencapaian materi.',
+      icon: "🎯",
+      title: "Ujian Akhir",
+      desc: "Evaluasi komprehensif untuk mengukur pencapaian materi.",
     },
   ];
 
   return (
     <div>
-      <HeroSection
-        module={currentModule}
-        completionPercentage={completionPercentage}
-        onStartTutorial={handleStartTutorial}
-      />
+      {currentModule && (
+        <>
+          <HeroSection
+            module={currentModule}
+            completionPercentage={completionPercentage}
+            onStartTutorial={handleStartTutorial}
+            tutorials={tutorials}
+          />
 
-      <BenefitsSection benefits={benefits} />
+          <BenefitsSection benefits={benefits} />
 
-      <TutorialsSection
-        tutorials={tutorials}
-        getTutorialProgress={getTutorialProgress}
-        onSelectTutorial={handleStartTutorial}
-        loading={loading}
-      />
+          <DescriptionSection module={currentModule} />
+        </>
+      )}
     </div>
   );
 };
