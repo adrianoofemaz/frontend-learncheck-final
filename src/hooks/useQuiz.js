@@ -1,3 +1,8 @@
+/**
+ * useQuiz Hook
+ * Handle quiz questions & submission
+ */
+
 import { useState, useCallback } from 'react';
 import quizService from '../services/quizService';
 
@@ -17,22 +22,22 @@ export const useQuiz = () => {
     setError(null);
     try {
       console.log('Fetching questions for tutorial:', tutorialId);
-
-      const response = await quizService.getQuestions(tutorialId);
+      
+      const response = await quizService.  getQuestions(tutorialId);
       console.log('Questions response:', response);
-
+      
       // Extract questions & assessment ID dari response
-      const questionsData = response?.data || [];
-      const assmtId = response?.assessment_id || null;
-
+      const questionsData = response.data || [];
+      const assmtId = response.assessment_id || null;
+      
       setQuestions(questionsData);
       setAssessmentId(assmtId);
-
+      
       return response;
     } catch (err) {
       console.error('Error fetching questions:', err);
       setError(err.message || 'Failed to fetch questions');
-      return null; // jangan lempar lagi, cukup set error
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -49,9 +54,13 @@ export const useQuiz = () => {
     setError(null);
     try {
       console.log('Submitting answers:', { tutorialId, assessmentId: assmtId, answers });
-
-      const response = await quizService.submitAnswers(tutorialId, assmtId, answers);
-
+      
+      const response = await quizService.  submitAnswers(
+        tutorialId,
+        assmtId,
+        answers
+      );
+      
       console.log('Submit response:', response);
       return response;
     } catch (err) {
@@ -70,10 +79,10 @@ export const useQuiz = () => {
     setLoading(true);
     setError(null);
     try {
-      console.log('Resetting progress...');
-
-      const response = await quizService.resetProgress();
-
+      console.log('Resetting progress.. .');
+      
+      const response = await quizService. resetProgress();
+      
       console.log('Reset response:', response);
       return response;
     } catch (err) {
