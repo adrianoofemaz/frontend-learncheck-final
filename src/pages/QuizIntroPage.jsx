@@ -1,12 +1,12 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
-import { useQuiz } from '../hooks/useQuiz';
-import { useLearning } from '../hooks/useLearning';
-import { useProgress } from '../context/ProgressContext';
-import Button from '../components/common/Button';
-import Loading from '../components/common/Loading';
-import { Alert } from '../components/common';
+import React, { useEffect, useState, useRef } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
+import { useQuiz } from "../hooks/useQuiz";
+import { useLearning } from "../hooks/useLearning";
+import { useProgress } from "../context/ProgressContext";
+import Button from "../components/common/Button";
+import Loading from "../components/common/Loading";
+import { Alert } from "../components/common";
 
 // ============ SIDEBAR COMPONENT (SAME AS LEARNING PAGE) ============
 const ModuleSidebar = ({
@@ -18,24 +18,32 @@ const ModuleSidebar = ({
   onClose,
 }) => {
   const getStatusColor = (tutorialId, isCompleted) => {
-    if (isCompleted) return 'text-green-500';
-    if (currentTutorial?.id === tutorialId) return 'text-blue-600';
-    return 'text-gray-400';
+    if (isCompleted) return "text-green-500";
+    if (currentTutorial?.id === tutorialId) return "text-blue-600";
+    return "text-gray-400";
   };
 
   const getStatusIcon = (isCompleted, isCurrent) => {
-    if (isCompleted) return '✓';
-    if (isCurrent) return '▶';
-    return '○';
+    if (isCompleted) return "✓";
+    if (isCurrent) return "▶";
+    return "○";
   };
 
   return (
     <>
       <div
         onClick={onClose}
-        className={`absolute ${isOpen ? 'rounded-full translate-x-8' : 'rounded-l-full translate-x-78'} p-2 bg-blue-900 w-8 z-100 top-20 right-76 transform transition-transform duration-300 ease-in-out text-gray-500 hover:text-gray-700 text-2xl cursor-pointer`}
+        className={`absolute ${
+          isOpen
+            ? "rounded-full translate-x-8"
+            : "rounded-l-full translate-x-78"
+        } p-2 bg-blue-900 w-8 z-100 top-20 right-76 transform transition-transform duration-300 ease-in-out text-gray-500 hover:text-gray-700 text-2xl cursor-pointer`}
       >
-        {isOpen ? <ChevronRightIcon color="white" /> : <ChevronLeftIcon color="white" />}
+        {isOpen ? (
+          <ChevronRightIcon color="white" />
+        ) : (
+          <ChevronLeftIcon color="white" />
+        )}
       </div>
 
       {/* Overlay mobile */}
@@ -51,7 +59,7 @@ const ModuleSidebar = ({
       <div
         className={`fixed h-full lg:absolute top-0 right-0 w-80 pt-20 bg-white border-l border-gray-200 
           px-6 overflow-y-auto z-20 transform transition-transform duration-300 ease-in-out ${
-            isOpen ? 'translate-x-0' : 'translate-x-120'
+            isOpen ? "translate-x-0" : "translate-x-120"
           }`}
       >
         <div className="mb-2 lg:pt-10 pt-10">
@@ -71,19 +79,34 @@ const ModuleSidebar = ({
                     onClose();
                   }}
                   className={`w-full text-left px-4 py-3 rounded-lg transition-all cursor-pointer ${
-                    isCurrent ? 'bg-blue-50 border border-blue-300' : 'hover:bg-gray-50 border border-transparent'
+                    isCurrent
+                      ? "bg-blue-50 border border-blue-300"
+                      : "hover:bg-gray-50 border border-transparent"
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <span className={`text-xl font-bold ${getStatusColor(tutorial.id, isCompleted)}`}>
+                    <span
+                      className={`text-xl font-bold ${getStatusColor(
+                        tutorial.id,
+                        isCompleted
+                      )}`}
+                    >
                       {getStatusIcon(isCompleted, isCurrent)}
                     </span>
                     <div className="flex-1 min-w-0">
-                      <p className={`text-sm font-medium truncate ${isCurrent ? 'text-blue-600' : 'text-gray-900'}`}>
+                      <p
+                        className={`text-sm font-medium truncate ${
+                          isCurrent ? "text-blue-600" : "text-gray-900"
+                        }`}
+                      >
                         {tutorial.title}
                       </p>
                       <p className="text-xs text-gray-500">
-                        {isCompleted ? 'Selesai' : isCurrent ? 'Sedang Dipelajari' : 'Belum Dimulai'}
+                        {isCompleted
+                          ? "Selesai"
+                          : isCurrent
+                          ? "Sedang Dipelajari"
+                          : "Belum Dimulai"}
                       </p>
                     </div>
                   </div>
@@ -91,8 +114,10 @@ const ModuleSidebar = ({
 
                 <div className="ml-10 mt-2 h-1 bg-gray-200 rounded-full overflow-hidden">
                   <div
-                    className={`h-full transition-all ${isCompleted ? 'bg-green-500' : 'bg-blue-500'}`}
-                    style={{ width: isCompleted ? '100%' : '0%' }}
+                    className={`h-full transition-all ${
+                      isCompleted ? "bg-green-500" : "bg-blue-500"
+                    }`}
+                    style={{ width: isCompleted ? "100%" : "0%" }}
                   />
                 </div>
 
@@ -141,7 +166,8 @@ const QuizIntroPage = () => {
   const fetchedQuestionsRef = useRef(false);
 
   const loading = quizLoading || learningLoading;
-  const errorMessage = quizError || (showError ? 'Quiz belum tersedia untuk submodul ini.' : null);
+  const errorMessage =
+    quizError || (showError ? "Quiz belum tersedia untuk submodul ini." : null);
 
   // FETCH tutorials (static list) on mount
   useEffect(() => {
@@ -160,7 +186,7 @@ const QuizIntroPage = () => {
       const parsedId = parseInt(tutorialId);
       if (!isNaN(parsedId)) {
         selectTutorial(parsedId).catch((err) => {
-          console.error('Error selecting tutorial:', err);
+          console.error("Error selecting tutorial:", err);
         });
       }
     }
@@ -173,7 +199,7 @@ const QuizIntroPage = () => {
     fetchedQuestionsRef.current = true;
 
     fetchQuestions(parseInt(tutorialId)).catch((err) => {
-      console.error('Error fetching questions:', err);
+      console.error("Error fetching questions:", err);
       setShowError(true);
     });
   }, [tutorialId, fetchQuestions]);
@@ -182,7 +208,7 @@ const QuizIntroPage = () => {
     if (tutorialId) {
       navigate(`/quiz/${tutorialId}`);
     } else {
-      console.error('Tutorial ID tidak ditemukan');
+      console.error("Tutorial ID tidak ditemukan");
     }
   };
 
@@ -197,8 +223,16 @@ const QuizIntroPage = () => {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="max-w-md text-center">
-          <Alert type="error" title="Gagal Memuat Kuis" message={errorMessage} />
-          <Button onClick={() => navigate(-1)} variant="primary" className="mt-4 cursor-pointer">
+          <Alert
+            type="error"
+            title="Gagal Memuat Kuis"
+            message={errorMessage}
+          />
+          <Button
+            onClick={() => navigate(-1)}
+            variant="primary"
+            className="mt-4 cursor-pointer"
+          >
             Kembali
           </Button>
         </div>
@@ -210,9 +244,13 @@ const QuizIntroPage = () => {
   const timePerQuestion = 30; // seconds
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen pt-5 ">
       {/* Main Content - scrollable & responsive */}
-      <div className={`flex-1 overflow-y-auto pb-24 pt-8 ${sidebarOpen ? 'pr-48' : ''}`}>
+      <div
+        className={`flex-1 overflow-y-auto pb-24 pt-15 ${
+          sidebarOpen ? "pr-48" : ""
+        }`}
+      >
         <div className="quiz-intro-wrapper">
           <div className="quiz-hero">
             {/* Window dots */}
@@ -230,17 +268,21 @@ const QuizIntroPage = () => {
             {/* Body */}
             <div className="quiz-hero-body">
               <h1>LearnCheck!</h1>
-              <p className="lead">“Let’s have some fun and test your understanding!”</p>
+              <p className="lead">
+                “Let’s have some fun and test your understanding!”
+              </p>
 
               {/* Info card */}
               <div className="quiz-info-card">
-                <h2>{currentTutorial?.title || 'Quiz'}</h2>
+                <h2>{currentTutorial?.title || "Quiz"}</h2>
                 <div className="info-rows">
                   <div className="info-row">
                     <span className="icon-circle">≡</span>
                     <div>
                       <p className="text-gray-600 text-sm">Jumlah Soal</p>
-                      <p className="text-xl font-bold text-gray-900">{totalQuestions} Soal</p>
+                      <p className="text-xl font-bold text-gray-900">
+                        {totalQuestions} Soal
+                      </p>
                     </div>
                   </div>
 
@@ -248,7 +290,9 @@ const QuizIntroPage = () => {
                     <span className="icon-circle">⏱</span>
                     <div>
                       <p className="text-gray-600 text-sm">Durasi</p>
-                      <p className="text-xl font-bold text-gray-900">{timePerQuestion} detik/soal</p>
+                      <p className="text-xl font-bold text-gray-900">
+                        {timePerQuestion} detik/soal
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -256,7 +300,11 @@ const QuizIntroPage = () => {
 
               {/* CTA */}
               <div className="flex justify-center">
-                <Button onClick={handleStartQuiz} variant="primary" className="quiz-cta cursor-pointer">
+                <Button
+                  onClick={handleStartQuiz}
+                  variant="primary"
+                  className="quiz-cta cursor-pointer"
+                >
                   Mulai Kuis
                 </Button>
               </div>

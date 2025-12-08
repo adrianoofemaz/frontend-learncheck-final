@@ -2,7 +2,7 @@ import React, { useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLearning } from "../hooks/useLearning";
 import { useProgress } from "../context/ProgressContext";
-import Button from "../components/Common/Button";
+import Button from "../components/common/Button";
 import Card from "../components/common/Card";
 import Loading from "../components/common/Loading";
 import { Alert } from "../components/common";

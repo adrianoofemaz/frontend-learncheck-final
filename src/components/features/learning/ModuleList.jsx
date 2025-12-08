@@ -3,16 +3,20 @@
  * List dari semua modules/tutorials
  */
 
-import React from 'react';
-import { CheckCircleIcon } from '@heroicons/react/24/solid';
-import Card from '../../common/Card';
-import Button from '../../common/Button';
+import React from "react";
+import { CheckCircleIcon } from "@heroicons/react/24/solid";
+import Card from "../../common/Card";
+import Button from "../../common/Button";
 
-const ModuleList = ({ modules = [], onSelectModule, completedModules = [] }) => {
+const ModuleList = ({
+  modules = [],
+  onSelectModule,
+  completedModules = [],
+}) => {
   return (
     <div className="space-y-3">
       {modules.map((module) => {
-        const isCompleted = completedModules.includes(module. id);
+        const isCompleted = completedModules.includes(module.id);
 
         return (
           <Card
@@ -23,23 +27,25 @@ const ModuleList = ({ modules = [], onSelectModule, completedModules = [] }) => 
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1 shrink-0">
-                  <h3 className="font-semibold text-gray-900">{module.title}</h3>
+                  <h3 className="font-semibold text-gray-900">
+                    {module.title}
+                  </h3>
                   {isCompleted && (
                     <CheckCircleIcon className="w-5 h-5 text-green-600 shrink-0" />
                   )}
                 </div>
                 <p className="text-sm text-gray-600 line-clamp-2">
-                  {module.description || 'Pelajari topik ini'}
+                  {module.description || "Pelajari topik ini"}
                 </p>
               </div>
 
               <Button
                 onClick={() => onSelectModule?.(module.id)}
-                variant={isCompleted ? 'secondary' : 'primary'}
+                variant={isCompleted ? "secondary" : "primary"}
                 size="sm"
                 className="ml-4 shrink-0"
               >
-                {isCompleted ? 'Ulangi' : 'Belajar'}
+                {isCompleted ? "Ulangi" : "Belajar"}
               </Button>
             </div>
           </Card>

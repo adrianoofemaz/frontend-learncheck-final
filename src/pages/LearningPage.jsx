@@ -8,7 +8,7 @@ import { useLearning } from "../hooks/useLearning";
 import { useProgress } from "../context/ProgressContext";
 import { MaterialContent } from "../components/features/learning";
 import { Alert } from "../components/common";
-import Button from "../components/Common/Button";
+import Button from "../components/common/Button";
 import Loading from "../components/common/Loading";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 
@@ -318,7 +318,7 @@ const LearningPage = () => {
     <div className={`flex h-screen`}>
       {/* Main Content - with bottom padding for fixed bar */}
       <div
-        className={`flex-1 overflow-y-auto pb-24 pt-8 ${
+        className={`flex-1 overflow-y-auto pb-24 pt-30 ${
           sidebarOpen ? "pr-48" : ""
         }`}
       >

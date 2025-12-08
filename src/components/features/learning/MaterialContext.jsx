@@ -1,12 +1,9 @@
-/**
- * MaterialContent Component
- * Display tutorial content
- */
-
-import React from 'react';
-import Card from '../../common/Card';
+import React, { useContext } from "react";
+import Card from "../../common/Card";
+import { UserContext } from "../../../context/UserContext"; // Pastikan pathnya benar
 
 const MaterialContent = ({ title, content, loading = false }) => {
+  // Jika loading true, tampilkan placeholder (animasi loading)
   if (loading) {
     return (
       <Card>
@@ -21,12 +18,35 @@ const MaterialContent = ({ title, content, loading = false }) => {
     );
   }
 
+  // Mengambil preferences dari context
+  const { preferences } = useContext(UserContext);
+
+  if (!preferences) {
+    return <p>No preferences found.</p>;
+  }
+
+  const cardClassName =
+    preferences.theme === "dark"
+      ? "bg-gray-800 text-white rounded-md"
+      : "bg-white text-gray-800 rounded-md";
+
   return (
-    <Card>
-      {title && <h2 className="text-2xl font-bold text-gray-900 mb-4">{title}</h2>}
+    <Card className={cardClassName}>
+      {title && (
+        <h2
+          className={`text-2xl font-bold mb-4 
+          ${preferences.theme === "dark" ? "text-gray-100" : "text-gray-900"}`}
+        >
+          {title}
+        </h2>
+      )}
       <div
-        className="prose prose-sm max-w-none text-gray-700"
-        dangerouslySetInnerHTML={{ __html: content }}
+        className={`prose prose-sm max-w-none  ${
+          preferences.theme === "dark" ? "text-gray-100" : ""
+        }`}
+        dangerouslySetInnerHTML={{
+          __html: content || "<p>No content available</p>", // Menambahkan fallback jika content kosong
+        }}
       />
     </Card>
   );
