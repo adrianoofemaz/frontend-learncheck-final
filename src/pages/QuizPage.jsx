@@ -1,9 +1,4 @@
-/**
- * QuizPage
- * Main quiz page - display questions & handle answers
- */
-
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuizProgress } from '../hooks/useQuizProgress';
 import { useQuiz } from '../hooks/useQuiz';
@@ -28,21 +23,52 @@ const QuizPage = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
+  const fetchedRef = useRef(false);
 
-  // ✅ FETCH dengan tutorialId
+  // Hooks pertama, baru lalu segala kondisi render
   useEffect(() => {
-    if (tutorialId) {
-      console.log('Fetching quiz for tutorial:', tutorialId);
-      fetchQuestions(parseInt(tutorialId));
-      initializeQuiz();
-    } else {
+    if (!tutorialId) {
       setSubmitError('Tutorial ID tidak ditemukan');
+      return;
     }
+    if (fetchedRef.current) return;
+    fetchedRef.current = true;
+    fetchQuestions(parseInt(tutorialId));
+    initializeQuiz();
   }, [tutorialId, fetchQuestions, initializeQuiz]);
 
-  if (loading) {
-    return <Loading fullScreen text="Memuat kuis..." />;
-  }
+  const handleSubmitQuiz = useCallback(async () => {
+    setIsSubmitting(true);
+    setSubmitError(null);
+    try {
+      const answersData = Object.entries(answers).map(([questionIndex, answerIndex]) => {
+        const question = questions[parseInt(questionIndex)];
+        const selectedOption = question?.multiple_choice[answerIndex];
+        return {
+          soal_id: question?.id,
+          correct: selectedOption?.correct || false,
+        };
+      });
+      const result = await submitAnswers(parseInt(tutorialId), assessmentId, answersData);
+      navigate('/quiz-results', { state: { result } });
+    } catch (err) {
+      const friendly = err?.raw?.details || err?.message || 'Gagal mengirim jawaban';
+      setSubmitError(friendly);
+      setIsSubmitting(false);
+    }
+  }, [answers, assessmentId, navigate, questions, submitAnswers, tutorialId]);
+
+  const handleTimeUp = useCallback(() => {
+    // Kalau belum soal terakhir → next; kalau terakhir → submit
+    if (currentQuestionIndex >= questions.length - 1) {
+      handleSubmitQuiz();
+    } else {
+      nextQuestion(questions.length);
+    }
+  }, [currentQuestionIndex, questions.length, handleSubmitQuiz, nextQuestion]);
+
+  // ---- Setelah semua hooks & callbacks, baru boleh conditional render ----
+  if (loading) return <Loading fullScreen text="Memuat kuis..." />;
 
   if (error) {
     return (
@@ -74,77 +100,48 @@ const QuizPage = () => {
   const currentAnswer = getCurrentAnswer();
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
   const allAnswered = Object.keys(answers).length === questions.length;
-
-  const handleSubmitQuiz = async () => {
-    setIsSubmitting(true);
-    setSubmitError(null);
-
-    try {
-      console.log('Submitting quiz answers..  .');
-
-      // ✅ FORMAT JAWABAN SESUAI BACKEND
-      const answersData = Object.entries(answers).map(([questionIndex, answerIndex]) => {
-        const question = questions[parseInt(questionIndex)];
-        const selectedOption = question?. multiple_choice[answerIndex];
-        
-        return {
-          soal_id: question?.id,
-          correct: selectedOption?.correct || false,  // ✅ CEK field correct dari option
-        };
-      });
-
-      console.log('Answers to submit:', answersData);
-      console. log('Assessment ID:', assessmentId);
-
-      const result = await submitAnswers(
-        parseInt(tutorialId),
-        assessmentId,
-        answersData
-      );
-
-      console.log('Submit result:', result);
-      navigate('/quiz-results', { state: { result } });
-    } catch (err) {
-      console. error('Submit error:', err);
-      setSubmitError(err. message || 'Gagal mengirim jawaban');
-      setIsSubmitting(false);
-    }
-  };
+  const progressPercent = Math.round(((currentQuestionIndex + 1) / questions.length) * 100);
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-2xl mx-auto">
-        {/* Header with Timer */}
-        <div className="mb-8 flex justify-between items-center">
-          <div>
-            <p className="text-sm font-medium text-gray-700">
-              Pertanyaan {currentQuestionIndex + 1} dari {questions.length}
-            </p>
-            <p className="text-sm text-gray-600">
-              Dijawab: {Object.keys(answers).length}/{questions.length}
-            </p>
+    <div className="min-h-screen py-14 px-4">
+      <div className="max-w-4xl mx-auto space-y-5 mt-10 sm:mt-12">
+        <div className="rounded-2xl bg-gradient-to-r from-[#0f5eff] to-[#0a4ed6] text-white shadow-lg p-6 sm:p-7">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-wide opacity-90">Quiz Submodul</p>
+              <p className="text-base sm:text-lg font-medium opacity-90">
+                Soal {currentQuestionIndex + 1} dari {questions.length}
+              </p>
+            </div>
+            <div className="flex items-center gap-3 text-sm sm:text-base">
+              <div className="font-semibold">Sisa Waktu</div>
+              <QuizTimer
+                duration={30}
+                isActive={true}
+                onTimeUp={handleTimeUp}
+                variant="light"
+                resetKey={currentQuestionIndex} // reset timer tiap pindah soal
+              />
+            </div>
           </div>
-          <QuizTimer duration={30} isActive={true} onTimeUp={() => nextQuestion(questions.length)} />
+          <div className="mt-4 h-2 w-full bg-white/25 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-white rounded-full transition-all duration-300"
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
         </div>
 
-        {/* Progress Bar */}
-        <div className="mb-8 w-full bg-gray-200 rounded-full h-2">
-          <div
-            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
+        <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
+          <QuizCard
+            question={currentQuestion}
+            selectedAnswer={currentAnswer}
+            onSelectAnswer={(index) => recordAnswer(currentQuestionIndex, index)}
+            questionNumber={currentQuestionIndex + 1}
+            totalQuestions={questions.length}
           />
         </div>
 
-        {/* Question Card */}
-        <QuizCard
-          question={currentQuestion}
-          selectedAnswer={currentAnswer}
-          onSelectAnswer={(index) => recordAnswer(currentQuestionIndex, index)}
-          questionNumber={currentQuestionIndex + 1}
-          totalQuestions={questions.length}
-        />
-
-        {/* Error Message */}
         {submitError && (
           <Alert
             type="error"
@@ -152,39 +149,48 @@ const QuizPage = () => {
             message={submitError}
             dismissible
             onClose={() => setSubmitError(null)}
-            className="mt-4"
           />
         )}
 
-        {/* Navigation Buttons */}
-        <div className="mt-8 flex gap-4">
-          <Button
-            onClick={previousQuestion}
-            variant="secondary"
-            disabled={currentQuestionIndex === 0}
-          >
-            ← Sebelumnya
-          </Button>
+        <div className="flex flex-col sm:flex-row gap-4 sm:items-center">
+          <div className="flex-1 sm:flex-none">
+            {currentQuestionIndex > 0 ? (
+              <Button
+                onClick={previousQuestion}
+                variant="secondary"
+                fullWidth
+                className="bg-gray-100 text-gray-700 border border-gray-200 hover:bg-gray-200"
+              >
+                ← Sebelumnya
+              </Button>
+            ) : (
+              <div className="h-10" />
+            )}
+          </div>
 
-          {isLastQuestion ? (
-            <Button
-              onClick={handleSubmitQuiz}
-              variant="primary"
-              disabled={! allAnswered || isSubmitting}
-              fullWidth
-            >
-              {isSubmitting ? 'Mengirim...' : '✓ Selesai & Kirim'}
-            </Button>
-          ) : (
-            <Button
-              onClick={() => nextQuestion(questions. length)}
-              variant="primary"
-              disabled={currentAnswer === undefined}
-              fullWidth
-            >
-              Lanjut →
-            </Button>
-          )}
+          <div className="flex-[2]">
+            {isLastQuestion ? (
+              <Button
+                onClick={handleSubmitQuiz}
+                variant="primary"
+                disabled={!allAnswered || isSubmitting}
+                fullWidth
+                className="bg-[#0f5eff] hover:bg-[#0d52db]"
+              >
+                {isSubmitting ? 'Mengirim...' : '✓ Selesai & Kirim'}
+              </Button>
+            ) : (
+              <Button
+                onClick={() => nextQuestion(questions.length)}
+                variant="primary"
+                disabled={currentAnswer === undefined}
+                fullWidth
+                className="bg-[#0f5eff] hover:bg-[#0d52db]"
+              >
+                Lanjut →
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </div>
