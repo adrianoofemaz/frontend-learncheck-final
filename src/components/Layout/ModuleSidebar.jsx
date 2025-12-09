@@ -28,18 +28,6 @@ const ModuleSidebar = ({
     return limit;
   })();
 
-  const getStatusColor = (tutorialId, isCompleted) => {
-    if (isCompleted) return "text-green-500";
-    if (currentTutorial?.id === tutorialId) return "text-blue-600";
-    return "text-gray-400";
-  };
-
-  const getStatusIcon = (isCompleted, isCurrent) => {
-    if (isCompleted) return "✓";
-    if (isCurrent) return "▶";
-    return "○";
-  };
-
   return (
     <>
       <div
@@ -73,14 +61,26 @@ const ModuleSidebar = ({
             const isCompleted = getTutorialProgress(tutorial.id);
             const isCurrent = currentTutorial?.id === tutorial.id;
             const isLocked = index > lastPrefixUnlocked;
+
+            // Jika sedang di Quiz Intro submodul ini, matikan highlight pada item submodul
+            const isQuizActive = activeQuizTutorialId === tutorial.id;
+            const isCurrentForStyle = isCurrent && !isQuizActive;
+
             const disabled = isLocked;
 
             const baseBtn = "w-full text-left px-4 py-3 rounded-lg transition-all";
-            const enabledState = isCurrent
+            const enabledState = isCurrentForStyle
               ? "bg-blue-50 border border-blue-300"
               : "border border-transparent hover:bg-gray-100 hover:border-gray-200";
             const disabledState =
               "border border-transparent text-gray-400 cursor-not-allowed opacity-60 hover:bg-transparent hover:border-transparent";
+
+            const statusColor = isCurrentForStyle
+              ? "text-blue-600"
+              : isCompleted
+              ? "text-green-500"
+              : "text-gray-400";
+            const statusIcon = isCompleted ? "✓" : isCurrentForStyle ? "▶" : "○";
 
             return (
               <div key={tutorial.id}>
@@ -95,18 +95,11 @@ const ModuleSidebar = ({
                   title={isLocked ? "Selesaikan submodul sebelumnya untuk membuka ini" : ""}
                 >
                   <div className="flex items-center gap-3">
-                    <span
-                      className={`text-xl font-bold ${getStatusColor(
-                        tutorial.id,
-                        isCompleted
-                      )}`}
-                    >
-                      {getStatusIcon(isCompleted, isCurrent)}
-                    </span>
+                    <span className={`text-xl font-bold ${statusColor}`}>{statusIcon}</span>
                     <div className="flex-1 min-w-0">
                       <p
                         className={`text-sm font-medium truncate ${
-                          isCurrent
+                          isCurrentForStyle
                             ? isDark
                               ? "text-blue-400"
                               : "text-blue-600"
@@ -120,7 +113,7 @@ const ModuleSidebar = ({
                       <p className="text-xs text-gray-500">
                         {isCompleted
                           ? "Selesai"
-                          : isCurrent
+                          : isCurrentForStyle
                           ? "Sedang Dipelajari"
                           : isLocked
                           ? "Terkunci"

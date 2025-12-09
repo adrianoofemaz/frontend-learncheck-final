@@ -35,30 +35,29 @@ const QuizPage = () => {
 
   // Load saved progress
   useEffect(() => {
-    if (!storageKey) return;
-    const saved = localStorage.getItem(storageKey);
-    if (!saved) return;
-    try {
-      const parsed = JSON.parse(saved);
-      if (parsed?.tutorialId === tutorialId) {
-        if (parsed.completed && parsed.result) {
-          navigate("/quiz-results", { state: { result: parsed.result } });
-          return;
-        }
-        if (parsed.answers) {
-          Object.entries(parsed.answers).forEach(([qIdx, ans]) => {
-            recordAnswer(parseInt(qIdx), ans);
-          });
-        }
-        if (parsed.lockedAnswers) setLockedAnswers(parsed.lockedAnswers);
-        if (typeof parsed.currentQuestionIndex === "number") {
-          setCurrentQuestionIndex(parsed.currentQuestionIndex);
-        }
-      }
-    } catch (e) {
-      console.warn("Failed to parse saved quiz progress", e);
-    }
-  }, [storageKey, tutorialId, navigate, recordAnswer, setCurrentQuestionIndex]);
+    if (!tutorialId) return;
+    if (fetchedRef.current) return;
+    fetchedRef.current = true;
+
+    fetchQuestions(parseInt(tutorialId, 10))
+      .then((resp) => {
+        // simpan soal & assessmentId untuk review result
+        const questionsData = (resp?.data || []).slice(0, 3);
+        const assmtId = resp?.assessment_id || null;
+        const payload = {
+          tutorialId: parseInt(tutorialId, 10),
+          assessmentId: assmtId,
+          questions: questionsData,
+        };
+        localStorage.setItem(`quiz-questions-${tutorialId}`, JSON.stringify(payload));
+      })
+      .catch((err) => {
+        console.error("Error fetching questions:", err);
+        setSubmitError(err.message || "Gagal memuat soal");
+      });
+
+    initializeQuiz();
+  }, [tutorialId, fetchQuestions, initializeQuiz, setSubmitError]);
 
   // Fetch questions
   useEffect(() => {
