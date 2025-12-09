@@ -1,14 +1,12 @@
 import React, { useContext } from "react";
 import Navbar from "../Layout/Navbar";
 import Footer from "./Footer";
-import BottomNav from "./BottomNav";
 import { UserContext } from "../../context/UserContext";
 
 const LayoutWrapper = ({
   children,
   showNavbar = true,
   showFooter = true,
-  showBottomNav = true,
   fullHeight = false,
 }) => {
   const { preferences } = useContext(UserContext); // Mengambil preferensi dari context
@@ -45,9 +43,6 @@ const LayoutWrapper = ({
 
         {showFooter && <Footer />}
       </div>
-
-      {/* BottomNav jika ada */}
-      {showBottomNav && <BottomNav />}
     </div>
   );
 };
