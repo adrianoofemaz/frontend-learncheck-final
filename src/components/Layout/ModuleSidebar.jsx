@@ -1,6 +1,8 @@
 import React, { useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 import { UserContext } from "../../context/UserContext";
+import ROUTES from "../../constants/routes";
 
 const ModuleSidebar = ({
   tutorials = [],
@@ -15,6 +17,7 @@ const ModuleSidebar = ({
 }) => {
   const { preferences } = useContext(UserContext);
   const isDark = preferences?.theme === "dark";
+  const navigate = useNavigate();
 
   // Lock prefix: n buka hanya jika n-1 selesai
   const lastPrefixUnlocked = (() => {
@@ -32,19 +35,13 @@ const ModuleSidebar = ({
     <>
       <div
         onClick={onClose}
-        className={`absolute ${
-          isOpen ? "rounded-full translate-x-8" : "rounded-l-full translate-x-78"
-        } p-2 bg-blue-900 w-8 z-50 top-20 right-76 transform transition-transform duration-300 ease-in-out text-gray-500 hover:text-gray-700 text-2xl cursor-pointer`}
+        className={`absolute ${isOpen ? "rounded-full translate-x-8" : "rounded-l-full translate-x-78"} p-2 bg-blue-900 w-8 z-50 top-20 right-76 transform transition-transform duration-300 ease-in-out text-gray-500 hover:text-gray-700 text-2xl cursor-pointer`}
       >
         {isOpen ? <ChevronRightIcon color="white" /> : <ChevronLeftIcon color="white" />}
       </div>
 
       {isOpen && (
-        <div
-          className="fixed inset-0 bg-transparent z-40 lg:hidden"
-          onClick={onClose}
-          aria-hidden="true"
-        />
+        <div className="fixed inset-0 bg-transparent z-40 lg:hidden" onClick={onClose} aria-hidden="true" />
       )}
 
       <aside
@@ -62,7 +59,6 @@ const ModuleSidebar = ({
             const isCurrent = currentTutorial?.id === tutorial.id;
             const isLocked = index > lastPrefixUnlocked;
 
-            // Jika sedang di Quiz Intro submodul ini, matikan highlight pada item submodul
             const isQuizActive = activeQuizTutorialId === tutorial.id;
             const isCurrentForStyle = isCurrent && !isQuizActive;
 
@@ -83,7 +79,7 @@ const ModuleSidebar = ({
             const statusIcon = isCompleted ? "✓" : isCurrentForStyle ? "▶" : "○";
 
             return (
-              <div key={tutorial.id}>
+              <div key={tutorial.id} className="space-y-1">
                 <button
                   onClick={() => {
                     if (disabled) return;
@@ -123,14 +119,21 @@ const ModuleSidebar = ({
                   </div>
                 </button>
 
-                {isCurrent && showQuizLink && (
+                {showQuizLink && (
                   <button
-                    onClick={() => onSelectQuiz(tutorial.id)}
-                    className={`w-full text-left px-4 py-2 ml-4 mt-1 text-xs rounded ${
-                      activeQuizTutorialId === tutorial.id
+                    onClick={() => {
+                      if (isLocked) return;
+                      onSelectQuiz(tutorial.id);
+                    }}
+                    disabled={isLocked}
+                    className={`w-full text-left px-4 py-2 ml-4 text-xs rounded ${
+                      isLocked
+                        ? "text-gray-400 cursor-not-allowed"
+                        : activeQuizTutorialId === tutorial.id
                         ? "text-blue-700 font-semibold bg-blue-50"
                         : "text-blue-600 hover:text-blue-700 hover:bg-blue-100 cursor-pointer"
                     }`}
+                    title={isLocked ? "Selesaikan submodul sebelumnya untuk membuka kuis ini" : ""}
                   >
                     → Quiz Submodul #{index + 1}
                   </button>
@@ -138,6 +141,19 @@ const ModuleSidebar = ({
               </div>
             );
           })}
+
+          {/* Quiz Final */}
+          <div className="pt-4 mt-4 border-t border-gray-200">
+            <button
+              onClick={() => {
+                navigate(ROUTES.QUIZ_FINAL_INTRO);
+                onClose();
+              }}
+              className="w-full text-left px-4 py-3 rounded-lg border border-transparent hover:bg-blue-50 text-blue-700 font-semibold"
+            >
+              → Quiz Final
+            </button>
+          </div>
         </div>
       </aside>
     </>

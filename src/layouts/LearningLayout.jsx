@@ -7,11 +7,12 @@ const LearningLayout = ({
   children,
   showSidebar = true,
   showBottomBar = true,
+  showMarkComplete = true, // baru: kontrol tampil/tidak tombol Tandai Selesai
   tutorials = [],
   currentTutorial,
   getTutorialProgress,
   onSelectTutorial,
-  onSelectQuiz = () => {},   // handler quiz
+  onSelectQuiz = () => {}, // handler quiz
   onHome = () => {},
   onMarkComplete = () => {},
   onStartQuiz = () => {},
@@ -56,6 +57,7 @@ const LearningLayout = ({
           onStartQuiz={onStartQuiz}
           isCompleted={isCompleted}
           onToggleSidebar={toggleSidebar}
+          showMarkComplete={showMarkComplete} // baru
         />
       )}
     </div>

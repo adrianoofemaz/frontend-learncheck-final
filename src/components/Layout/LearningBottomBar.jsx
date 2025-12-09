@@ -8,6 +8,7 @@ const LearningBottomBar = ({
   onStartQuiz = () => {},
   isCompleted = false,
   onToggleSidebar = () => {},
+  showMarkComplete = true, // baru: kontrol tampil/tidak tombol Tandai Selesai
 }) => {
   const { preferences } = useContext(UserContext);
 
@@ -15,7 +16,7 @@ const LearningBottomBar = ({
     <div
       className={`fixed bottom-0 left-0 right-0 border-t px-8 py-4 z-40
         ${
-          preferences.theme === "dark"
+          preferences?.theme === "dark"
             ? "bg-gray-900 border-gray-700"
             : "bg-white border-gray-200"
         }`}
@@ -26,7 +27,7 @@ const LearningBottomBar = ({
         </Button>
 
         <div className="flex gap-4">
-          {!isCompleted && (
+          {!isCompleted && showMarkComplete && (
             <Button onClick={onMarkComplete} variant="secondary" className="cursor-pointer">
               ✓ Tandai Selesai
             </Button>
