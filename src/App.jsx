@@ -9,8 +9,11 @@ import { LearningProvider } from "./context/LearningContext";
 import { QuizProvider } from "./context/QuizContext";
 import { ProgressProvider } from "./context/ProgressContext";
 
-// Layout
-import LayoutWrapper from "./components/Layout/LayoutWrapper";
+// Layouts baru
+import MainLayout from "./layouts/MainLayout";
+import LearningLayout from "./layouts/LearningLayout"
+import QuizLayout from "./layouts/QuizLayout";
+import AuthLayout from "./layouts/AuthLayout";
 
 // Pages - Auth
 import LoginPage from "./pages/auth/LoginPage";
@@ -36,118 +39,75 @@ import { ROUTES } from "./constants/routes";
 function App() {
   return (
     <AuthProvider>
-      <UserProvider>
-        <ProgressProvider>
+         <ProgressProvider>
+          <UserProvider>
           <LearningProvider>
             <QuizProvider>
               <Routes>
-                {/* Auth Routes */}
-                <Route path={ROUTES.REGISTER} element={<RegisterPage />} />
-                <Route path={ROUTES.LOGIN} element={<LoginPage />} />
-
-                {/* Redirect root to home */}
+                {/* Auth */}
                 <Route
-                  path="/"
-                  element={<Navigate to={ROUTES.HOME} replace />}
+                  path={ROUTES.REGISTER}
+                  element={
+                    <AuthLayout>
+                      <RegisterPage />
+                    </AuthLayout>
+                  }
+                />
+                <Route
+                  path={ROUTES.LOGIN}
+                  element={
+                    <AuthLayout>
+                      <LoginPage />
+                    </AuthLayout>
+                  }
                 />
 
-                {/* ✅ HOME - ClassDetailPage (dengan Footer) */}
+                {/* Redirect root */}
+                <Route path="/" element={<Navigate to={ROUTES.HOME} replace />} />
+
+                {/* Home (Navbar + Footer) */}
                 <Route
                   path={ROUTES.HOME}
                   element={
-                    <LayoutWrapper showFooter={true}>
+                    <MainLayout>
                       <ClassDetailPage />
-                    </LayoutWrapper>
+                    </MainLayout>
                   }
                 />
 
-                {/* ✅ LearningPage - TANPA Footer */}
-                <Route
-                  path={ROUTES.LEARNING}
-                  element={
-                    <LayoutWrapper showFooter={false} showBottomNav={false}>
-                      <LearningPage />
-                    </LayoutWrapper>
-                  }
-                />
+                {/* Learning flow (sidebar + bottom bar) */}
+                <Route path={ROUTES.LEARNING} element={<LearningPage />} />
+                <Route path="/quiz-intro/:tutorialId" element={<QuizIntroPage />} />
+                <Route path={ROUTES.QUIZ_RESULTS} element={<ResultsPage />} />
+                <Route path={ROUTES.DASHBOARD_MODUL} element={<DashboardModulPage />} />
+                <Route path={ROUTES.QUIZ_FINAL_INTRO} element={<FinalQuizIntroPage />} />
+                <Route path={ROUTES.QUIZ_FINAL_RESULT} element={<FinalQuizResultPage />} />
 
-                {/* ✅ QuizIntroPage - TANPA Footer */}
-                <Route
-                  path="/quiz-intro/:tutorialId"
-                  element={
-                    <LayoutWrapper showFooter={false} showBottomNav={false}>
-                      <QuizIntroPage />
-                    </LayoutWrapper>
-                  }
-                />
-
-                {/* ✅ QuizPage - TANPA Footer */}
+                {/* Quiz pages (Navbar only) */}
                 <Route
                   path="/quiz/:tutorialId"
                   element={
-                    <LayoutWrapper showFooter={false} showBottomNav={false}>
+                    <QuizLayout>
                       <QuizPage />
-                    </LayoutWrapper>
+                    </QuizLayout>
                   }
                 />
-
-                {/* ✅ ResultsPage - TANPA Footer */}
-                <Route
-                  path={ROUTES.QUIZ_RESULTS}
-                  element={
-                    <LayoutWrapper showFooter={false} showBottomNav={false}>
-                      <ResultsPage />
-                    </LayoutWrapper>
-                  }
-                />
-
-                {/* ✅ Final Quiz Intro - TANPA Footer */}
-                <Route
-                  path={ROUTES.QUIZ_FINAL_INTRO}
-                  element={
-                    <LayoutWrapper showFooter={false} showBottomNav={false}>
-                      <FinalQuizIntroPage />
-                    </LayoutWrapper>
-                  }
-                />
-
-                {/* ✅ Final Quiz Page - TANPA Footer */}
                 <Route
                   path={ROUTES.QUIZ_FINAL}
                   element={
-                    <LayoutWrapper showFooter={false} showBottomNav={false}>
+                    <QuizLayout>
                       <FinalQuizPage />
-                    </LayoutWrapper>
+                    </QuizLayout>
                   }
                 />
 
-                {/* ✅ Final Quiz Result - TANPA Footer */}
-                <Route
-                  path={ROUTES.QUIZ_FINAL_RESULT}
-                  element={
-                    <LayoutWrapper showFooter={false} showBottomNav={false}>
-                      <FinalQuizResultPage />
-                    </LayoutWrapper>
-                  }
-                />
-
-                {/* ✅ Dashboard Modul - TANPA Footer */}
-                <Route
-                  path={ROUTES.DASHBOARD_MODUL}
-                  element={
-                    <LayoutWrapper showFooter={false} showBottomNav={false}>
-                      <DashboardModulPage />
-                    </LayoutWrapper>
-                  }
-                />
-
-                {/* 404 - Not Found */}
+                {/* 404 */}
                 <Route path={ROUTES.NOT_FOUND} element={<NotFoundPage />} />
               </Routes>
             </QuizProvider>
           </LearningProvider>
-        </ProgressProvider>
-      </UserProvider>
+        </UserProvider>
+      </ProgressProvider>
     </AuthProvider>
   );
 }

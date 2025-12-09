@@ -1,12 +1,13 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
-import Swal from 'sweetalert2';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useQuizProgress } from '../hooks/useQuizProgress';
-import { useQuiz } from '../hooks/useQuiz';
-import { QuizCard, QuizTimer } from '../components/features/quiz';
-import { Alert } from '../components/common';
-import Button from '../components/common/Button';
-import Loading from '../components/common/Loading';
+import React, { useEffect, useState, useRef, useCallback } from "react";
+import Swal from "sweetalert2";
+import { useNavigate, useParams } from "react-router-dom";
+import { useQuizProgress } from "../hooks/useQuizProgress";
+import { useQuiz } from "../hooks/useQuiz";
+import { useProgress } from "../context/ProgressContext";
+import { QuizCard, QuizTimer } from "../components/features/quiz";
+import { Alert } from "../components/common";
+import Button from "../components/common/Button";
+import Loading from "../components/common/Loading";
 
 const QuizPage = () => {
   const navigate = useNavigate();
@@ -24,6 +25,8 @@ const QuizPage = () => {
     initializeQuiz,
   } = useQuizProgress();
 
+  const { updateTutorialProgress } = useProgress();
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
   const [lockedAnswers, setLockedAnswers] = useState({});
@@ -39,7 +42,7 @@ const QuizPage = () => {
       const parsed = JSON.parse(saved);
       if (parsed?.tutorialId === tutorialId) {
         if (parsed.completed && parsed.result) {
-          navigate('/quiz-results', { state: { result: parsed.result } });
+          navigate("/quiz-results", { state: { result: parsed.result } });
           return;
         }
         if (parsed.answers) {
@@ -48,24 +51,24 @@ const QuizPage = () => {
           });
         }
         if (parsed.lockedAnswers) setLockedAnswers(parsed.lockedAnswers);
-        if (typeof parsed.currentQuestionIndex === 'number') {
+        if (typeof parsed.currentQuestionIndex === "number") {
           setCurrentQuestionIndex(parsed.currentQuestionIndex);
         }
       }
     } catch (e) {
-      console.warn('Failed to parse saved quiz progress', e);
+      console.warn("Failed to parse saved quiz progress", e);
     }
   }, [storageKey, tutorialId, navigate, recordAnswer, setCurrentQuestionIndex]);
 
   // Fetch questions
   useEffect(() => {
     if (!tutorialId) {
-      setSubmitError('Tutorial ID tidak ditemukan');
+      setSubmitError("Tutorial ID tidak ditemukan");
       return;
     }
     if (fetchedRef.current) return;
     fetchedRef.current = true;
-    fetchQuestions(parseInt(tutorialId));
+    fetchQuestions(parseInt(tutorialId, 10));
     initializeQuiz();
   }, [tutorialId, fetchQuestions, initializeQuiz]);
 
@@ -103,7 +106,10 @@ const QuizPage = () => {
         };
       });
 
-      const result = await submitAnswers(parseInt(tutorialId), assessmentId, answersData);
+      const result = await submitAnswers(parseInt(tutorialId, 10), assessmentId, answersData);
+
+      // progress dibuka hanya lewat submit quiz
+      updateTutorialProgress(parseInt(tutorialId, 10), true);
 
       if (storageKey) {
         const saved = {
@@ -118,9 +124,9 @@ const QuizPage = () => {
         localStorage.setItem(storageKey, JSON.stringify(saved));
       }
 
-      navigate('/quiz-results', { state: { result } });
+      navigate("/quiz-results", { state: { result } });
     } catch (err) {
-      const friendly = err?.raw?.details || err?.message || 'Gagal mengirim jawaban';
+      const friendly = err?.raw?.details || err?.message || "Gagal mengirim jawaban";
       setSubmitError(friendly);
       setIsSubmitting(false);
     }
@@ -134,6 +140,7 @@ const QuizPage = () => {
     storageKey,
     lockedAnswers,
     currentQuestionIndex,
+    updateTutorialProgress,
   ]);
 
   const handleTimeUp = useCallback(() => {
@@ -164,12 +171,12 @@ const QuizPage = () => {
       return;
     }
     Swal.fire({
-      title: 'Belum menjawab',
-      text: 'Anda belum memilih jawaban untuk soal ini. Tetap lanjut?',
-      icon: 'warning',
+      title: "Belum menjawab",
+      text: "Anda belum memilih jawaban untuk soal ini. Tetap lanjut?",
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonText: 'Tetap Lanjut',
-      cancelButtonText: 'Batal',
+      confirmButtonText: "Tetap Lanjut",
+      cancelButtonText: "Batal",
       reverseButtons: true,
       allowOutsideClick: false,
     }).then((res) => {
@@ -247,7 +254,6 @@ const QuizPage = () => {
             locked={!!lockedAnswers[currentQuestionIndex]}
           />
 
-          {/* Tombol di dalam card, ukuran lebih kecil */}
           <div className="mt-6 flex justify-end">
             {isLastQuestion ? (
               <Button
@@ -256,7 +262,7 @@ const QuizPage = () => {
                 disabled={isSubmitting}
                 className="bg-[#0f5eff] hover:bg-[#0d52db] px-4 py-2 text-sm"
               >
-                {isSubmitting ? 'Mengirim...' : '✓ Selesai & Kirim'}
+                {isSubmitting ? "Mengirim..." : "✓ Selesai & Kirim"}
               </Button>
             ) : (
               <Button

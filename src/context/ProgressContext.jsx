@@ -2,34 +2,40 @@
  * ProgressContext
  * Manage user learning progress
  */
-
-import React, { createContext, useState, useCallback, useContext } from 'react';
-import { STORAGE_KEYS } from '../constants/config';
+import React, { createContext, useState, useCallback, useContext } from "react";
+import { STORAGE_KEYS } from "../constants/config";
 
 export const ProgressContext = createContext();
 
 export const ProgressProvider = ({ children }) => {
   const [progress, setProgress] = useState(
-    JSON.parse(sessionStorage. getItem(STORAGE_KEYS.progress)) || {}
+    JSON.parse(sessionStorage.getItem(STORAGE_KEYS.progress)) || {}
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   /**
+   * Set progress map (sinkronisasi dari backend)
+   */
+  const setProgressMap = useCallback((map) => {
+    try {
+      const sanitized = map || {};
+      setProgress(sanitized);
+      sessionStorage.setItem(STORAGE_KEYS.progress, JSON.stringify(sanitized));
+    } catch (err) {
+      setError(err.message);
+    }
+  }, []);
+
+  /**
    * Update progress untuk tutorial tertentu
+   * (default: set true)
    */
   const updateTutorialProgress = useCallback((tutorialId, status = true) => {
     try {
       setProgress((prev) => {
-        const updated = {
-          ...prev,
-          [tutorialId]: status,
-        };
-        // Save to sessionStorage
-        sessionStorage.setItem(
-          STORAGE_KEYS.progress,
-          JSON.stringify(updated)
-        );
+        const updated = { ...prev, [tutorialId]: status };
+        sessionStorage.setItem(STORAGE_KEYS.progress, JSON.stringify(updated));
         return updated;
       });
     } catch (err) {
@@ -40,9 +46,12 @@ export const ProgressProvider = ({ children }) => {
   /**
    * Get progress untuk tutorial tertentu
    */
-  const getTutorialProgress = useCallback((tutorialId) => {
-    return progress[tutorialId] || false;
-  }, [progress]);
+  const getTutorialProgress = useCallback(
+    (tutorialId) => {
+      return progress[tutorialId] || false;
+    },
+    [progress]
+  );
 
   /**
    * Get completed count
@@ -74,14 +83,11 @@ export const ProgressProvider = ({ children }) => {
   const resetProgress = useCallback(() => {
     try {
       const resetData = {};
-      Object.keys(progress). forEach((key) => {
+      Object.keys(progress).forEach((key) => {
         resetData[key] = false;
       });
       setProgress(resetData);
-      sessionStorage.setItem(
-        STORAGE_KEYS.progress,
-        JSON.stringify(resetData)
-      );
+      sessionStorage.setItem(STORAGE_KEYS.progress, JSON.stringify(resetData));
     } catch (err) {
       setError(err.message);
     }
@@ -91,6 +97,7 @@ export const ProgressProvider = ({ children }) => {
     progress,
     loading,
     error,
+    setProgressMap,          // baru
     updateTutorialProgress,
     getTutorialProgress,
     getCompletedCount,
@@ -99,11 +106,7 @@ export const ProgressProvider = ({ children }) => {
     resetProgress,
   };
 
-  return (
-    <ProgressContext.Provider value={value}>
-      {children}
-    </ProgressContext.Provider>
-  );
+  return <ProgressContext.Provider value={value}>{children}</ProgressContext.Provider>;
 };
 
 /**
@@ -113,7 +116,7 @@ export const ProgressProvider = ({ children }) => {
 export const useProgress = () => {
   const context = useContext(ProgressContext);
   if (!context) {
-    throw new Error('useProgress must be used within ProgressProvider');
+    throw new Error("useProgress must be used within ProgressProvider");
   }
   return context;
 };

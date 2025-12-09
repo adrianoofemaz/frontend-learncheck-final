@@ -1,11 +1,11 @@
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Card from '../components/common/Card';
-import Button from '../components/common/Button';
-import Loading from '../components/common/Loading';
-import { Alert } from '../components/common';
-import useFinalQuiz from '../hooks/useFinalQuiz';
-import { ROUTES } from '../constants/routes';
+import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import Card from "../components/common/Card";
+import Button from "../components/common/Button";
+import Loading from "../components/common/Loading";
+import { Alert } from "../components/common";
+import useFinalQuiz from "../hooks/useFinalQuiz";
+import { ROUTES } from "../constants/routes";
 
 const FinalQuizPage = () => {
   const {
@@ -51,7 +51,7 @@ const FinalQuizPage = () => {
             title="Soal tidak tersedia"
             message="Belum ada soal quiz final. Silakan coba lagi nanti."
           />
-          <Button variant="primary" onClick={() => navigate('/home')} className="mt-4 cursor-pointer">
+          <Button variant="primary" onClick={() => navigate("/home")} className="mt-4 cursor-pointer">
             Kembali ke Beranda
           </Button>
         </div>
@@ -70,14 +70,13 @@ const FinalQuizPage = () => {
   return (
     <div className="py-10">
       <div className="max-w-3xl mx-auto px-4 space-y-6">
-        {/* Header dalam Card */}
         <Card className="p-6">
           <div className="flex items-start justify-between gap-4">
             <div>
               <h1 className="text-3xl font-bold text-blue-600">Quiz Final</h1>
               <p className="text-gray-600">10 soal • Waktu 10 menit</p>
             </div>
-            <Button variant="secondary" onClick={() => navigate('/quiz-final-intro')} className="cursor-pointer">
+            <Button variant="secondary" onClick={() => navigate("/quiz-final-intro")} className="cursor-pointer">
               ← Kembali
             </Button>
           </div>
@@ -108,7 +107,7 @@ const FinalQuizPage = () => {
               <label
                 key={opt.id}
                 className={`block w-full border rounded-lg px-4 py-3 cursor-pointer transition ${
-                  selected === opt.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-200'
+                  selected === opt.id ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-blue-200"
                 }`}
               >
                 <div className="flex items-center gap-3">
