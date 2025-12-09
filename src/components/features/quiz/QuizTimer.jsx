@@ -1,29 +1,30 @@
-/**
- * QuizTimer Component
- * Countdown timer untuk quiz
- */
-
 import React, { useState, useEffect } from 'react';
 import { ClockIcon } from '@heroicons/react/24/solid';
 
-const QuizTimer = ({ duration = 30, onTimeUp, isActive = true }) => {
+/**
+ * QuizTimer
+ * resetKey: ubah (mis. dengan question index) agar timer reset ke duration tiap pindah soal
+ */
+const QuizTimer = ({ duration = 30, onTimeUp, isActive = true, variant = 'dark', resetKey }) => {
   const [timeLeft, setTimeLeft] = useState(duration);
 
+  // Reset waktu ketika resetKey berubah
   useEffect(() => {
-    if (! isActive) return;
+    setTimeLeft(duration);
+  }, [duration, resetKey]);
+
+  useEffect(() => {
+    if (!isActive) return;
 
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
-        const newTime = prev - 1;
-        if (newTime <= 0) {
+        const next = prev - 1;
+        if (next <= 0) {
           clearInterval(timer);
-          // ✅ Call onTimeUp AFTER state update
-          setTimeout(() => {
-            onTimeUp?. ();
-          }, 0);
+          setTimeout(() => onTimeUp?.(), 0);
           return 0;
         }
-        return newTime;
+        return next;
       });
     }, 1000);
 
@@ -31,17 +32,23 @@ const QuizTimer = ({ duration = 30, onTimeUp, isActive = true }) => {
   }, [isActive, onTimeUp]);
 
   const isWarning = timeLeft <= 10;
-
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  const formatTime = (s) => {
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return `${m}:${sec < 10 ? '0' : ''}${sec}`;
   };
 
+  const color =
+    variant === 'light'
+      ? isWarning
+        ? 'text-yellow-200'
+        : 'text-white'
+      : isWarning
+        ? 'text-red-600'
+        : 'text-gray-900';
+
   return (
-    <div className={`flex items-center gap-2 text-lg font-semibold ${
-      isWarning ? 'text-red-600' : 'text-gray-900'
-    }`}>
+    <div className={`flex items-center gap-2 text-lg font-semibold ${color}`}>
       <ClockIcon className={`w-5 h-5 ${isWarning ? 'animate-pulse' : ''}`} />
       <span>{formatTime(timeLeft)}</span>
     </div>

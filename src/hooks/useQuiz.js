@@ -23,11 +23,11 @@ export const useQuiz = () => {
     try {
       console.log('Fetching questions for tutorial:', tutorialId);
       
-      const response = await quizService.  getQuestions(tutorialId);
+      const response = await quizService.getQuestions(tutorialId);
       console.log('Questions response:', response);
       
-      // Extract questions & assessment ID dari response
-      const questionsData = response.data || [];
+      // Batasi soal submodul ke 3 pertama (sisanya untuk final)
+      const questionsData = (response.data || []).slice(0, 3);
       const assmtId = response.assessment_id || null;
       
       setQuestions(questionsData);
@@ -55,7 +55,7 @@ export const useQuiz = () => {
     try {
       console.log('Submitting answers:', { tutorialId, assessmentId: assmtId, answers });
       
-      const response = await quizService.  submitAnswers(
+      const response = await quizService.submitAnswers(
         tutorialId,
         assmtId,
         answers
@@ -79,9 +79,9 @@ export const useQuiz = () => {
     setLoading(true);
     setError(null);
     try {
-      console.log('Resetting progress.. .');
+      console.log('Resetting progress...');
       
-      const response = await quizService. resetProgress();
+      const response = await quizService.resetProgress();
       
       console.log('Reset response:', response);
       return response;

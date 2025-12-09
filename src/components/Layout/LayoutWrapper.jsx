@@ -27,7 +27,7 @@ const LayoutWrapper = ({
         alt="bg-pattern"
         aria-hidden="true"
         className="pointer-events-none select-none
-                   absolute top-0 left-0 w-full h-full 
+                   absolute top-0 left-0 w-full h-full    
                    object-cover opacity-20 z-0"
       />
 

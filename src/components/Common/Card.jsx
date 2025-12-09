@@ -27,7 +27,7 @@ const Card = ({
   const borderClass = bordered ? "border border-gray-200" : "";
 
   const combinedClassName = `
-
+    
     ${shadowClasses[shadow] || shadowClasses.lg}
     ${paddingClasses[padding] || paddingClasses.md}
     ${borderClass}
@@ -38,13 +38,9 @@ const Card = ({
     <div className={combinedClassName} {...props}>
       {title && (
         <div className="mb-4">
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-            {title}
-          </h3>
+          <h3 className="text-lg font-bold text-gray-900 ">{title}</h3>
           {description && (
-            <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-              {description}
-            </p>
+            <p className="text-sm text-gray-600 mt-1">{description}</p>
           )}
         </div>
       )}
