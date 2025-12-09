@@ -1,9 +1,4 @@
-/**
- * QuizPage
- * Main quiz page - display questions & handle answers
- */
-
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuizProgress } from "../hooks/useQuizProgress";
 import { useQuiz } from "../hooks/useQuiz";
@@ -35,6 +30,7 @@ const QuizPage = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
+  const fetchedRef = useRef(false);
 
   useEffect(() => {
     if (tutorialId) {
@@ -43,11 +39,51 @@ const QuizPage = () => {
     } else {
       setSubmitError("Tutorial ID tidak ditemukan");
     }
+    if (fetchedRef.current) return;
+    fetchedRef.current = true;
+    fetchQuestions(parseInt(tutorialId));
+    initializeQuiz();
   }, [tutorialId, fetchQuestions, initializeQuiz]);
 
-  if (loading) {
-    return <Loading fullScreen text="Memuat kuis..." />;
-  }
+  const handleSubmitQuiz = useCallback(async () => {
+    setIsSubmitting(true);
+    setSubmitError(null);
+    try {
+      const answersData = Object.entries(answers).map(
+        ([questionIndex, answerIndex]) => {
+          const question = questions[parseInt(questionIndex)];
+          const selectedOption = question?.multiple_choice[answerIndex];
+          return {
+            soal_id: question?.id,
+            correct: selectedOption?.correct || false,
+          };
+        }
+      );
+      const result = await submitAnswers(
+        parseInt(tutorialId),
+        assessmentId,
+        answersData
+      );
+      navigate("/quiz-results", { state: { result } });
+    } catch (err) {
+      const friendly =
+        err?.raw?.details || err?.message || "Gagal mengirim jawaban";
+      setSubmitError(friendly);
+      setIsSubmitting(false);
+    }
+  }, [answers, assessmentId, navigate, questions, submitAnswers, tutorialId]);
+
+  const handleTimeUp = useCallback(() => {
+    // Kalau belum soal terakhir → next; kalau terakhir → submit
+    if (currentQuestionIndex >= questions.length - 1) {
+      handleSubmitQuiz();
+    } else {
+      nextQuestion(questions.length);
+    }
+  }, [currentQuestionIndex, questions.length, handleSubmitQuiz, nextQuestion]);
+
+  // ---- Setelah semua hooks & callbacks, baru boleh conditional render ----
+  if (loading) return <Loading fullScreen text="Memuat kuis..." />;
 
   if (error) {
     return (
@@ -83,36 +119,6 @@ const QuizPage = () => {
   const currentAnswer = getCurrentAnswer();
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
   const allAnswered = Object.keys(answers).length === questions.length;
-
-  const handleSubmitQuiz = async () => {
-    setIsSubmitting(true);
-    setSubmitError(null);
-
-    try {
-      const answersData = Object.entries(answers).map(
-        ([questionIndex, answerIndex]) => {
-          const question = questions[parseInt(questionIndex)];
-          const selectedOption = question?.multiple_choice[answerIndex];
-
-          return {
-            soal_id: question?.id,
-            correct: selectedOption?.correct || false,
-          };
-        }
-      );
-
-      const result = await submitAnswers(
-        parseInt(tutorialId),
-        assessmentId,
-        answersData
-      );
-
-      navigate("/quiz-results", { state: { result } });
-    } catch (err) {
-      setSubmitError(err.message || "Gagal mengirim jawaban");
-      setIsSubmitting(false);
-    }
-  };
 
   return (
     <div className=" bg-white py-8 pt-30 max-w-4xl mx-auto flex items-center justify-center rounded-lg min-h-screen">
@@ -159,7 +165,6 @@ const QuizPage = () => {
             message={submitError}
             dismissible
             onClose={() => setSubmitError(null)}
-            className="mt-4"
           />
         )}
 

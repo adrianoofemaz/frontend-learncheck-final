@@ -21,8 +21,6 @@ const ModuleSidebar = ({
   isOpen,
   onClose,
 }) => {
-  const { preferences } = useContext(UserContext);
-
   const getStatusColor = (tutorialId, isCompleted) => {
     if (isCompleted) return "text-green-500";
     if (currentTutorial?.id === tutorialId) return "text-blue-600";
@@ -34,6 +32,8 @@ const ModuleSidebar = ({
     if (isCurrent) return "▶";
     return "○";
   };
+
+  const { preferences } = useContext(UserContext);
 
   return (
     <>
@@ -62,10 +62,13 @@ const ModuleSidebar = ({
 
       {/* ✅ SIDEBAR - Fixed on mobile, sticky on desktop */}
       <div
-        className={`fixed h-full lg:absolute top-0 right-0 w-80 pt-20 bg-gray-600 border-l border-gray-200 
-          px-6 overflow-y-auto z-20 transform transition-transform duration-300 ease-in-out ${
-            isOpen ? "translate-x-0" : "translate-x-120"
-          } ${preferences?.theme === "dark" ? "bg-gray-800" : "bg-white"}`}
+        className={`fixed h-full top-0 right-0 w-80 pt-32 px-6 overflow-y-auto z-20 transform transition-transform duration-300 ease-in-out 
+    ${
+      preferences?.theme === "dark"
+        ? "bg-gray-800 border-gray-700"
+        : "bg-white border-gray-200"
+    }
+    ${isOpen ? "translate-x-0" : "translate-x-120"}`}
       >
         <div className="mb-2 lg:pt-10 pt-10">
           <h3
@@ -113,8 +116,8 @@ const ModuleSidebar = ({
                                 ? "text-blue-500"
                                 : "text-blue-600"
                               : preferences?.theme === "dark"
-                              ? "text-blue-300"
-                              : "text-gray-900"
+                              ? "text-blue-300" // Warna gelap di dark mode
+                              : "text-gray-900" // Warna terang di light mode
                           }`}
                         >
                           {tutorial.title}
