@@ -1,13 +1,10 @@
-/**
- * Sidebar Component
- * Left sidebar navigation
- */
-
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   BookOpenIcon,
   HomeIcon,
+  Bars3Icon,
+  XMarkIcon,
   CheckCircleIcon,
 } from "@heroicons/react/24/outline";
 import { useProgress } from "../../context/ProgressContext";
@@ -16,6 +13,7 @@ const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { getCompletionPercentage } = useProgress();
+  const [open, setOpen] = useState(false);
 
   const menuItems = [
     { label: "Beranda", path: "/home", icon: HomeIcon },
@@ -66,8 +64,8 @@ const Sidebar = () => {
           })}
         </nav>
       </div>
-    </aside>
-  );
+      </aside>
+    );
 };
 
 export default Sidebar;

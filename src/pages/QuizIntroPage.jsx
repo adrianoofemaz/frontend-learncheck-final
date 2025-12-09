@@ -1,7 +1,7 @@
 /**
  * QuizIntroPage
  */
-import React, { useEffect, useState, useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 import { useQuiz } from "../hooks/useQuiz";
@@ -21,6 +21,8 @@ const ModuleSidebar = ({
   isOpen,
   onClose,
 }) => {
+  const { preferences } = useContext(UserContext);
+
   const getStatusColor = (tutorialId, isCompleted) => {
     if (isCompleted) return "text-green-500";
     if (currentTutorial?.id === tutorialId) return "text-blue-600";
@@ -32,8 +34,6 @@ const ModuleSidebar = ({
     if (isCurrent) return "▶";
     return "○";
   };
-
-  const { preferences } = useContext(UserContext);
 
   return (
     <>

@@ -1,12 +1,30 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { XMarkIcon, CheckIcon } from '@heroicons/react/24/solid';
 
-const QuizCard = ({ question, selectedAnswer, onSelectAnswer, questionNumber, totalQuestions }) => {
+const QuizCard = ({ question, selectedAnswer, onSelectAnswer, questionNumber, totalQuestions, locked }) => {
   if (!question) return null;
 
   const options = question.multiple_choice || [];
   const reveal = selectedAnswer !== undefined && selectedAnswer !== null;
   const selectedOption = reveal ? options[selectedAnswer] : null;
+  const feedbackRef = useRef(null);
+
+  useEffect(() => {
+    if (reveal && feedbackRef.current) {
+      const el = feedbackRef.current;
+      const doScroll = () => {
+        try {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+        } catch {
+          const rect = el.getBoundingClientRect();
+          const target = rect.top + window.scrollY - 120;
+          window.scrollTo({ top: target, behavior: 'smooth' });
+        }
+      };
+      // jalankan setelah layout selesai
+      requestAnimationFrame(doScroll);
+    }
+  }, [reveal, selectedAnswer]);
 
   const getOptionStyle = (option, isSelected) => {
     if (!reveal) {
@@ -33,7 +51,6 @@ const QuizCard = ({ question, selectedAnswer, onSelectAnswer, questionNumber, to
       };
     }
 
-    // non-selected incorrect after reveal
     return {
       wrapper: 'border border-gray-200 bg-white text-gray-900 opacity-70',
       dot: 'border-gray-300',
@@ -54,7 +71,10 @@ const QuizCard = ({ question, selectedAnswer, onSelectAnswer, questionNumber, to
     );
 
     return (
-      <div className={`mt-4 border ${border} rounded-xl px-4 py-3 flex gap-3 items-start`}>
+      <div
+        ref={feedbackRef}
+        className={`mt-4 border ${border} rounded-xl px-4 py-3 flex gap-3 items-start`}
+      >
         <div className="mt-0.5">{icon}</div>
         <div>
           <p className={`font-semibold ${color}`}>{title}</p>
@@ -68,7 +88,6 @@ const QuizCard = ({ question, selectedAnswer, onSelectAnswer, questionNumber, to
 
   return (
     <div className="space-y-6">
-      {/* Header soal */}
       <div className="flex items-start justify-between gap-3">
         <div className="text-xs font-semibold tracking-wide text-[#0f5eff] uppercase">
           Soal {questionNumber} / {totalQuestions}
@@ -78,10 +97,8 @@ const QuizCard = ({ question, selectedAnswer, onSelectAnswer, questionNumber, to
         </div>
       </div>
 
-      {/* Pertanyaan */}
       <h2 className="text-2xl font-semibold text-gray-900 leading-relaxed">{question.assessment}</h2>
 
-      {/* Opsi */}
       <div className="space-y-3">
         {options.length === 0 ? (
           <p className="text-gray-500 text-center py-4">Tidak ada opsi tersedia</p>
@@ -93,8 +110,14 @@ const QuizCard = ({ question, selectedAnswer, onSelectAnswer, questionNumber, to
             return (
               <button
                 key={index}
-                onClick={() => onSelectAnswer?.(index)}
-                className={`w-full text-left rounded-xl px-4 py-3 transition-all duration-200 ${style.wrapper}`}
+                onClick={() => {
+                  if (locked) return;
+                  onSelectAnswer?.(index);
+                }}
+                disabled={locked}
+                className={`w-full text-left rounded-xl px-4 py-3 transition-all duration-200 ${style.wrapper} ${
+                  locked ? 'cursor-not-allowed opacity-90' : ''
+                }`}
               >
                 <div className="flex items-center gap-3">
                   <div
@@ -111,7 +134,6 @@ const QuizCard = ({ question, selectedAnswer, onSelectAnswer, questionNumber, to
         )}
       </div>
 
-      {/* Feedback/Hints setelah pilih */}
       {renderFeedback()}
     </div>
   );
