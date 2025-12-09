@@ -136,14 +136,15 @@ const ModuleSidebar = ({
                   </div>
                 </button>
 
-                <div className="ml-10 mt-2 h-1 bg-gray-200 rounded-full overflow-hidden">
+                {/* Remove progress bar under each item for cleaner look
+                 <div className="ml-10 mt-2 h-1 bg-gray-200 rounded-full overflow-hidden">
                   <div
                     className={`h-full transition-all ${
-                      isCompleted ? "bg-green-500" : "bg-blue-500"
+                      isCompleted ? "bg-red-500" : "bg-blue-500"
                     }`}
                     style={{ width: isCompleted ? "100%" : "0%" }}
                   />
-                </div>
+                </div> */}  
 
                 {isCurrent && (
                   <button
