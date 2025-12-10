@@ -340,6 +340,7 @@ const LearningPage = () => {
   }
 
   // ============ RENDER - SUCCESS ============
+  const { preferences } = useContext(UserContext);
   return (
     <div className="flex h-screen">
       {/* Main Content - with top and bottom padding for fixed bars */}
@@ -348,15 +349,30 @@ const LearningPage = () => {
           sidebarOpen ? "pr-80" : ""
         } transition-all duration-300`}
       >
-        <div className="max-w-4xl mx-auto px-8">
+        <div className="max-w-4xl mx-auto px-8 ">
           {/* ✅ HEADER IN CARD */}
-          <Card className="mb-8">
+          <Card
+            className={`mb-8 rounded-md ${
+              preferences?.theme === "dark"
+                ? "bg-gray-800 border-gray-700"
+                : "bg-white border-gray-200"
+            }`}
+            shadow="md"
+            padding="lg"
+            bordered
+          >
             <div className="mb-6">
-              <h1 className="text-4xl font-bold text-blue-600 mb-2">
+              <h1 className="text-4xl font-extrabold text-blue-600 mb-2">
                 Belajar Dasar AI
               </h1>
               {/* ✅ DYNAMIC TITLE: Berubah sesuai submodul (Penerapan AI, Pengenalan AI, dll) */}
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              <h2
+                className={`text-2xl font-medium mb-4 ${
+                  preferences?.theme === "dark"
+                    ? "text-gray-100"
+                    : "text-gray-900"
+                }`}
+              >
                 {currentTutorialTitle}
               </h2>
             </div>
@@ -364,7 +380,13 @@ const LearningPage = () => {
             {/* Progress Bar */}
             <div className="mb-6">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-700">
+                <span
+                  className={`text-sm font-medium ${
+                    preferences?.theme === "dark"
+                      ? "text-gray-300"
+                      : "text-gray-700"
+                  }`}
+                >
                   Submodul {currentIndex + 1}/{totalModules}
                 </span>
                 <span className="text-sm font-semibold text-green-600">
