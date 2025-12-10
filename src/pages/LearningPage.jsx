@@ -126,7 +126,6 @@ const LearningPage = () => {
           <h1 className="text-4xl font-bold text-blue-600 mb-2">Belajar Dasar AI</h1>
           <h2 className="text-2xl font-bold text-gray-900 mb-4">{currentTutorialTitle}</h2>
         </div>
-
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-gray-700">

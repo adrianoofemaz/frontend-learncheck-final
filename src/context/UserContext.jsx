@@ -52,7 +52,7 @@ export const UserProvider = ({ children }) => {
   }, [setProgressMap]);
 
   /**
-   * Update user preferences
+   * Update user preferences helper
    */
   const updatePreferences = useCallback(
     async (newPreferences) => {
@@ -62,15 +62,14 @@ export const UserProvider = ({ children }) => {
       try {
         const response = await userService.updatePreferences(newPreferences);
 
-        if (response.preference) {
-          setPreferences(response.preference);
-          sessionStorage.setItem(STORAGE_KEYS.preferences, JSON.stringify(response.preference));
-        }
+      // Update state
+      setPreferences(response.preference);
 
-        // Kalau API update juga mengembalikan progress, sinkronkan di sini
-        if (response.progress) {
-          setProgressMap(response.progress);
-        }
+      // Save to session
+      sessionStorage.setItem(
+        STORAGE_KEYS.preferences,
+        JSON.stringify(response.preference)
+      );
 
         setLoading(false);
         return response;
@@ -83,9 +82,7 @@ export const UserProvider = ({ children }) => {
     [setProgressMap]
   );
 
-  /**
-   * Change theme
-   */
+  // CHANGE THEME
   const changeTheme = useCallback(
     async (theme) => {
       return updatePreferences({ ...preferences, theme });
@@ -93,12 +90,26 @@ export const UserProvider = ({ children }) => {
     [preferences, updatePreferences]
   );
 
-  /**
-   * Change font size
-   */
+  // CHANGE FONT SIZE
   const changeFontSize = useCallback(
     async (fontSize) => {
       return updatePreferences({ ...preferences, font_size: fontSize });
+    },
+    [preferences, updatePreferences]
+  );
+
+  // CHANGE FONT FAMILY
+  const changeFont = useCallback(
+    async (font) => {
+      return updatePreferences({ ...preferences, font });
+    },
+    [preferences, updatePreferences]
+  );
+
+  // CHANGE LAYOUT WIDTH
+  const changeLayoutWidth = useCallback(
+    async (width) => {
+      return updatePreferences({ ...preferences, layout_width: width });
     },
     [preferences, updatePreferences]
   );
@@ -111,6 +122,8 @@ export const UserProvider = ({ children }) => {
     updatePreferences,
     changeTheme,
     changeFontSize,
+    changeFont,
+    changeLayoutWidth,
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

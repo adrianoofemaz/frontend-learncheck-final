@@ -1,57 +1,75 @@
-/* Font - HARUS DI PALING ATAS */
+/* =========================================================
+   GOOGLE FONTS (PASTIKAN DI PALING ATAS)
+   ========================================================= */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
 
 @import "tailwindcss";
 
-/* ==============================
-   CSS VARIABLES (easy theming)
-   ============================== */
+/* =========================================================
+   ROOT VARIABLES
+   ========================================================= */
 :root {
-  --color-bg-body: #f0f4ff; /* Body background */
+  --color-bg-body: #f0f4ff;
   --color-text-base: #1f2937;
+
   --color-bottom-bar-bg: #06111c;
   --color-bottom-bar-border: #142233;
   --color-bottom-bar-text: #c9d1d9;
+
   --color-scrollbar-track: #f0f3f5;
   --color-scrollbar-thumb: #c5ced6;
   --color-scrollbar-thumb-hover: #aab5bf;
 
-  /* content card width used for centered card */
   --content-card-width: 880px;
 }
 
-html,
-
-/* Light Theme */
+/* =========================================================
+   THEME COLORS
+   ========================================================= */
 .theme-light {
   background-color: white;
   color: black;
 }
 
-html {
-  scrollbar-gutter: stable;
-}
-
-/* Dark Theme */
 .theme-dark {
   background-color: #1f1e1e;
 }
 
+/* =========================================================
+   FONT SIZE ADJUSTMENT BASED ON USER PREFERENCES
+   ========================================================= */
+body {
+  font-size: 16px; /* Default to medium size */
+}
+
+body.font-size-sm {
+  font-size: 14px; /* Small font size */
+}
+
+body.font-size-lg {
+  font-size: 18px; /* Large font size */
+}
+
+/* =========================================================
+   GLOBAL BODY
+   ========================================================= */
 body {
   width: 100%;
   min-height: 100%;
   overflow-x: hidden;
   scroll-behavior: smooth;
-  font-family: "Inter", sans-serif;
+  font-family: "Inter", sans-serif; /* default sebelum override Poppins di wrapper */
   background: var(--color-bg-body);
   color: var(--color-text-base);
   overscroll-behavior-y: none;
 }
 
-/* ==============================
-   SCROLLBAR (hidden but scrollable)
-   ============================== */
-body::-webkit-scrollbar {
+/* =========================================================
+   HIDING SCROLLBAR (Tetap bisa scroll)
+   ========================================================= */
+body::-webkit-scrollbar,
+*::-webkit-scrollbar {
   display: none;
 }
 body {
@@ -62,13 +80,10 @@ body {
   scrollbar-width: none;
   scrollbar-color: transparent transparent;
 }
-*::-webkit-scrollbar {
-  display: none;
-}
 
-/* ==============================
+/* =========================================================
    ANIMATIONS
-   ============================== */
+   ========================================================= */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -94,9 +109,9 @@ body {
   animation: slideUp 0.28s ease-out;
 }
 
-/* ==============================
-   TAILWIND COMPONENT HELPERS
-   ============================== */
+/* =========================================================
+   COMPONENT HELPERS (Tailwind Layer)
+   ========================================================= */
 @layer components {
   .bottom-bar {
     @apply fixed bottom-0 left-0 right-0 z-40 flex items-center;
@@ -130,9 +145,9 @@ body {
   }
 }
 
-/* ==============================
+/* =========================================================
    HELPERS
-   ============================== */
+   ========================================================= */
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -144,14 +159,14 @@ body {
   padding-bottom: 80px;
 }
 
-/* ==============================
-   PATTERN / BACKGROUND (LayoutWrapper)
-   ============================== */
+/* =========================================================
+   PATTERN BACKGROUND (LayoutWrapper)
+   ========================================================= */
 .pattern-container {
   position: relative;
   z-index: 0;
-  overflow: visible;
   width: 100%;
+  overflow: visible;
 }
 .pattern-bg {
   position: fixed;
@@ -162,28 +177,26 @@ body {
   background-size: cover;
   pointer-events: none;
   image-rendering: auto;
-  -webkit-backface-visibility: hidden;
 }
 .pattern-container::after {
   content: "";
   position: absolute;
   inset: 0;
+  background: rgba(255, 255, 255, 0.78);
   z-index: 5;
   pointer-events: none;
-  background: rgba(255, 255, 255, 0.78);
   transition: background 160ms ease;
 }
 
-/* ==============================
-   QUIZ INTRO / HERO LAYOUT — sesuai Figma
-   ============================== */
+/* =========================================================
+   QUIZ INTRO / HERO LAYOUT
+   ========================================================= */
 .quiz-intro-wrapper {
   width: 100%;
   display: flex;
   justify-content: center;
   padding-top: 56px;
   padding-bottom: 56px;
-  box-sizing: border-box;
 }
 
 .quiz-hero {
@@ -191,27 +204,24 @@ body {
   max-width: 980px; /* kembali ke proporsi figma, lebih kompak */
   margin: 0 auto;
   position: relative;
-  border-radius: 18px;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 14px 50px rgba(16, 24, 40, 0.08);
-  background: #ffffff;
+  box-shadow: 0 14px 50px rgba(16, 24, 40, 0.06);
+  background: linear-gradient(180deg, #2d6df6, #2563eb);
 }
 
 .quiz-hero::before {
-  content: none;
+  content: "";
+  position: absolute;
+  top: 0;
+  height: 60px;
+  left: 0;
+  right: 0;
+  background: linear-gradient(180deg, #2d6df6, #2563eb);
+  z-index: 6;
 }
 
-/* Top bar hanya dots (tanpa label) */
-.quiz-hero-top {
-  position: Responsive;
-  height: 80px;
-  padding: 20px 20px;
-  background: linear-gradient(180deg, #2d6df6 0%, #2563eb 100%);
-  border-radius: 18px 18px 0 0;
-}
-
-/* Window dots */
-.window-controls {
+.quiz-hero .window-controls {
   position: absolute;
   left: 24px;
   top: 22px;
@@ -223,9 +233,7 @@ body {
   width: 16px;
   height: 16px;
   border-radius: 9999px;
-  display: inline-block;
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08) inset;
-  border: 1px solid rgba(255, 255, 255, 0.32);
+  border: 1px solid rgba(255, 255, 255, 0.25);
 }
 .window-dot.dot-red {
   background: #ff5f56;
@@ -237,160 +245,42 @@ body {
   background: #27c93f;
 }
 
-/* Badge kecil di dalam body (bukan di bar) */
-.quiz-pill {
-  display: inline-block;
-  background: #2b66f6;
-  color: #fff;
-  padding: 8px 18px;
+.quiz-badge {
+  margin: 10px auto 0;
+  background: #2563eb;
+  color: white;
+  padding: 10px 28px;
   border-radius: 9999px;
-  font-weight: 700;
-  font-size: 14px;
+  font-weight: 600;
   box-shadow: 0 10px 24px rgba(37, 99, 235, 0.18);
-  margin-bottom: 20px;
+  z-index: 14;
 }
 
-/* Body */
 .quiz-hero-body {
-  background: #ffffff;
-  padding: 44px 36px 38px;
+  background: white;
+  padding: 40px 32px;
   text-align: center;
+  border-radius: 0 0 16px 16px;
   color: var(--color-text-base);
-  border-radius: 0 0 18px 18px;
-  position: relative;
-  z-index: 1;
-  margin-top: 0;
+  margin-top: 36px;
 }
 
 .quiz-hero-body h1 {
   font-size: 2.25rem;
-  line-height: 1.05;
-  margin-bottom: 6px;
-  color: #0b1220;
   font-weight: 800;
-  letter-spacing: -0.5px;
+  color: #0b1220;
 }
 
-.quiz-hero-body p.lead {
-  color: #475569;
-  margin-bottom: 20px;
-  font-style: italic;
-}
-
-/* info card */
 .quiz-info-card {
-  background: #ffffff;
+  background: white;
   border: 1px solid rgba(15, 23, 42, 0.06);
-  border-radius: 14px;
-  padding: 20px 18px;
-  margin: 18px auto 26px;
-  max-width: 780px;
-  box-shadow: 0 6px 18px rgba(16, 24, 40, 0.05);
-  text-align: left;
-}
-.quiz-info-card h2 {
-  text-align: center;
-  margin-bottom: 14px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #0f172a;
+  border-radius: 12px;
+  padding: 22px 20px;
+  margin: 18px auto 28px;
+  max-width: 820px;
+  box-shadow: 0 6px 18px rgba(16, 24, 40, 0.04);
 }
 
-/* info rows */
-.info-rows {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  align-items: center;
-}
-.info-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.icon-circle {
-  width: 34px;
-  height: 34px;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: #f0f8ff;
-  color: #2563eb;
-  border: 1px solid rgba(37, 99, 235, 0.06);
-}
-
-/* CTA button */
-.quiz-cta {
-  display: inline-block;
-  background: linear-gradient(180deg, #2d6df6, #2563eb);
-  color: #fff;
-  padding: 12px 34px;
-  border-radius: 999px;
-  font-weight: 700;
-  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.22);
-  margin-top: 6px;
-}
-
-/* ==============================
-   Responsive tweaks
-   ============================== */
-@media (max-width: 768px) {
-  .quiz-hero {
-    max-width: calc(100% - 32px);
-    margin: 0 16px;
-  }
-  .quiz-hero-top {
-    height: 80px;
-  }
-  .quiz-hero-body {
-    padding: 28px 18px;
-  }
-  .quiz-info-card {
-    padding: 16px;
-    margin: 14px auto 20px;
-  }
-  .quiz-hero-body h1 {
-    font-size: 1.75rem;
-  }
-}
-
-/* ==============================
-   SMALL VISUAL TWEAKS FOR LEARNING PAGE (content helpers)
-   ============================== */
-.material-foreground .breadcrumb {
-  margin-bottom: 1rem;
-}
-.material-foreground h1,
-.material-foreground h2 {
-  color: #0b4ee6;
-}
-.material-foreground a {
-  color: #1d4ed8;
-  text-decoration: underline;
-}
-.material-foreground img {
-  max-width: 100%;
-  height: auto;
-  display: block;
-}
-.material-foreground pre,
-.material-foreground code {
-  background: rgba(250, 250, 250, 0.9);
-  padding: 0.5rem;
-  border-radius: 6px;
-  overflow: auto;
-}
-
-/* Accessibility focus outline adjustments for keyboard users */
-:focus {
-  outline: 3px solid rgba(59, 130, 246, 0.3);
-  outline-offset: 2px;
-}
-
-/* ==============================
-   FEEDBACK
-   ============================== */
 .feedback {
   width: 100%;
   max-width: 820px;
@@ -400,12 +290,6 @@ body {
   background: #ffffff;
   border: 1px solid rgba(15, 23, 42, 0.06);
   box-shadow: 0 8px 24px rgba(16, 24, 40, 0.04);
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity 240ms cubic-bezier(0.2, 0.9, 0.28, 1),
-    transform 280ms cubic-bezier(0.2, 0.9, 0.28, 1);
-  pointer-events: auto;
-  outline: none;
 }
 .feedback.correct {
   border-left: 4px solid #16a34a;
@@ -413,38 +297,29 @@ body {
 .feedback.incorrect {
   border-left: 4px solid #ef4444;
 }
-.feedback.neutral {
-  border-left: 4px solid transparent;
-}
-.feedback.feedback-inner {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-  color: #0f172a;
-  font-size: 0.98rem;
-  line-height: 1.4;
-}
-.feedback.feedback-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 9999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: #eff6ff;
-  color: #2563eb;
-  border: 1px solid rgba(37, 99, 235, 0 06);
-}
-.feedback[tabindex] {
-  outline: none;
-}
+
+/* SMALL SCREENS */
 @media (max-width: 768px) {
-  .feedback {
-    padding: 12px 14px;
-    margin: 14px auto;
-    border-radius: 10px;
+  .quiz-hero {
+    max-width: calc(100% - 32px);
+    margin: 0 16px;
   }
-  .feedback.feedback-inner {
-    font-size: 0.95rem;
+  .quiz-hero::before {
+    height: 56px;
+  }
+  .quiz-badge {
+    padding: 8px 20px;
+    font-size: 14px;
+  }
+  .quiz-hero-body {
+    padding: 28px 18px;
+    margin-top: 28px;
+  }
+  .quiz-info-card {
+    padding: 16px;
+    margin: 14px auto;
+  }
+  .quiz-hero-body h1 {
+    font-size: 1.75rem;
   }
 }
