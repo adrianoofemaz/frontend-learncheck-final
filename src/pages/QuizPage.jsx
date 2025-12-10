@@ -14,7 +14,14 @@ const QuizPage = () => {
   const { tutorialId } = useParams();
   const storageKey = tutorialId ? `quiz-progress-${tutorialId}` : null;
 
-  const { questions, loading, error, assessmentId, fetchQuestions, submitAnswers } = useQuiz();
+  const {
+    questions,
+    loading,
+    error,
+    assessmentId,
+    fetchQuestions,
+    submitAnswers,
+  } = useQuiz();
   const {
     currentQuestionIndex,
     setCurrentQuestionIndex,
@@ -83,7 +90,14 @@ const QuizPage = () => {
       completed: false,
     };
     localStorage.setItem(storageKey, JSON.stringify(payload));
-  }, [storageKey, tutorialId, assessmentId, currentQuestionIndex, answers, lockedAnswers]);
+  }, [
+    storageKey,
+    tutorialId,
+    assessmentId,
+    currentQuestionIndex,
+    answers,
+    lockedAnswers,
+  ]);
 
   // reset guard tiap pindah soal
   useEffect(() => {
@@ -98,7 +112,9 @@ const QuizPage = () => {
       const answersData = questions.map((question, idx) => {
         const answerIndex = answers[idx];
         const selectedOption =
-          answerIndex !== undefined ? question?.multiple_choice?.[answerIndex] : null;
+          answerIndex !== undefined
+            ? question?.multiple_choice?.[answerIndex]
+            : null;
         return {
           soal_id: question?.id,
           correct: selectedOption?.correct || false,
@@ -162,7 +178,9 @@ const QuizPage = () => {
   const currentQuestion = questions[currentQuestionIndex];
   const currentAnswer = getCurrentAnswer();
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
-  const progressPercent = Math.round(((currentQuestionIndex + 1) / questions.length) * 100);
+  const progressPercent = Math.round(
+    ((currentQuestionIndex + 1) / questions.length) * 100
+  );
 
   const handleNextClick = () => {
     if (currentAnswer !== undefined) {
@@ -192,7 +210,11 @@ const QuizPage = () => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="max-w-2xl mx-auto text-center">
           <Alert type="error" title="Error" message={error} />
-          <Button onClick={() => navigate(-1)} variant="primary" className="mt-4">
+          <Button
+            onClick={() => navigate(-1)}
+            variant="primary"
+            className="mt-4"
+          >
             Kembali
           </Button>
         </div>
@@ -219,7 +241,9 @@ const QuizPage = () => {
         <div className="rounded-2xl bg-gradient-to-r from-[#0f5eff] to-[#0a4ed6] text-white shadow-lg p-6 sm:p-7">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-wide opacity-90">Quiz Submodul</p>
+              <p className="text-sm font-semibold uppercase tracking-wide opacity-90">
+                Quiz Submodul
+              </p>
               <p className="text-base sm:text-lg font-medium opacity-90">
                 Soal {currentQuestionIndex + 1} dari {questions.length}
               </p>
@@ -275,6 +299,25 @@ const QuizPage = () => {
             )}
           </div>
         </div>
+
+        <div className="mb-8 w-full bg-gray-200 rounded-full h-2">
+          <div
+            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+            style={{
+              width: `${
+                ((currentQuestionIndex + 1) / questions.length) * 100
+              }%`,
+            }}
+          />
+        </div>
+
+        <QuizCard
+          question={currentQuestion}
+          selectedAnswer={currentAnswer}
+          onSelectAnswer={(index) => recordAnswer(currentQuestionIndex, index)}
+          questionNumber={currentQuestionIndex + 1}
+          totalQuestions={questions.length}
+        />
 
         {submitError && (
           <Alert

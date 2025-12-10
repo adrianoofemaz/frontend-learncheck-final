@@ -41,9 +41,7 @@ const Card = ({
             {title}
           </h3>
           {description && (
-            <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-              {description}
-            </p>
+            <p className="text-sm text-gray-600 mt-1">{description}</p>
           )}
         </div>
       )}

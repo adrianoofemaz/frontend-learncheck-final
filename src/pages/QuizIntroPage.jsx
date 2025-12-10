@@ -25,6 +25,7 @@ const QuizIntroPage = () => {
   const loading = learningLoading; // hanya loading learning
   const quizError = null; // tidak ada error quiz di intro
 
+  // ✅ FETCH tutorials pada mount
   useEffect(() => {
     if (!tutorialsFetched && tutorialId) {
       const parsedId = parseInt(tutorialId, 10);
@@ -35,6 +36,7 @@ const QuizIntroPage = () => {
     }
   }, [tutorialId, tutorialsFetched, fetchTutorials]);
 
+  // ✅ SELECT current tutorial
   useEffect(() => {
     if (tutorialId && tutorials.length > 0) {
       const parsedId = parseInt(tutorialId, 10);
