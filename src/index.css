@@ -37,6 +37,21 @@
 }
 
 /* =========================================================
+   FONT SIZE ADJUSTMENT BASED ON USER PREFERENCES
+   ========================================================= */
+body {
+  font-size: 16px; /* Default to medium size */
+}
+
+body.font-size-sm {
+  font-size: 14px; /* Small font size */
+}
+
+body.font-size-lg {
+  font-size: 18px; /* Large font size */
+}
+
+/* =========================================================
    GLOBAL BODY
    ========================================================= */
 body {

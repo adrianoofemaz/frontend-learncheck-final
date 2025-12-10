@@ -38,7 +38,7 @@ const SettingsDropdown = () => {
       <div>
         <p className="text-sm font-semibold mb-1">Ukuran Font</p>
         <div className="flex gap-2">
-          {["sm", "md", "lg", "xl"].map((size) => (
+          {["sm", "md", "lg"].map((size) => (
             <button
               key={size}
               onClick={() => changeFontSize(size)}
@@ -51,7 +51,6 @@ const SettingsDropdown = () => {
               {size === "sm" && "Kecil"}
               {size === "md" && "Sedang"}
               {size === "lg" && "Besar"}
-              {size === "xl" && "Sangat Besar"}
             </button>
           ))}
         </div>
