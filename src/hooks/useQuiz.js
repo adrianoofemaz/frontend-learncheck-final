@@ -35,8 +35,8 @@ export const useQuiz = () => {
       
       return response;
     } catch (err) {
-      console.error('Error fetching questions:', err);
-      setError(err.message || 'Failed to fetch questions');
+      console.error("Error fetching questions:", err);
+      setError(err.message || "Failed to fetch questions");
       throw err;
     } finally {
       setLoading(false);

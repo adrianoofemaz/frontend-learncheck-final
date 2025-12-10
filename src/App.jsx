@@ -9,9 +9,6 @@ import { LearningProvider } from "./context/LearningContext";
 import { QuizProvider } from "./context/QuizContext";
 import { ProgressProvider } from "./context/ProgressContext";
 
-// Layout
-import LayoutWrapper from "./components/Layout/LayoutWrapper";
-
 // Pages - Auth
 import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
@@ -19,9 +16,9 @@ import RegisterPage from "./pages/auth/RegisterPage";
 // Pages - Main
 import ClassDetailPage from "./pages/ClassDetailPage";
 import LearningPage from "./pages/LearningPage";
-import QuizPage from "./pages/QuizPage";
 import QuizIntroPage from "./pages/QuizIntroPage";
-import ResultsPage from "./pages/ResultsPage";
+import QuizPage from "./pages/QuizPage";                 // PLAYER (iframe)
+import ResultsPage from "./pages/ResultsPage";           // PLAYER (iframe)
 import NotFoundPage from "./pages/NotFoundPage";
 
 // Pages - Final Quiz & Dashboard Modul
@@ -29,6 +26,10 @@ import FinalQuizIntroPage from "./pages/FinalQuizIntroPage";
 import FinalQuizPage from "./pages/FinalQuizPage";
 import FinalQuizResultPage from "./pages/FinalQuizResultPage";
 import DashboardModulPage from "./pages/DashboardModulPage";
+
+// Shell pages (baru)
+import QuizShellPage from "./pages/QuizShellPage";
+import QuizResultsShellPage from "./pages/QuizResultsShellPage";
 
 // Routes
 import { ROUTES } from "./constants/routes";
@@ -41,107 +42,35 @@ function App() {
           <LearningProvider>
             <QuizProvider>
               <Routes>
-                {/* Auth Routes */}
+                {/* Auth */}
                 <Route path={ROUTES.REGISTER} element={<RegisterPage />} />
                 <Route path={ROUTES.LOGIN} element={<LoginPage />} />
 
-                {/* Redirect root to home */}
-                <Route
-                  path="/"
-                  element={<Navigate to={ROUTES.HOME} replace />}
-                />
+                {/* Redirect root */}
+                <Route path="/" element={<Navigate to={ROUTES.HOME} replace />} />
 
-                {/* ✅ HOME - ClassDetailPage (dengan Footer) */}
-                <Route
-                  path={ROUTES.HOME}
-                  element={
-                    <LayoutWrapper showFooter={true}>
-                      <ClassDetailPage />
-                    </LayoutWrapper>
-                  }
-                />
+                {/* Main */}
+                <Route path={ROUTES.HOME} element={<ClassDetailPage />} />
+                <Route path={ROUTES.LEARNING} element={<LearningPage />} />
+                <Route path={ROUTES.QUIZ_INTRO} element={<QuizIntroPage />} />
 
-                {/* ✅ LearningPage - TANPA Footer */}
-                <Route
-                  path={ROUTES.LEARNING}
-                  element={
-                    <LayoutWrapper showFooter={false} showBottomNav={false}>
-                      <LearningPage />
-                    </LayoutWrapper>
-                  }
-                />
+                {/* Shell (iframe container) */}
+                <Route path={ROUTES.QUIZ} element={<QuizShellPage />} />
+                <Route path={ROUTES.QUIZ_RESULTS} element={<QuizResultsShellPage />} />
 
-                {/* ✅ QuizIntroPage - TANPA Footer */}
-                <Route
-                  path="/quiz-intro/:tutorialId"
-                  element={
-                    <LayoutWrapper showFooter={false} showBottomNav={false}>
-                      <QuizIntroPage />
-                    </LayoutWrapper>
-                  }
-                />
+                {/* Player targets (iframe) */}
+                <Route path="/quiz-player/:tutorialId" element={<QuizPage />} />
+                <Route path="/quiz-results-player/:tutorialId" element={<ResultsPage />} />
 
-                {/* ✅ QuizPage - TANPA Footer */}
-                <Route
-                  path="/quiz/:tutorialId"
-                  element={
-                    <LayoutWrapper showFooter={false} showBottomNav={false}>
-                      <QuizPage />
-                    </LayoutWrapper>
-                  }
-                />
+                {/* Final Quiz */}
+                <Route path={ROUTES.QUIZ_FINAL_INTRO} element={<FinalQuizIntroPage />} />
+                <Route path={ROUTES.QUIZ_FINAL} element={<FinalQuizPage />} />
+                <Route path={ROUTES.QUIZ_FINAL_RESULT} element={<FinalQuizResultPage />} />
 
-                {/* ✅ ResultsPage - TANPA Footer */}
-                <Route
-                  path={ROUTES.QUIZ_RESULTS}
-                  element={
-                    <LayoutWrapper showFooter={false} showBottomNav={false}>
-                      <ResultsPage />
-                    </LayoutWrapper>
-                  }
-                />
+                {/* Dashboard */}
+                <Route path={ROUTES.DASHBOARD_MODUL} element={<DashboardModulPage />} />
 
-                {/* ✅ Final Quiz Intro - TANPA Footer */}
-                <Route
-                  path={ROUTES.QUIZ_FINAL_INTRO}
-                  element={
-                    <LayoutWrapper showFooter={false} showBottomNav={false}>
-                      <FinalQuizIntroPage />
-                    </LayoutWrapper>
-                  }
-                />
-
-                {/* ✅ Final Quiz Page - TANPA Footer */}
-                <Route
-                  path={ROUTES.QUIZ_FINAL}
-                  element={
-                    <LayoutWrapper showFooter={false} showBottomNav={false}>
-                      <FinalQuizPage />
-                    </LayoutWrapper>
-                  }
-                />
-
-                {/* ✅ Final Quiz Result - TANPA Footer */}
-                <Route
-                  path={ROUTES.QUIZ_FINAL_RESULT}
-                  element={
-                    <LayoutWrapper showFooter={false} showBottomNav={false}>
-                      <FinalQuizResultPage />
-                    </LayoutWrapper>
-                  }
-                />
-
-                {/* ✅ Dashboard Modul - TANPA Footer */}
-                <Route
-                  path={ROUTES.DASHBOARD_MODUL}
-                  element={
-                    <LayoutWrapper showFooter={false} showBottomNav={false}>
-                      <DashboardModulPage />
-                    </LayoutWrapper>
-                  }
-                />
-
-                {/* 404 - Not Found */}
+                {/* 404 */}
                 <Route path={ROUTES.NOT_FOUND} element={<NotFoundPage />} />
               </Routes>
             </QuizProvider>

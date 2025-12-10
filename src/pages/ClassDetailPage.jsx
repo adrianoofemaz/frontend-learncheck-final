@@ -1,16 +1,17 @@
 import React, { useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import LayoutWrapper from "../components/Layout/LayoutWrapper";
 import { useLearning } from "../hooks/useLearning";
 import { useProgress } from "../context/ProgressContext";
 import Button from "../components/common/Button";
 import Card from "../components/common/Card";
 import Loading from "../components/common/Loading";
 import { Alert } from "../components/common";
-import { UserContext } from "../context/UserContext"; // Import UserContext
+import { UserContext } from "../context/UserContext";
 
 // ============ SECTION COMPONENTS ============
 
-// HeroSection Component
+// HeroSection: header utama modul + CTA mulai belajar
 const HeroSection = ({
   module,
   completionPercentage,
@@ -19,19 +20,19 @@ const HeroSection = ({
 }) => {
   if (!module) return null;
 
+  const { preferences } = useContext(UserContext);
+
+  // Mulai dari tutorial pertama (default)
   const handleBelajarSekarang = () => {
     if (tutorials && tutorials.length > 0) {
       onStartTutorial(tutorials[0].id);
     }
   };
 
-  // Ambil preferences dari context untuk tema
-  const { preferences } = useContext(UserContext);
-
   return (
     <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-20 pt-30">
       <div
-        className={`flex flex-col md:flex-row items-center mb-8 gap-10 p-8  drop-shadow-xl border-1 rounded-lg shadow-md transition-all duration-500 ease-in-out ${
+        className={`flex flex-col md:flex-row items-center mb-8 gap-10 p-8 drop-shadow-xl border-1 rounded-lg shadow-md transition-all duration-500 ease-in-out ${
           preferences.theme === "dark"
             ? "text-white bg-gray-800 border-gray-800 shadow-gray-900"
             : "text-gray-900 bg-white border-gray-200"
@@ -48,17 +49,18 @@ const HeroSection = ({
         <div className="flex flex-col gap-2 w-full">
           <div>
             <p className="font-medium text-sm mb-2">
-              4. 87
+              4.87
               <span className="text-yellow-500 text-xl ml-2">★ ★ ★ ★ ★</span>
             </p>
             <h2 className="text-2xl sm:text-3xl font-bold">{module.title}</h2>
           </div>
 
+          {/* Tag kategori */}
           <div className="space-x-3 mb-2">
             {["AI", "Machine Learning", "Data Science"].map((tag) => (
               <span
                 key={tag}
-                className={`py-1 px-4  rounded-2xl text-sm transition-all duration-300 ease-in-out  ${
+                className={`py-1 px-4 rounded-2xl text-sm transition-all duration-300 ease-in-out ${
                   preferences.theme === "dark"
                     ? "text-white bg-blue-500 hover:bg-blue-700"
                     : "text-blue-800 bg-blue-200 hover:bg-blue-400"
@@ -69,6 +71,7 @@ const HeroSection = ({
             ))}
           </div>
 
+          {/* Meta info */}
           <span className="flex items-center space-x-2 text-sm text-gray-500 transition-all duration-300 ease-in-out">
             <img
               src="/assets/images/icon-study.png"
@@ -87,6 +90,7 @@ const HeroSection = ({
             <p>Estimasi Waktu Belajar: 40 Jam</p>
           </span>
 
+          {/* Progress bar */}
           <div>
             <p className="text-sm text-gray-500 dark:text-gray-400">
               Progres Kursus:
@@ -109,6 +113,7 @@ const HeroSection = ({
             </div>
           </div>
 
+          {/* CTA */}
           <div className="flex flex-col sm:flex-row gap-4 mt-2">
             <button
               onClick={handleBelajarSekarang}
@@ -126,7 +131,7 @@ const HeroSection = ({
   );
 };
 
-// Benefits Section
+// BenefitsSection: highlight manfaat kelas
 const BenefitsSection = ({ benefits }) => {
   const { preferences } = useContext(UserContext);
 
@@ -144,10 +149,10 @@ const BenefitsSection = ({ benefits }) => {
         {benefits.map((benefit) => (
           <div
             key={benefit.id}
-            className={`flex flex-col h-full items-center text-center   backdrop-blur rounded-xl shadow-sm p-4 sm:p-5 border-1 hover:shadow-xl transform duration-500 ease-in-out hover:scale-105 ${
+            className={`flex flex-col h-full items-center text-center backdrop-blur rounded-xl shadow-sm p-4 sm:p-5 border-1 hover:shadow-xl transform duration-500 ease-in-out hover:scale-105 ${
               preferences.theme === "dark"
-                ? "text-white bg-gray-600 border-gray-700 "
-                : "text-gray-900 border-gray-200 bg-white "
+                ? "text-white bg-gray-600 border-gray-700"
+                : "text-gray-900 border-gray-200 bg-white"
             }`}
           >
             <div className="w-12 h-12 mb-3 bg-blue-100 dark:bg-blue-500 rounded-lg flex items-center justify-center text-2xl font-bold text-blue-600 dark:text-white">
@@ -174,10 +179,9 @@ const BenefitsSection = ({ benefits }) => {
   );
 };
 
-// Description Section
+// DescriptionSection: detail tentang kelas
 const DescriptionSection = ({ module }) => {
   const { preferences } = useContext(UserContext);
-
   if (!module) return null;
 
   return (
@@ -197,15 +201,16 @@ const DescriptionSection = ({ module }) => {
             : "text-gray-900 bg-white border-gray-200 rounded-2xl"
         }`}
       >
-        <div className={`space-y-6 text-gray-white leading-relaxed`}>
+        <div className="space-y-6 leading-relaxed">
           <p className="text-lg">
             {module.description ||
               "Pelajari fundamental Artificial Intelligence dengan materi interaktif dan quiz"}
           </p>
 
+          {/* Apa yang dipelajari */}
           <div>
             <h3
-              className={`text-xl font-bold  mb-2 flex items-center gap-3 ${
+              className={`text-xl font-bold mb-2 flex items-center gap-3 ${
                 preferences.theme === "dark" ? "text-white" : "text-gray-900"
               }`}
             >
@@ -215,32 +220,25 @@ const DescriptionSection = ({ module }) => {
               Apa yang akan kamu pelajari?
             </h3>
             <ul className="space-y-2 ml-8">
-              <li className="flex items-start gap-2">
-                <span className="text-blue-600 font-bold ">•</span>
-                <span>Konsep dasar Artificial Intelligence</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-blue-600 font-bold ">•</span>
-                <span>Machine Learning dan penerapannya</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-blue-600 font-bold">•</span>
-                <span>Data Science fundamentals</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-blue-600 font-bold">•</span>
-                <span>Best practices dalam AI development</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-blue-600 font-bold">•</span>
-                <span>Real-world use cases dan applications</span>
-              </li>
+              {[
+                "Konsep dasar Artificial Intelligence",
+                "Machine Learning dan penerapannya",
+                "Data Science fundamentals",
+                "Best practices dalam AI development",
+                "Real-world use cases dan applications",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-2">
+                  <span className="text-blue-600 font-bold">•</span>
+                  <span>{item}</span>
+                </li>
+              ))}
             </ul>
           </div>
 
+          {/* Prasyarat */}
           <div>
             <h3
-              className={`text-xl font-bold text-gray-900 mb-2 flex items-center gap-2 ${
+              className={`text-xl font-bold mb-2 flex items-center gap-2 ${
                 preferences.theme === "dark" ? "text-white" : "text-gray-900"
               }`}
             >
@@ -255,9 +253,10 @@ const DescriptionSection = ({ module }) => {
             </p>
           </div>
 
+          {/* Target peserta */}
           <div>
             <h3
-              className={`text-xl font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2 ${
+              className={`text-xl font-bold mb-2 flex items-center gap-2 ${
                 preferences.theme === "dark" ? "text-white" : "text-gray-900"
               }`}
             >
@@ -277,51 +276,65 @@ const DescriptionSection = ({ module }) => {
   );
 };
 
-// Main Component
+// ============ MAIN PAGE ============
+
 const ClassDetailPage = () => {
   const navigate = useNavigate();
   const { modules, tutorials, loading, error, fetchModules, fetchTutorials } =
     useLearning();
   const { getCompletionPercentage } = useProgress();
 
+  // Ambil modul saat mount
   useEffect(() => {
     fetchModules();
   }, [fetchModules]);
 
+  // Jika modul sudah ada, ambil tutorial pertama
   useEffect(() => {
     if (modules.length > 0) {
       fetchTutorials(modules[0].id);
     }
   }, [modules, fetchTutorials]);
 
+  // Navigasi ke halaman belajar
   const handleStartTutorial = (tutorialId) => {
     navigate(`/learning/${tutorialId}`);
   };
 
+  // Loading state
   if (loading) {
-    return <Loading fullScreen text="Memuat kelas..." />;
-  }
-
-  if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Card className="max-w-md text-center">
-          <Alert type="error" title="Error" message={error} />
-          <Button
-            onClick={() => fetchModules()}
-            variant="primary"
-            className="mt-4"
-          >
-            Coba Lagi
-          </Button>
-        </Card>
-      </div>
+      <LayoutWrapper>
+        <Loading fullScreen text="Memuat kelas..." />
+      </LayoutWrapper>
     );
   }
 
+  // Error state
+  if (error) {
+    return (
+      <LayoutWrapper>
+        <div className="flex items-center justify-center min-h-screen">
+          <Card className="max-w-md text-center">
+            <Alert type="error" title="Error" message={error} />
+            <Button
+              onClick={() => fetchModules()}
+              variant="primary"
+              className="mt-4"
+            >
+              Coba Lagi
+            </Button>
+          </Card>
+        </div>
+      </LayoutWrapper>
+    );
+  }
+
+  // Data utama
   const completionPercentage = getCompletionPercentage();
   const currentModule = modules[0];
 
+  // List manfaat (static)
   const benefits = [
     {
       id: 1,
@@ -356,7 +369,8 @@ const ClassDetailPage = () => {
   ];
 
   return (
-    <div>
+    // Bungkus semua konten dengan LayoutWrapper agar konsisten (theme/bg/navbar/footer)
+    <LayoutWrapper>
       {currentModule && (
         <>
           <HeroSection
@@ -371,7 +385,7 @@ const ClassDetailPage = () => {
           <DescriptionSection module={currentModule} />
         </>
       )}
-    </div>
+    </LayoutWrapper>
   );
 };
 

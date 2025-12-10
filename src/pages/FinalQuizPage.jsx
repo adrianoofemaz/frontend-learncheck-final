@@ -1,13 +1,18 @@
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Card from '../components/common/Card';
-import Button from '../components/common/Button';
-import Loading from '../components/common/Loading';
-import { Alert } from '../components/common';
-import useFinalQuiz from '../hooks/useFinalQuiz';
-import { ROUTES } from '../constants/routes';
+import React, { useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import LayoutWrapper from "../components/Layout/LayoutWrapper";
+import Card from "../components/common/Card";
+import Button from "../components/common/Button";
+import Loading from "../components/common/Loading";
+import { Alert } from "../components/common";
+import useFinalQuiz from "../hooks/useFinalQuiz";
+import { ROUTES } from "../constants/routes";
 
 const FinalQuizPage = () => {
+  const [searchParams] = useSearchParams();
+  const embed = searchParams.get("embed") === "1";
+  const navigate = useNavigate();
+
   const {
     questions,
     currentIndex,
@@ -21,41 +26,58 @@ const FinalQuizPage = () => {
     prev,
     submit,
   } = useFinalQuiz();
-  const navigate = useNavigate();
 
   useEffect(() => {
     loadQuestions();
   }, [loadQuestions]);
 
-  if (loading) return <Loading fullScreen text="Memuat soal quiz final..." />;
+  if (loading) {
+    return (
+      <LayoutWrapper fullHeight embed={embed}>
+        <Loading fullScreen text="Memuat soal quiz final..." />
+      </LayoutWrapper>
+    );
+  }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="max-w-md text-center">
-          <Alert type="error" title="Gagal memuat" message={error} />
-          <Button variant="primary" onClick={loadQuestions} className="mt-4 cursor-pointer">
-            Coba lagi
-          </Button>
+      <LayoutWrapper fullHeight embed={embed}>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="max-w-md text-center">
+            <Alert type="error" title="Gagal memuat" message={error} />
+            <Button
+              variant="primary"
+              onClick={loadQuestions}
+              className="mt-4 cursor-pointer"
+            >
+              Coba lagi
+            </Button>
+          </div>
         </div>
-      </div>
+      </LayoutWrapper>
     );
   }
 
   if (!questions || questions.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="max-w-md text-center">
-          <Alert
-            type="warning"
-            title="Soal tidak tersedia"
-            message="Belum ada soal quiz final. Silakan coba lagi nanti."
-          />
-          <Button variant="primary" onClick={() => navigate('/home')} className="mt-4 cursor-pointer">
-            Kembali ke Beranda
-          </Button>
+      <LayoutWrapper fullHeight embed={embed}>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="max-w-md text-center">
+            <Alert
+              type="warning"
+              title="Soal tidak tersedia"
+              message="Belum ada soal quiz final. Silakan coba lagi nanti."
+            />
+            <Button
+              variant="primary"
+              onClick={() => navigate("/home")}
+              className="mt-4 cursor-pointer"
+            >
+              Kembali ke Beranda
+            </Button>
+          </div>
         </div>
-      </div>
+      </LayoutWrapper>
     );
   }
 
@@ -68,16 +90,20 @@ const FinalQuizPage = () => {
   };
 
   return (
-    <div className="py-10">
+    <LayoutWrapper fullHeight embed={embed} contentClassName="pt-20 pb-16">
       <div className="max-w-3xl mx-auto px-4 space-y-6">
-        {/* Header dalam Card */}
+        {/* Header */}
         <Card className="p-6">
           <div className="flex items-start justify-between gap-4">
             <div>
               <h1 className="text-3xl font-bold text-blue-600">Quiz Final</h1>
               <p className="text-gray-600">10 soal • Waktu 10 menit</p>
             </div>
-            <Button variant="secondary" onClick={() => navigate('/quiz-final-intro')} className="cursor-pointer">
+            <Button
+              variant="secondary"
+              onClick={() => navigate("/quiz-final-intro")}
+              className="cursor-pointer"
+            >
               ← Kembali
             </Button>
           </div>
@@ -93,6 +119,7 @@ const FinalQuizPage = () => {
           )}
         </Card>
 
+        {/* Soal */}
         <Card>
           <div className="flex items-center justify-between mb-4">
             <span className="text-sm text-gray-600">
@@ -101,14 +128,18 @@ const FinalQuizPage = () => {
             <span className="text-sm font-semibold text-blue-600">Quiz Final</span>
           </div>
 
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">{question.assessment}</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+            {question.assessment}
+          </h2>
 
           <div className="space-y-3">
             {question.multiple_choice.map((opt) => (
               <label
                 key={opt.id}
                 className={`block w-full border rounded-lg px-4 py-3 cursor-pointer transition ${
-                  selected === opt.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-200'
+                  selected === opt.id
+                    ? "border-blue-500 bg-blue-50"
+                    : "border-gray-200 hover:border-blue-200"
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -126,7 +157,12 @@ const FinalQuizPage = () => {
           </div>
 
           <div className="flex items-center justify-between mt-6">
-            <Button variant="secondary" onClick={prev} disabled={currentIndex === 0} className="cursor-pointer">
+            <Button
+              variant="secondary"
+              onClick={prev}
+              disabled={currentIndex === 0}
+              className="cursor-pointer"
+            >
               Sebelumnya
             </Button>
             <div className="flex items-center gap-3">
@@ -139,7 +175,11 @@ const FinalQuizPage = () => {
                 Berikutnya
               </Button>
               {currentIndex === questions.length - 1 && (
-                <Button variant="primary" onClick={handleSubmitAndGo} className="cursor-pointer">
+                <Button
+                  variant="primary"
+                  onClick={handleSubmitAndGo}
+                  className="cursor-pointer"
+                >
                   Kirim Jawaban
                 </Button>
               )}
@@ -147,7 +187,7 @@ const FinalQuizPage = () => {
           </div>
         </Card>
       </div>
-    </div>
+    </LayoutWrapper>
   );
 };
 

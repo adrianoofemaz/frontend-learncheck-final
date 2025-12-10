@@ -1,9 +1,8 @@
 import React, { useContext } from "react";
 import Card from "../../common/Card";
-import { UserContext } from "../../../context/UserContext"; // Pastikan pathnya benar
+import { UserContext } from "../../../context/UserContext";
 
 const MaterialContent = ({ title, content, loading = false }) => {
-  // Jika loading true, tampilkan placeholder (animasi loading)
   if (loading) {
     return (
       <Card>
@@ -18,34 +17,25 @@ const MaterialContent = ({ title, content, loading = false }) => {
     );
   }
 
-  // Mengambil preferences dari context
   const { preferences } = useContext(UserContext);
+  if (!preferences) return <p>No preferences found.</p>;
 
-  if (!preferences) {
-    return <p>No preferences found.</p>;
-  }
-
-  const cardClassName =
-    preferences.theme === "dark"
-      ? "bg-gray-800 text-white rounded-md"
-      : "bg-white text-gray-800 rounded-md";
+  const isDark = preferences.theme === "dark";
+  const cardClassName = isDark
+    ? "bg-[#111b2a] text-white rounded-md border border-[#1f2a3a]"
+    : "bg-white text-gray-800 rounded-md border border-gray-200";
 
   return (
     <Card className={cardClassName}>
       {title && (
-        <h2
-          className={`text-2xl font-bold mb-4 
-          ${preferences.theme === "dark" ? "text-gray-100" : "text-gray-900"}`}
-        >
+        <h2 className={`text-2xl font-bold mb-4 ${isDark ? "text-gray-100" : "text-gray-900"}`}>
           {title}
         </h2>
       )}
       <div
-        className={`prose prose-sm max-w-none  ${
-          preferences.theme === "dark" ? "text-gray-100" : ""
-        }`}
+        className={`prose prose-sm max-w-none ${isDark ? "text-gray-100" : ""}`}
         dangerouslySetInnerHTML={{
-          __html: content || "<p>No content available</p>", // Menambahkan fallback jika content kosong
+          __html: content || "<p>No content available</p>",
         }}
       />
     </Card>
