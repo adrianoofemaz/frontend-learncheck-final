@@ -22,14 +22,12 @@ const ModuleSidebar = ({
   return (
     <>
       <div
-        onClick={onToggle}
-        className={`absolute ${
-          isOpen ? "rounded-full translate-x-8" : "rounded-l-full translate-x-78"
-        } p-2 bg-blue-900 w-8 z-100 top-20 right-76 transform transition-transform duration-300 ease-in-out text-2xl cursor-pointer`}
-      >
-        {isOpen ? <ChevronRightIcon color="white" /> : <ChevronLeftIcon color="white" />}
-      </div>
-
+          onClick={onToggle}
+          className={`fixed top-24 z-200 p-2 bg-blue-900 w-8 text-2xl cursor-pointer rounded-full transition-all duration-300
+  +          ${isOpen ? "right-80 translate-x-4" : "-right-3 rounded-r translate-x-0"}`}
+        >
+          {isOpen ? <ChevronRightIcon color="white" /> : <ChevronLeftIcon color="white" />}
+        </div>
       {isOpen && (
         <div className="fixed inset-0 bg-transparent z-30 lg:hidden" onClick={onToggle} aria-hidden="true" />
       )}
@@ -39,6 +37,7 @@ const ModuleSidebar = ({
           preferences?.theme === "dark" ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
         } ${isOpen ? "translate-x-0" : "translate-x-120"}`}
       >
+        
         <div className="mb-2 pt-8 lg:pt-0">
           <h3 className={`text-lg font-bold ${preferences?.theme === "dark" ? "text-white" : "text-gray-900"}`}>
             Navigasi
@@ -87,6 +86,7 @@ const ModuleSidebar = ({
           })}
         </div>
       </div>
+      
     </>
   );
 };

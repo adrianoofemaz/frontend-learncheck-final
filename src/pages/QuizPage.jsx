@@ -72,9 +72,15 @@ const QuizPage = () => {
     if (fetchedRef.current) return;
     fetchedRef.current = true;
 
-    const id = parseInt(tutorialId);
-    fetchQuestions(id);
-    initializeQuiz();
+    const id = parseInt(tutorialId, 10);
+    (async () => {
+      const res = await fetchQuestions(id);
+      if (!res) {
+        setSubmitError("Pertanyaan belum tersedia untuk submodul ini.");
+        return;
+      }
+      initializeQuiz();
+    })();
   }, [tutorialId, fetchQuestions, initializeQuiz]);
 
   // Persist progress
@@ -175,7 +181,9 @@ const QuizPage = () => {
   const currentQuestion = questions[currentQuestionIndex];
   const currentAnswer = getCurrentAnswer();
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
-  const progressPercent = Math.round(((currentQuestionIndex + 1) / questions.length) * 100);
+  const progressPercent = questions.length
+    ? Math.round(((currentQuestionIndex + 1) / questions.length) * 100)
+    : 0;
 
   const handleNextClick = () => {
     if (currentAnswer !== undefined) {
@@ -206,12 +214,13 @@ const QuizPage = () => {
     );
   }
 
-  if (error) {
+  if (error || submitError) {
+    const msg = submitError || error;
     return (
       <LayoutWrapper showNavbar={!embed} showFooter={false} sidePanel={null} bottomBar={null} embed={embed}>
         <div className="min-h-screen flex items-center justify-center">
           <div className="max-w-2xl mx-auto text-center">
-            <Alert type="error" title="Error" message={error} />
+            <Alert type="error" title="Error" message={msg} />
             <Button onClick={() => navigate(-1)} variant="primary" className="mt-4 cursor-pointer">
               Kembali
             </Button>
@@ -226,7 +235,7 @@ const QuizPage = () => {
       <LayoutWrapper showNavbar={!embed} showFooter={false} sidePanel={null} bottomBar={null} embed={embed}>
         <div className="min-h-screen flex items-center justify-center">
           <div className="max-w-2xl mx-auto text-center">
-            <p className="text-gray-600 mb-4">Pertanyaan tidak ditemukan</p>
+            <p className="text-gray-600 mb-4">Pertanyaan belum tersedia untuk submodul ini.</p>
             <Button onClick={() => navigate(-1)} variant="primary">
               Kembali
             </Button>
