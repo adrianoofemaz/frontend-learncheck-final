@@ -1,5 +1,5 @@
 import React, { useContext, useMemo } from "react";
-import Navbar from "../Layout/Navbar";
+import Navbar from "./TopBar";
 import Footer from "./Footer";
 import { UserContext } from "../../context/UserContext";
 
@@ -38,7 +38,7 @@ const LayoutWrapper = ({
   return (
     <div
       className={`${fontClass} ${fontSizeClass} relative min-h-screen transition-all duration-300 ${
-        fullHeight ? "h-screen" : ""
+        fullHeight ? "h-full" : ""
       }`}
       style={{ backgroundColor: bgColor }}
     >
@@ -47,7 +47,7 @@ const LayoutWrapper = ({
         src="/assets/images/bg-pattern.svg"
         alt="bg-pattern"
         aria-hidden="true"
-        className="pointer-events-none select-none fixed inset-0 min-h-screen w-full h-full object-cover opacity-20 z-0"
+        className="pointer-events-none select-none fixed inset-0 w-full h-full object-cover opacity-20 z-0"
       />
 
       <div

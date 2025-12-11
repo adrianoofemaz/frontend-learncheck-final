@@ -47,7 +47,7 @@ function App() {
                 <Route path={ROUTES.LOGIN} element={<LoginPage />} />
 
                 {/* Redirect root */}
-                <Route path="/" element={<Navigate to={ROUTES.HOME} replace />} />
+                <Route path="/" element={<Navigate to={ROUTES.LOGIN} replace />} />
 
                 {/* Main */}
                 <Route path={ROUTES.HOME} element={<ClassDetailPage />} />

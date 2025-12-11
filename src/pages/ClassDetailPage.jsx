@@ -30,9 +30,9 @@ const HeroSection = ({
   };
 
   return (
-    <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-20 pt-30">
+    <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-20 pt-25">
       <div
-        className={`flex flex-col md:flex-row items-center mb-8 gap-10 p-8 drop-shadow-xl border-1 rounded-lg shadow-md transition-all duration-500 ease-in-out ${
+        className={`flex flex-col md:flex-row items-center mb-8 gap-10 p-10 drop-shadow-xl border-1 rounded-lg shadow-md transition-all duration-500 ease-in-out ${
           preferences.theme === "dark"
             ? "text-white bg-gray-800 border-gray-800 shadow-gray-900"
             : "text-gray-900 bg-white border-gray-200"
