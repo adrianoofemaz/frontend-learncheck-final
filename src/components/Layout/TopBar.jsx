@@ -45,7 +45,7 @@ const Navbar = () => {
             onClick={() => navigate("/")}
             className="text-2xl font-bold transition-colors"
           >
-            LearnCheck
+            QuizMate
           </button>
 
           {/* DESKTOP MENU */}
