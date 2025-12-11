@@ -123,7 +123,8 @@ const QuizIntroPage = () => {
         !embed ? (
           <ModuleSidebar
             items={sidebarItems}
-            currentId={currentTutorial?.id}
+            currentId={parseInt(tutorialId, 10)}
+            currentType="quiz-sub"
             onSelect={handleSelectSidebar}
             isOpen={sidebarOpen}
             onToggle={() => setSidebarOpen((p) => !p)}

@@ -118,12 +118,13 @@ const LearningPage = () => {
     <LayoutWrapper
       fullHeight
       embed={embed}
-      contentClassName={`pt-20 pb-24 ${sidebarOpen ? "pr-80" : ""} transition-all duration-300`}
+      contentClassName={`pt-25 pb-25 ${sidebarOpen ? "pr-80" : ""} transition-all duration-300`}
       sidePanel={
         !embed ? (
           <ModuleSidebar
             items={sidebarItems}
             currentId={currentTutorial?.id}
+            currentType="tutorial"
             onSelect={handleSelectSidebar}
             isOpen={sidebarOpen}
             onToggle={toggleSidebar}

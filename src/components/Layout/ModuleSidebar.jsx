@@ -1,18 +1,18 @@
-import React, { useContext, useMemo } from "react";
+import React, { useContext } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 import { UserContext } from "../../context/UserContext";
 
 /**
- * items: hasil builder dari halaman (tutorials + quiz-sub + quiz-final + dashboard)
- *   { type: "tutorial"|"quiz-sub"|"quiz-final"|"dashboard", id, label }
- * currentId: id tutorial aktif (untuk highlight tutorial)
+ * items: { type: "tutorial"|"quiz-sub"|"quiz-final"|"dashboard", id, label, desc, progressAllowed }
+ * currentId: id item aktif
+ * currentType: tipe item aktif
  * onSelect: (item) => void
  * isOpen/onToggle: kontrol slide-in
- * progressAllowed: (item) => boolean (lock/unlock)
  */
 const ModuleSidebar = ({
   items,
   currentId,
+  currentType = "tutorial",
   onSelect,
   isOpen,
   onToggle,
@@ -22,12 +22,14 @@ const ModuleSidebar = ({
   return (
     <>
       <div
-          onClick={onToggle}
-          className={`fixed top-24 z-200 p-2 bg-blue-900 w-8 text-2xl cursor-pointer rounded-full transition-all duration-300
-  +          ${isOpen ? "right-80 translate-x-4" : "-right-3 rounded-r translate-x-0"}`}
-        >
-          {isOpen ? <ChevronRightIcon color="white" /> : <ChevronLeftIcon color="white" />}
-        </div>
+        onClick={onToggle}
+        className={`fixed top-24 z-200 p-2 bg-blue-900 w-8 text-2xl cursor-pointer rounded-full transition-all duration-300 ${
+          isOpen ? "right-80 translate-x-4" : "-right-3 rounded-r translate-x-0"
+        }`}
+      >
+        {isOpen ? <ChevronRightIcon color="white" /> : <ChevronLeftIcon color="white" />}
+      </div>
+
       {isOpen && (
         <div className="fixed inset-0 bg-transparent z-30 lg:hidden" onClick={onToggle} aria-hidden="true" />
       )}
@@ -37,7 +39,6 @@ const ModuleSidebar = ({
           preferences?.theme === "dark" ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
         } ${isOpen ? "translate-x-0" : "translate-x-120"}`}
       >
-        
         <div className="mb-2 pt-8 lg:pt-0">
           <h3 className={`text-lg font-bold ${preferences?.theme === "dark" ? "text-white" : "text-gray-900"}`}>
             Navigasi
@@ -46,8 +47,10 @@ const ModuleSidebar = ({
 
         <div className="space-y-2 h-screen">
           {items.map((item) => {
-            const isCurrent = item.type === "tutorial" && item.id === currentId;
-            const accessible = item.progressAllowed;
+            const isCurrent = item.type === currentType && item.id === currentId
+            // Izinkan klik item dengan id yang sama (submodul yang sedang dibuka),
+            // tapi tetap hormati lock untuk submodul lain
+            const accessible = isCurrent || item.id === currentId ? true : item.progressAllowed;
             return (
               <div key={`${item.type}-${item.id}`}>
                 <button
@@ -86,7 +89,6 @@ const ModuleSidebar = ({
           })}
         </div>
       </div>
-      
     </>
   );
 };
