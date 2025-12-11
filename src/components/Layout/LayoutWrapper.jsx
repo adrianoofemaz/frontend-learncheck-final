@@ -15,13 +15,18 @@ const LayoutWrapper = ({
 }) => {
   const { preferences } = useContext(UserContext);
 
-  const FONT_CLASS_MAP = { sans: "font-poppins", serif: "font-serif", mono: "font-mono" };
+  const FONT_CLASS_MAP = {
+    sans: "font-poppins",
+    serif: "font-serif",
+    mono: "font-mono",
+  };
   const FONT_SIZE_MAP = { sm: "text-sm", md: "text-base", lg: "text-lg" };
   const LAYOUT_WIDTH_MAP = { fluid: "max-w-full", boxed: "max-w-6xl" };
 
   const fontClass = FONT_CLASS_MAP[preferences.font] || "font-poppins";
   const fontSizeClass = FONT_SIZE_MAP[preferences.font_size] || "text-base";
-  const layoutWidthClass = LAYOUT_WIDTH_MAP[preferences.layout_width] || "max-w-full";
+  const layoutWidthClass =
+    LAYOUT_WIDTH_MAP[preferences.layout_width] || "max-w-full";
 
   const hideChrome = embed;
   const hasBottomBar = !hideChrome && !!bottomBar;
@@ -29,9 +34,9 @@ const LayoutWrapper = ({
   const bgColor = preferences?.theme === "dark" ? "#0b1622" : "#f0f4ff";
   const mainClasses = useMemo(
     () =>
-      `${fullHeight ? "flex-1 overflow-hidden" : "flex-1"} ${contentClassName} ${
-        hasBottomBar ? "pb-24" : ""
-      }`,
+      `${
+        fullHeight ? "flex-1 overflow-hidden" : "flex-1"
+      } ${contentClassName} ${hasBottomBar ? "pb-24" : ""}`,
     [fullHeight, contentClassName, hasBottomBar]
   );
 
@@ -57,14 +62,19 @@ const LayoutWrapper = ({
 
         <div className={`relative ${fullHeight ? "flex" : ""}`}>
           <main className={mainClasses}>
-            {fullHeight ? children : <div className="container mx-auto px-4">{children}</div>}
+            {fullHeight ? (
+              children
+            ) : (
+              <div className="container mx-auto px-4">{children}</div>
+            )}
           </main>
 
           {!hideChrome && sidePanel}
         </div>
       </div>
 
-      {!hideChrome && showFooter && <Footer />}
+      {/* Footer only shows if showFooter is true */}
+      {!embed && showFooter && <Footer />}
       {!hideChrome && bottomBar}
     </div>
   );

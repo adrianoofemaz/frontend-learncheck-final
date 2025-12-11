@@ -1,8 +1,3 @@
-/**
- * LearningPage
- * - Navbar global, Sidebar, Bottom bar (Back/Next chain)
- * - Embed: ?embed=1 akan hide navbar/footer/sidebar/bottombar
- */
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import LayoutWrapper from "../components/Layout/LayoutWrapper";
@@ -22,7 +17,7 @@ const LearningPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const embed = searchParams.get("embed") === "1";
+  const embed = searchParams.get("embed") === "1"; // Determine if we need to embed (hide elements)
 
   const { currentTutorial, loading, error, selectTutorial, tutorials } =
     useLearning();
@@ -77,7 +72,7 @@ const LearningPage = () => {
 
   if (loading) {
     return (
-      <LayoutWrapper fullHeight embed={embed}>
+      <LayoutWrapper fullHeight embed={embed} showFooter={false}>
         <Loading fullScreen text="Memuat materi..." />
       </LayoutWrapper>
     );
@@ -85,7 +80,7 @@ const LearningPage = () => {
 
   if (error) {
     return (
-      <LayoutWrapper fullHeight embed={embed}>
+      <LayoutWrapper fullHeight embed={embed} showFooter={false}>
         <div className="flex items-center justify-center min-h-screen">
           <div className="max-w-md text-center">
             <Alert type="error" title="Terjadi Kesalahan" message={error} />
@@ -104,7 +99,7 @@ const LearningPage = () => {
 
   if (!currentTutorial) {
     return (
-      <LayoutWrapper fullHeight embed={embed}>
+      <LayoutWrapper fullHeight embed={embed} showFooter={false}>
         <div className="flex items-center justify-center min-h-screen">
           <div className="max-w-md text-center">
             <Alert
@@ -134,7 +129,8 @@ const LearningPage = () => {
     <LayoutWrapper
       fullHeight
       embed={embed}
-      contentClassName={`pt-20 pb-24 ${
+      showFooter={false} // Make sure footer is never shown
+      contentClassName={`pt-25 pb-24 ${
         sidebarOpen ? "pr-80" : ""
       } transition-all duration-300`}
       sidePanel={
