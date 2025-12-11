@@ -10,13 +10,7 @@ import { UserContext } from "../../context/UserContext";
  * isOpen/onToggle: kontrol slide-in
  * progressAllowed: (item) => boolean (lock/unlock)
  */
-const ModuleSidebar = ({
-  items,
-  currentId,
-  onSelect,
-  isOpen,
-  onToggle,
-}) => {
+const ModuleSidebar = ({ items, currentId, onSelect, isOpen, onToggle }) => {
   const { preferences } = useContext(UserContext);
 
   return (
@@ -24,23 +18,39 @@ const ModuleSidebar = ({
       <div
         onClick={onToggle}
         className={`absolute ${
-          isOpen ? "rounded-full translate-x-8" : "rounded-l-full translate-x-78"
+          isOpen
+            ? "rounded-full translate-x-8"
+            : "rounded-l-full translate-x-78"
         } p-2 bg-blue-900 w-8 z-100 top-20 right-76 transform transition-transform duration-300 ease-in-out text-2xl cursor-pointer`}
       >
-        {isOpen ? <ChevronRightIcon color="white" /> : <ChevronLeftIcon color="white" />}
+        {isOpen ? (
+          <ChevronRightIcon color="white" />
+        ) : (
+          <ChevronLeftIcon color="white" />
+        )}
       </div>
 
       {isOpen && (
-        <div className="fixed inset-0 bg-transparent z-30 lg:hidden" onClick={onToggle} aria-hidden="true" />
+        <div
+          className="fixed inset-0 bg-transparent z-30 lg:hidden"
+          onClick={onToggle}
+          aria-hidden="true"
+        />
       )}
 
       <div
         className={`fixed h-full top-0 right-0 w-80 pt-32 px-6 overflow-y-auto z-20 transform transition-transform duration-300 ease-in-out ${
-          preferences?.theme === "dark" ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+          preferences?.theme === "dark"
+            ? "bg-gray-800 border-gray-700"
+            : "bg-white border-gray-200"
         } ${isOpen ? "translate-x-0" : "translate-x-120"}`}
       >
         <div className="mb-2 pt-8 lg:pt-0">
-          <h3 className={`text-lg font-bold ${preferences?.theme === "dark" ? "text-white" : "text-gray-900"}`}>
+          <h3
+            className={`text-lg font-bold ${
+              preferences?.theme === "dark" ? "text-white" : "text-gray-900"
+            }`}
+          >
             Navigasi
           </h3>
         </div>
@@ -72,8 +82,12 @@ const ModuleSidebar = ({
                       <p
                         className={`text-sm font-medium truncate ${
                           isCurrent
-                            ? preferences?.theme === "dark" ? "text-blue-500" : "text-blue-600"
-                            : preferences?.theme === "dark" ? "text-blue-300" : "text-gray-900"
+                            ? preferences?.theme === "dark"
+                              ? "text-blue-500"
+                              : "text-blue-600"
+                            : preferences?.theme === "dark"
+                            ? "text-blue-300"
+                            : "text-gray-900"
                         }`}
                       >
                         {item.label}
