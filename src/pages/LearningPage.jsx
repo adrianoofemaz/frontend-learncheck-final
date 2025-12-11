@@ -1,7 +1,7 @@
 /**
- * LearningPage
- * - Navbar global, Sidebar, Bottom bar (Back/Next chain)
- * - Embed: ?embed=1 akan hide navbar/footer/sidebar/bottombar
+ * LearningPage - FULL CODE REVISED
+ * - User cukup BACA materi, tidak perlu mark completed
+ * - Tombol "Lanjut" smart routing berdasarkan quiz completion
  */
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
@@ -16,7 +16,12 @@ import Button from "../components/common/Button";
 import Card from "../components/common/Card";
 import Loading from "../components/common/Loading";
 import { UserContext } from "../context/UserContext";
-import { buildSidebarItems, buildChain } from "../utils/navigationChain";
+import { 
+  buildSidebarItems, 
+  buildChain, 
+  isQuizCompleted,
+  getPrevDestination 
+} from "../utils/navigationChain";
 import { ROUTES } from "../constants/routes";
 
 const fillRoute = (pattern, params) =>
@@ -53,25 +58,79 @@ const LearningPage = () => {
   const currentTitle =
     tutorials.find((t) => t.id === currentTutorial?.id)?.title || currentTutorial?.title || "";
 
+  /**
+   * BACK Navigation
+   * - Submodul 1: Kembali ke Home
+   * - Submodul N: Kembali ke Quiz Result Submodul N-1
+   */
   const goBackChain = () => {
-    if (chain.idx <= 0) {
+    if (!currentTutorial) {
       navigate(ROUTES.HOME);
       return;
     }
-    const prev = tutorials[chain.idx - 1];
-    navigate(fillRoute(ROUTES.QUIZ_RESULTS, { tutorialId: prev.id }));
+
+    const prevDest = getPrevDestination(tutorials, currentTutorial.id);
+    
+    if (prevDest.type === 'home') {
+      navigate(ROUTES.HOME);
+    } else if (prevDest.type === 'quiz-result') {
+      navigate(fillRoute(ROUTES.QUIZ_RESULTS, { tutorialId: prevDest.id }));
+    } else {
+      navigate(ROUTES.HOME);
+    }
   };
 
+  /**
+   * NEXT Navigation (REVISED - NO MARK COMPLETED)
+   * - User cukup baca materi, tidak perlu mark completed
+   * - Cek apakah quiz sudah dikerjakan
+   * - Jika sudah: Langsung ke Quiz Result
+   * - Jika belum: Ke Quiz Intro
+   */
   const goNextChain = () => {
     if (!currentTutorial) return;
-    navigate(fillRoute(ROUTES.QUIZ_INTRO_SHELL, { tutorialId: currentTutorial.id }));
+
+    console.log('→ Navigating to quiz for tutorial:', currentTutorial.id);
+
+    // Cek apakah quiz sudah dikerjakan
+    const quizCompleted = isQuizCompleted(currentTutorial.id);
+    
+    console.log('🔍 Quiz completion status:', quizCompleted);
+
+    if (quizCompleted) {
+      // Langsung ke results
+      console.log('✅ Quiz already completed, redirecting to results');
+      navigate(fillRoute(ROUTES.QUIZ_RESULTS, { tutorialId: currentTutorial.id }));
+    } else {
+      // Ke quiz intro
+      console.log('📝 Quiz not completed, redirecting to intro');
+      navigate(fillRoute(ROUTES.QUIZ_INTRO_SHELL, { tutorialId: currentTutorial.id }));
+    }
   };
 
   const handleSelectSidebar = (item) => {
-    if (item.type === "tutorial") navigate(fillRoute(ROUTES.LEARNING, { id: item.id }));
-    else if (item.type === "quiz-sub") navigate(fillRoute(ROUTES.QUIZ_INTRO_SHELL, { tutorialId: item.id }));
-    else if (item.type === "quiz-final") navigate(ROUTES.QUIZ_FINAL_INTRO);
-    else if (item.type === "dashboard") navigate(ROUTES.DASHBOARD_MODUL);
+    // Cek apakah item terkunci
+    if (item.locked) {
+      console.warn('🔒 Item locked:', item.label);
+      return;
+    }
+
+    if (item.type === "tutorial") {
+      navigate(fillRoute(ROUTES.LEARNING, { id: item.id }));
+    } else if (item.type === "quiz-sub") {
+      // Cek apakah quiz sudah dikerjakan
+      if (item.completed) {
+        // Langsung ke results
+        navigate(fillRoute(ROUTES.QUIZ_RESULTS, { tutorialId: item.id }));
+      } else {
+        // Ke quiz intro
+        navigate(fillRoute(ROUTES.QUIZ_INTRO_SHELL, { tutorialId: item.id }));
+      }
+    } else if (item.type === "quiz-final") {
+      navigate(ROUTES.QUIZ_FINAL_INTRO);
+    } else if (item.type === "dashboard") {
+      navigate(ROUTES.DASHBOARD_MODUL);
+    }
   };
 
   if (loading) {
@@ -139,7 +198,7 @@ const LearningPage = () => {
         !embed ? (
           <BottomBarTwoActions
             leftLabel="← Kembali"
-            rightLabel="Lanjut →"
+            rightLabel="Lanjut ke Quiz →"
             onLeft={goBackChain}
             onRight={goNextChain}
           />
