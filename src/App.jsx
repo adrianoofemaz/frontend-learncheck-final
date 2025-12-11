@@ -28,6 +28,7 @@ import FinalQuizResultPage from "./pages/FinalQuizResultPage";
 import DashboardModulPage from "./pages/DashboardModulPage";
 
 // Shell pages (baru)
+import QuizIntroShellPage from "./pages/QuizIntroShellPage";
 import QuizShellPage from "./pages/QuizShellPage";
 import QuizResultsShellPage from "./pages/QuizResultsShellPage";
 
@@ -55,12 +56,13 @@ function App() {
                 <Route path={ROUTES.QUIZ_INTRO} element={<QuizIntroPage />} />
 
                 {/* Shell (iframe container) */}
+                <Route path={ROUTES.QUIZ_INTRO_SHELL} element={<QuizIntroShellPage />} />
                 <Route path={ROUTES.QUIZ} element={<QuizShellPage />} />
                 <Route path={ROUTES.QUIZ_RESULTS} element={<QuizResultsShellPage />} />
 
                 {/* Player targets (iframe) */}
-                <Route path="/quiz-player/:tutorialId" element={<QuizPage />} />
-                <Route path="/quiz-results-player/:tutorialId" element={<ResultsPage />} />
+                <Route path={ROUTES.QUIZ_PLAYER} element={<QuizPage />} />
+                <Route path={ROUTES.QUIZ_RESULTS_PLAYER} element={<ResultsPage />} />
 
                 {/* Final Quiz */}
                 <Route path={ROUTES.QUIZ_FINAL_INTRO} element={<FinalQuizIntroPage />} />

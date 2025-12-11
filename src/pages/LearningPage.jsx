@@ -17,6 +17,10 @@ import Card from "../components/common/Card";
 import Loading from "../components/common/Loading";
 import { UserContext } from "../context/UserContext";
 import { buildSidebarItems, buildChain } from "../utils/navigationChain";
+import { ROUTES } from "../constants/routes";
+
+const fillRoute = (pattern, params) =>
+  Object.entries(params).reduce((p, [k, v]) => p.replace(`:${k}`, v), pattern);
 
 const LearningPage = () => {
   const { id } = useParams();
@@ -51,23 +55,23 @@ const LearningPage = () => {
 
   const goBackChain = () => {
     if (chain.idx <= 0) {
-      navigate("/home");
+      navigate(ROUTES.HOME);
       return;
     }
     const prev = tutorials[chain.idx - 1];
-    navigate(`/quiz-results/${prev.id}`);
+    navigate(fillRoute(ROUTES.QUIZ_RESULTS, { tutorialId: prev.id }));
   };
 
   const goNextChain = () => {
     if (!currentTutorial) return;
-    navigate(`/quiz-intro/${currentTutorial.id}`);
+    navigate(fillRoute(ROUTES.QUIZ_INTRO_SHELL, { tutorialId: currentTutorial.id }));
   };
 
   const handleSelectSidebar = (item) => {
-    if (item.type === "tutorial") navigate(`/learning/${item.id}`);
-    else if (item.type === "quiz-sub") navigate(`/quiz-intro/${item.id}`);
-    else if (item.type === "quiz-final") navigate("/quiz-final-intro");
-    else if (item.type === "dashboard") navigate("/dashboard-modul");
+    if (item.type === "tutorial") navigate(fillRoute(ROUTES.LEARNING, { id: item.id }));
+    else if (item.type === "quiz-sub") navigate(fillRoute(ROUTES.QUIZ_INTRO_SHELL, { tutorialId: item.id }));
+    else if (item.type === "quiz-final") navigate(ROUTES.QUIZ_FINAL_INTRO);
+    else if (item.type === "dashboard") navigate(ROUTES.DASHBOARD_MODUL);
   };
 
   if (loading) {
@@ -84,7 +88,7 @@ const LearningPage = () => {
         <div className="flex items-center justify-center min-h-screen">
           <div className="max-w-md text-center">
             <Alert type="error" title="Terjadi Kesalahan" message={error} />
-            <Button onClick={() => navigate("/home")} variant="primary" className="mt-4 cursor-pointer">
+            <Button onClick={() => navigate(ROUTES.HOME)} variant="primary" className="mt-4 cursor-pointer">
               Kembali ke Beranda
             </Button>
           </div>
@@ -103,7 +107,7 @@ const LearningPage = () => {
               title="Materi belum tersedia"
               message="Silakan kembali ke beranda atau pilih submodul lain."
             />
-            <Button onClick={() => navigate("/home")} variant="primary" className="mt-4 cursor-pointer">
+            <Button onClick={() => navigate(ROUTES.HOME)} variant="primary" className="mt-4 cursor-pointer">
               Kembali ke Beranda
             </Button>
           </div>

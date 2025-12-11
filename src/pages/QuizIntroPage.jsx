@@ -1,6 +1,7 @@
 /**
  * QuizIntroPage (player)
- * Tampilan light sesuai Figma. Navbar, sidebar, bottom bar konsisten dengan LearningPage.
+ * Untuk embed (iframe), tombol mulai kuis diarahkan ke /quiz-player/:id?embed=1
+ * Untuk non-embed, tombol mulai kuis diarahkan ke shell /quiz/:id
  */
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
@@ -14,6 +15,10 @@ import LayoutWrapper from "../components/Layout/LayoutWrapper";
 import ModuleSidebar from "../components/Layout/ModuleSidebar";
 import BottomBarTwoActions from "../components/Layout/BottomBarTwoActions";
 import { buildSidebarItems, buildChain } from "../utils/navigationChain";
+import { ROUTES } from "../constants/routes";
+
+const fillRoute = (pattern, params) =>
+  Object.entries(params).reduce((p, [k, v]) => p.replace(`:${k}`, v), pattern);
 
 const QuizIntroPage = () => {
   const navigate = useNavigate();
@@ -62,27 +67,20 @@ const QuizIntroPage = () => {
     selectTutorial(parsedId).catch((err) => console.error("Error selecting tutorial:", err));
   }, [tutorialId, tutorials.length, selectTutorial]);
 
-  // Hapus fetchQuestions di intro: backend masih 500
-  // useEffect(() => {
-  //   if (!tutorialId || fetchedIntroRef.current) return;
-  //   fetchedIntroRef.current = true;
-  //   const parsedId = parseInt(tutorialId, 10);
-  //   if (isNaN(parsedId)) return;
-  //   fetchQuestions(parsedId).catch((err) =>
-  //     console.warn("Questions not available yet (ignored in intro):", err)
-  //   );
-  // }, [tutorialId, fetchQuestions]);
-
   const handleStartQuiz = () => {
     if (!tutorialId) return;
-    navigate(`/quiz/${tutorialId}`);
+    if (embed) {
+      navigate(`${fillRoute(ROUTES.QUIZ_PLAYER, { tutorialId })}?embed=1`);
+      return;
+    }
+    navigate(fillRoute(ROUTES.QUIZ, { tutorialId }));
   };
 
   const handleSelectSidebar = (item) => {
-    if (item.type === "tutorial") navigate(`/learning/${item.id}`);
-    else if (item.type === "quiz-sub") navigate(`/quiz-intro/${item.id}`);
-    else if (item.type === "quiz-final") navigate("/quiz-final-intro");
-    else if (item.type === "dashboard") navigate("/dashboard-modul");
+    if (item.type === "tutorial") navigate(fillRoute(ROUTES.LEARNING, { id: item.id }));
+    else if (item.type === "quiz-sub") navigate(fillRoute(ROUTES.QUIZ_INTRO_SHELL, { tutorialId: item.id }));
+    else if (item.type === "quiz-final") navigate(ROUTES.QUIZ_FINAL_INTRO);
+    else if (item.type === "dashboard") navigate(ROUTES.DASHBOARD_MODUL);
   };
 
   if (loading) {
@@ -196,14 +194,6 @@ const QuizIntroPage = () => {
               </div>
             </div>
           </div>
-
-          {/* Hapus navigasi kecil agar hanya bottom bar yang muncul */}
-          {/* <div className="flex items-center justify-between text-sm text-gray-600 mt-6 px-1">
-            <button onClick={() => navigate(-1)} className="text-gray-700 hover:text-blue-600 cursor-pointer">
-              ‹ Submodul
-            </button>
-            <span className="text-gray-400">Mulai Kuis ›</span>
-          </div> */}
         </div>
       </div>
     </LayoutWrapper>

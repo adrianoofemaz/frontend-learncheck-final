@@ -9,6 +9,10 @@ import { buildSidebarItems, buildChain } from "../utils/navigationChain";
 import ResultCard from "../components/Features/feedback/ResultCard";
 import AnswerReview from "../components/Features/feedback/AnswerReview";
 import Button from "../components/common/Button";
+import { ROUTES } from "../constants/routes";
+
+const fillRoute = (pattern, params) =>
+  Object.entries(params).reduce((p, [k, v]) => p.replace(`:${k}`, v), pattern);
 
 const ResultsPage = () => {
   const { tutorialId } = useParams();
@@ -55,20 +59,20 @@ const ResultsPage = () => {
 
   const goBackChain = () => {
     if (chain.idx <= 0) {
-      navigate("/home");
+      navigate(ROUTES.HOME);
       return;
     }
     const prev = tutorials[chain.idx - 1];
-    navigate(`/learning/${prev.id}`);
+    navigate(fillRoute(ROUTES.LEARNING, { id: prev.id }));
   };
 
   const goNextChain = () => {
     if (chain.idx < chain.total - 1) {
       const next = tutorials[chain.idx + 1];
-      navigate(`/learning/${next.id}`);
+      navigate(fillRoute(ROUTES.LEARNING, { id: next.id }));
       return;
     }
-    navigate("/quiz-final-intro");
+    navigate(ROUTES.QUIZ_FINAL_INTRO);
   };
 
   const isPass = total > 0 ? (correct / total) * 100 >= 60 : false;
@@ -85,10 +89,10 @@ const ResultsPage = () => {
             items={sidebarItems}
             currentId={currentId}
             onSelect={(item) => {
-              if (item.type === "tutorial") navigate(`/learning/${item.id}`);
-              else if (item.type === "quiz-sub") navigate(`/quiz-intro/${item.id}`);
-              else if (item.type === "quiz-final") navigate("/quiz-final-intro");
-              else if (item.type === "dashboard") navigate("/dashboard-modul");
+              if (item.type === "tutorial") navigate(fillRoute(ROUTES.LEARNING, { id: item.id }));
+              else if (item.type === "quiz-sub") navigate(fillRoute(ROUTES.QUIZ_INTRO_SHELL, { tutorialId: item.id }));
+              else if (item.type === "quiz-final") navigate(ROUTES.QUIZ_FINAL_INTRO);
+              else if (item.type === "dashboard") navigate(ROUTES.DASHBOARD_MODUL);
             }}
             isOpen={sidebarOpen}
             onToggle={() => setSidebarOpen((p) => !p)}
@@ -152,7 +156,7 @@ const ResultsPage = () => {
               <Button
                 variant="primary"
                 className="cursor-pointer"
-                onClick={() => navigate(`/learning/${currentId}`)}
+                onClick={() => navigate(fillRoute(ROUTES.LEARNING, { id: currentId }))}
               >
                 Tutup Review
               </Button>
