@@ -2,7 +2,6 @@
  * useQuiz Hook
  * Handle quiz questions & submission
  */
-
 import { useState, useCallback } from 'react';
 import quizService from '../services/quizService';
 
@@ -22,22 +21,28 @@ export const useQuiz = () => {
     setError(null);
     try {
       console.log('Fetching questions for tutorial:', tutorialId);
-      
       const response = await quizService.getQuestions(tutorialId);
       console.log('Questions response:', response);
-      
+
       // Batasi soal submodul ke 3 pertama (sisanya untuk final)
       const questionsData = (response.data || []).slice(0, 3);
       const assmtId = response.assessment_id || null;
-      
+
       setQuestions(questionsData);
       setAssessmentId(assmtId);
-      
+
       return response;
     } catch (err) {
       console.error("Error fetching questions:", err);
-      setError(err.message || "Failed to fetch questions");
-      throw err;
+      const friendly =
+        err?.details ||
+        err?.error ||
+        err?.message ||
+        "Pertanyaan belum tersedia untuk submodul ini.";
+      setError(friendly);
+      setQuestions([]);
+      setAssessmentId(null);
+      return null; // jangan lempar; biar caller tidak crash
     } finally {
       setLoading(false);
     }
@@ -45,22 +50,13 @@ export const useQuiz = () => {
 
   /**
    * Submit quiz answers
-   * @param {number} tutorialId - Tutorial ID
-   * @param {string} assessmentId - Assessment ID
-   * @param {array} answers - Array of answers
    */
   const submitAnswers = useCallback(async (tutorialId, assmtId, answers) => {
     setSubmitLoading(true);
     setError(null);
     try {
       console.log('Submitting answers:', { tutorialId, assessmentId: assmtId, answers });
-      
-      const response = await quizService.submitAnswers(
-        tutorialId,
-        assmtId,
-        answers
-      );
-      
+      const response = await quizService.submitAnswers(tutorialId, assmtId, answers);
       console.log('Submit response:', response);
       return response;
     } catch (err) {
@@ -80,9 +76,7 @@ export const useQuiz = () => {
     setError(null);
     try {
       console.log('Resetting progress...');
-      
       const response = await quizService.resetProgress();
-      
       console.log('Reset response:', response);
       return response;
     } catch (err) {

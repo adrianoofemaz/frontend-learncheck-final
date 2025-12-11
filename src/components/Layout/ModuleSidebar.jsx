@@ -17,11 +17,10 @@ const ModuleSidebar = ({ items, currentId, onSelect, isOpen, onToggle }) => {
     <>
       <div
         onClick={onToggle}
-        className={`absolute ${
-          isOpen
-            ? "rounded-full translate-x-8"
-            : "rounded-l-full translate-x-78"
-        } p-2 bg-blue-900 w-8 z-100 top-20 right-76 transform transition-transform duration-300 ease-in-out text-2xl cursor-pointer`}
+        className={`fixed top-24 z-200 p-2 bg-blue-900 w-8 text-2xl cursor-pointer rounded-full transition-all duration-300
+  +          ${
+    isOpen ? "right-80 translate-x-4" : "-right-3 rounded-r translate-x-0"
+  }`}
       >
         {isOpen ? (
           <ChevronRightIcon color="white" />
@@ -29,7 +28,6 @@ const ModuleSidebar = ({ items, currentId, onSelect, isOpen, onToggle }) => {
           <ChevronLeftIcon color="white" />
         )}
       </div>
-
       {isOpen && (
         <div
           className="fixed inset-0 bg-transparent z-30 lg:hidden"
