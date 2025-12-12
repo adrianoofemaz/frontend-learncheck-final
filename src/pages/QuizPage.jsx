@@ -43,7 +43,9 @@ const QuizPage = () => {
   const [isTimerActive, setIsTimerActive] = useState(true);
   const [questionsAvailable, setQuestionsAvailable] = useState(false);
 
+  // ✅ FIX 1: Gunakan ref yang lebih robust untuk prevent double fetch
   const fetchedRef = useRef(false);
+  const fetchInProgressRef = useRef(false); // ← TAMBAHAN: Track fetch in progress
   const timeUpHandledRef = useRef(null);
   const mountedRef = useRef(true);
 
@@ -51,12 +53,16 @@ const QuizPage = () => {
   useEffect(() => {
     return () => {
       mountedRef.current = false;
+      fetchInProgressRef.current = false; // Reset on unmount
     };
   }, []);
 
-  // Load saved progress
+  // ✅ FIX 2: Load saved progress - TANPA dependency yang memicu re-render
   useEffect(() => {
     if (!storageKey) return;
+    
+    // Hanya load sekali saat mount
+    if (fetchedRef.current) return;
     
     try {
       const saved = localStorage.getItem(storageKey);
@@ -73,6 +79,7 @@ const QuizPage = () => {
 
       // Jika sudah completed, redirect ke results
       if (parsed.completed && parsed.result) {
+        console.log('✅ Quiz already completed, redirecting...');
         navigate(`/quiz-results-player/${tutorialId}?embed=1`, { 
           state: { result: parsed.result },
           replace: true 
@@ -104,21 +111,22 @@ const QuizPage = () => {
       
     } catch (e) {
       console.error("Failed to parse saved quiz progress:", e);
-      // Clear corrupted data
       localStorage.removeItem(storageKey);
     }
-  }, [storageKey, tutorialId, navigate, recordAnswer, setCurrentQuestionIndex]);
+  }, [storageKey]); // ← HANYA storageKey sebagai dependency
 
-  // Fetch questions – single call with improved error handling
+  // ✅ FIX 3: Fetch questions - dengan guard yang lebih ketat
   useEffect(() => {
     if (!tutorialId) {
       setSubmitError("Tutorial ID tidak ditemukan");
       return;
     }
 
-    // Guard against double fetch
-    if (fetchedRef.current) return;
-    fetchedRef.current = true;
+    // ✅ DOUBLE GUARD: Cek fetchedRef DAN fetchInProgressRef
+    if (fetchedRef.current || fetchInProgressRef.current) {
+      console.log('⏭️ Fetch already done or in progress, skipping...');
+      return;
+    }
 
     const id = parseInt(tutorialId, 10);
     
@@ -129,13 +137,19 @@ const QuizPage = () => {
 
     console.log('🔍 Fetching questions for tutorial:', id);
 
+    // Mark as fetched immediately
+    fetchedRef.current = true;
+    fetchInProgressRef.current = true;
+
     (async () => {
       try {
         const res = await fetchQuestions(id);
         
-        if (!mountedRef.current) return; // Component unmounted
+        if (!mountedRef.current) return;
         
-        if (!res) {
+        console.log('📦 Fetch result:', res);
+        
+        if (!res || !res.data) {
           console.warn('⚠️ No questions returned from API');
           setSubmitError("Pertanyaan belum tersedia untuk submodul ini.");
           setQuestionsAvailable(false);
@@ -143,14 +157,16 @@ const QuizPage = () => {
         }
 
         // Cek apakah ada questions
-        if (!res.data || !Array.isArray(res.data) || res.data.length === 0) {
+        const questionsData = res.data;
+        
+        if (!Array.isArray(questionsData) || questionsData.length === 0) {
           console.warn('⚠️ Questions array is empty');
           setSubmitError("Tidak ada soal yang tersedia untuk submodul ini.");
           setQuestionsAvailable(false);
           return;
         }
 
-        console.log('✅ Questions loaded:', res.data.length);
+        console.log('✅ Questions loaded:', questionsData.length);
         setQuestionsAvailable(true);
         initializeQuiz();
         
@@ -161,30 +177,40 @@ const QuizPage = () => {
         const errorMessage = err?.details || err?.message || "Gagal memuat pertanyaan";
         setSubmitError(errorMessage);
         setQuestionsAvailable(false);
+      } finally {
+        if (mountedRef.current) {
+          fetchInProgressRef.current = false; // Reset after fetch complete
+        }
       }
     })();
-  }, [tutorialId, fetchQuestions, initializeQuiz]);
+  }, [tutorialId]); // ← HANYA tutorialId sebagai dependency
 
-  // Persist progress - with validation
+  // ✅ FIX 4: Persist progress - dengan throttling
   useEffect(() => {
     if (!storageKey || !tutorialId || !questionsAvailable) return;
     
-    try {
-      const payload = {
-        tutorialId,
-        assessmentId,
-        currentQuestionIndex,
-        answers,
-        lockedAnswers,
-        completed: false,
-        timestamp: Date.now(),
-      };
-      
-      localStorage.setItem(storageKey, JSON.stringify(payload));
-      
-    } catch (e) {
-      console.error('Failed to save quiz progress:', e);
-    }
+    // Throttle dengan setTimeout untuk menghindari terlalu sering save
+    const timeoutId = setTimeout(() => {
+      try {
+        const payload = {
+          tutorialId,
+          assessmentId,
+          currentQuestionIndex,
+          answers,
+          lockedAnswers,
+          completed: false,
+          timestamp: Date.now(),
+        };
+        
+        localStorage.setItem(storageKey, JSON.stringify(payload));
+        
+      } catch (e) {
+        console.error('Failed to save quiz progress:', e);
+      }
+    }, 500); // Throttle 500ms
+
+    return () => clearTimeout(timeoutId);
+    
   }, [
     storageKey, 
     tutorialId, 
@@ -207,7 +233,6 @@ const QuizPage = () => {
       return;
     }
 
-    // Validasi assessment ID
     if (!assessmentId) {
       setSubmitError("Assessment ID tidak ditemukan. Tidak dapat mengirim jawaban.");
       return;
@@ -219,7 +244,7 @@ const QuizPage = () => {
     setSubmitError(null);
 
     try {
-      // Prepare answers data dengan validasi
+      // Prepare answers data
       const answersData = questions.map((question, idx) => {
         const answerIndex = answers[idx];
         const selectedOption =
@@ -232,8 +257,6 @@ const QuizPage = () => {
       });
 
       console.log('📦 Submitting answers:', answersData.length, 'questions');
-      console.log('   Tutorial ID:', tutorialId, typeof tutorialId);
-      console.log('   Assessment ID:', assessmentId, typeof assessmentId);
 
       const result = await submitAnswers(
         parseInt(tutorialId, 10), 
@@ -264,7 +287,7 @@ const QuizPage = () => {
         }
       }
 
-      // PostMessage to parent (untuk iframe communication)
+      // PostMessage to parent
       try {
         window.parent.postMessage(
           { 
@@ -300,7 +323,6 @@ const QuizPage = () => {
       setIsTimerActive(true);
       setIsSubmitting(false);
 
-      // Show error alert
       Swal.fire({
         title: "Gagal Mengirim",
         text: friendly,
@@ -324,7 +346,6 @@ const QuizPage = () => {
 
   // Time up handler
   const handleTimeUp = useCallback(() => {
-    // Guard: cegah double trigger
     if (timeUpHandledRef.current === currentQuestionIndex) {
       console.log('⏭️ Time up already handled for this question');
       return;
@@ -334,11 +355,9 @@ const QuizPage = () => {
     console.log('⏰ Time up for question:', currentQuestionIndex + 1);
 
     if (currentQuestionIndex >= questions.length - 1) {
-      // Last question - auto submit
       console.log('🏁 Last question - auto submitting...');
       handleSubmitQuiz();
     } else {
-      // Move to next question
       console.log('➡️ Moving to next question...');
       nextQuestion(questions.length);
     }
@@ -367,7 +386,6 @@ const QuizPage = () => {
       return;
     }
 
-    // Show warning if not answered
     Swal.fire({
       title: "Belum Menjawab",
       text: "Anda belum memilih jawaban untuk soal ini. Tetap lanjut?",
@@ -410,7 +428,7 @@ const QuizPage = () => {
     );
   }
 
-  // Error state - dengan opsi retry
+  // Error state
   if (error || submitError) {
     const msg = submitError || error;
     const isServerError = msg?.includes('server') || msg?.includes('500');
@@ -453,6 +471,7 @@ const QuizPage = () => {
                     clearError();
                     setSubmitError(null);
                     fetchedRef.current = false;
+                    fetchInProgressRef.current = false;
                     window.location.reload();
                   }} 
                   variant="primary"
