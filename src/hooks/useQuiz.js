@@ -49,6 +49,15 @@ export const useQuiz = () => {
   }, []);
 
   /**
+   * Set mock questions (fallback offline)
+   */
+  const setMockQuestions = useCallback((mockQs = [], mockAssessmentId = 'mock') => {
+    setQuestions(mockQs);
+    setAssessmentId(mockAssessmentId);
+    setError(null);
+  }, []);
+
+  /**
    * Submit quiz answers
    */
   const submitAnswers = useCallback(async (tutorialId, assmtId, answers) => {
@@ -97,6 +106,7 @@ export const useQuiz = () => {
     fetchQuestions,
     submitAnswers,
     resetProgress,
+    setMockQuestions, // <-- baru
   };
 };
 

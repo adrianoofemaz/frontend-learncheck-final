@@ -8,6 +8,7 @@ import { QuizCard, QuizTimer } from "../components/features/quiz";
 import { Alert } from "../components/common";
 import Button from "../components/common/Button";
 import Loading from "../components/common/Loading";
+import { getMockQuestions, DEFAULT_MOCK_FEEDBACK } from "../constants/mockQuestions";
 
 const QuizPage = () => {
   const navigate = useNavigate();
@@ -17,7 +18,15 @@ const QuizPage = () => {
 
   const storageKey = tutorialId ? `quiz-progress-${tutorialId}` : null;
 
-  const { questions, loading, error, assessmentId, fetchQuestions, submitAnswers } = useQuiz();
+  const {
+    questions,
+    loading,
+    error,
+    assessmentId,
+    fetchQuestions,
+    submitAnswers,
+    setMockQuestions,
+  } = useQuiz();
   const {
     currentQuestionIndex,
     setCurrentQuestionIndex,
@@ -32,6 +41,8 @@ const QuizPage = () => {
   const [submitError, setSubmitError] = useState(null);
   const [lockedAnswers, setLockedAnswers] = useState({});
   const [isTimerActive, setIsTimerActive] = useState(true);
+  const [isMock, setIsMock] = useState(false);
+  const [startTime, setStartTime] = useState(null);
 
   const fetchedRef = useRef(false);
   const timeUpHandledRef = useRef(null);
@@ -75,13 +86,22 @@ const QuizPage = () => {
     const id = parseInt(tutorialId, 10);
     (async () => {
       const res = await fetchQuestions(id);
-      if (!res) {
-        setSubmitError("Pertanyaan belum tersedia untuk submodul ini.");
+      const hasQuestions = res?.data?.length > 0;
+      if (!hasQuestions) {
+        const mockQs = getMockQuestions(id);
+        setIsMock(true);
+        setMockQuestions(mockQs);
+        initializeQuiz();
+        setStartTime(new Date());
+        setIsTimerActive(true);
+        setSubmitError(null);
         return;
       }
+      setIsMock(false);
       initializeQuiz();
+      setStartTime(new Date());
     })();
-  }, [tutorialId, fetchQuestions, initializeQuiz]);
+  }, [tutorialId, fetchQuestions, initializeQuiz, setMockQuestions]);
 
   // Persist progress
   useEffect(() => {
@@ -102,8 +122,68 @@ const QuizPage = () => {
     timeUpHandledRef.current = null;
   }, [currentQuestionIndex]);
 
+  const handleSubmitMock = useCallback(() => {
+    const durationSec = startTime ? Math.round((Date.now() - startTime.getTime()) / 1000) : 0;
+    let correctCount = 0;
+    const detail = questions.map((q, idx) => {
+      const selectedIndex = answers[idx];
+      const selected = q.multiple_choice?.[selectedIndex];
+      const isCorrect = !!selected?.correct;
+      if (isCorrect) correctCount += 1;
+      return {
+        soal_id: q.id,
+        correct: isCorrect,
+        user_answer: selected?.option || "",
+        answer: selected?.option || "",
+        explanation: selected?.explanation || "",
+      };
+    });
+
+    const result = {
+      success: true,
+      message: "Mock assessment",
+      assessment_id: "assessment:mock",
+      tutorial_key: `tutorial:${tutorialId}`,
+      score: Number(((correctCount / questions.length) * 100).toFixed(2)),
+      benar: correctCount,
+      total: questions.length,
+      lama_mengerjakan: `${durationSec} detik`,
+      duration: durationSec,
+      detail,
+      answers: detail,
+      questions,
+      feedback: DEFAULT_MOCK_FEEDBACK,
+    };
+
+    if (storageKey) {
+      const saved = {
+        tutorialId,
+        assessmentId: "mock",
+        currentQuestionIndex,
+        answers,
+        lockedAnswers,
+        completed: true,
+        result,
+      };
+      localStorage.setItem(storageKey, JSON.stringify(saved));
+      localStorage.setItem(`quiz-result-${tutorialId}`, JSON.stringify(result));
+    }
+
+    try {
+      window.parent.postMessage({ type: "quiz-submitted", tutorialId, result }, "*");
+    } catch (e) {
+      console.warn("postMessage failed", e);
+    }
+
+    navigate(`/quiz-results-player/${tutorialId}?embed=1`, { state: { result } });
+  }, [answers, currentQuestionIndex, lockedAnswers, navigate, questions, startTime, storageKey, tutorialId]);
+
   const handleSubmitQuiz = useCallback(async () => {
     if (isSubmitting) return;
+    if (isMock) {
+      handleSubmitMock();
+      return;
+    }
     setIsSubmitting(true);
     setIsTimerActive(false);
     setSubmitError(null);
@@ -133,14 +213,12 @@ const QuizPage = () => {
         localStorage.setItem(storageKey, JSON.stringify(saved));
       }
 
-      // postMessage ke parent shell
       try {
         window.parent.postMessage({ type: "quiz-submitted", tutorialId, result }, "*");
       } catch (e) {
         console.warn("postMessage failed", e);
       }
 
-      // redirect di dalam iframe ke player hasil
       navigate(`/quiz-results-player/${tutorialId}?embed=1`, { state: { result } });
     } catch (err) {
       const friendly = err?.raw?.details || err?.message || "Gagal mengirim jawaban";
@@ -159,6 +237,8 @@ const QuizPage = () => {
     lockedAnswers,
     currentQuestionIndex,
     isSubmitting,
+    isMock,
+    handleSubmitMock,
   ]);
 
   const handleTimeUp = useCallback(() => {
@@ -208,16 +288,30 @@ const QuizPage = () => {
 
   if (loading) {
     return (
-      <LayoutWrapper showNavbar={!embed} showFooter={false} sidePanel={null} bottomBar={null} embed={embed}>
+      <LayoutWrapper
+        showNavbar={!embed}
+        showFooter={false}
+        sidePanel={null}
+        bottomBar={null}
+        embed={embed}
+        contentClassName="pb-16"
+      >
         <Loading fullScreen text="Memuat kuis..." />
       </LayoutWrapper>
     );
   }
 
-  if (error || submitError) {
+  if ((error || submitError) && !isMock) {
     const msg = submitError || error;
     return (
-      <LayoutWrapper showNavbar={!embed} showFooter={false} sidePanel={null} bottomBar={null} embed={embed}>
+      <LayoutWrapper
+        showNavbar={!embed}
+        showFooter={false}
+        sidePanel={null}
+        bottomBar={null}
+        embed={embed}
+        contentClassName="pb-16"
+      >
         <div className="min-h-screen flex items-center justify-center">
           <div className="max-w-2xl mx-auto text-center">
             <Alert type="error" title="Error" message={msg} />
@@ -232,7 +326,14 @@ const QuizPage = () => {
 
   if (questions.length === 0) {
     return (
-      <LayoutWrapper showNavbar={!embed} showFooter={false} sidePanel={null} bottomBar={null} embed={embed}>
+      <LayoutWrapper
+        showNavbar={!embed}
+        showFooter={false}
+        sidePanel={null}
+        bottomBar={null}
+        embed={embed}
+        contentClassName="pb-16"
+      >
         <div className="min-h-screen flex items-center justify-center">
           <div className="max-w-2xl mx-auto text-center">
             <p className="text-gray-600 mb-4">Pertanyaan belum tersedia untuk submodul ini.</p>
@@ -246,9 +347,25 @@ const QuizPage = () => {
   }
 
   return (
-    <LayoutWrapper showNavbar={!embed} showFooter={false} sidePanel={null} bottomBar={null} embed={embed}>
+    <LayoutWrapper
+      showNavbar={!embed}
+      showFooter={false}
+      sidePanel={null}
+      bottomBar={null}
+      embed={embed}
+      contentClassName="pb-16"
+    >
       <div className="min-h-screen py-14 px-4">
         <div className="max-w-4xl mx-auto space-y-5 mt-10 sm:mt-12">
+          {isMock && (
+            <Alert
+              type="info"
+              title="Mode offline (mock)"
+              message="Menampilkan soal mock karena backend bermasalah."
+              dismissible={false}
+            />
+          )}
+
           {/* Top bar */}
           <div className="rounded-2xl bg-gradient-to-r from-[#0f5eff] to-[#0a4ed6] text-white shadow-lg p-6 sm:p-7">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -280,7 +397,7 @@ const QuizPage = () => {
           </div>
 
           {/* Card soal */}
-          <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
+          <div className="bg-white rounded-2xl shadow-lg p-6 sm:8">
             <QuizCard
               question={currentQuestion}
               selectedAnswer={currentAnswer}
@@ -313,7 +430,7 @@ const QuizPage = () => {
             </div>
           </div>
 
-          {submitError && (
+          {submitError && !isMock && (
             <Alert
               type="error"
               title="Error"
