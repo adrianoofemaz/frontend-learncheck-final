@@ -64,8 +64,8 @@ const Sidebar = () => {
           })}
         </nav>
       </div>
-      </aside>
-    );
+    </aside>
+  );
 };
 
 export default Sidebar;

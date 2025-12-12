@@ -45,7 +45,7 @@ const Navbar = () => {
             onClick={() => navigate("/")}
             className="text-2xl font-bold transition-colors"
           >
-            LearnCheck
+            QuizMate
           </button>
 
           {/* DESKTOP MENU */}
@@ -115,7 +115,7 @@ const Navbar = () => {
                 setSettingsOpen(!settingsOpen);
                 setProfileOpen(false);
               }}
-              className="relative flex items-center justify-center hover:opacity-80"
+              className="relative flex items-center justify-center hover:opacity-80 bg"
             >
               <img
                 src="/public/assets/images/icon-settings.png"
@@ -128,7 +128,7 @@ const Navbar = () => {
             {/* SETTINGS DROPDOWN */}
             {settingsOpen && (
               <div
-                className={`absolute right-1 top-12 w-56 rounded-xl shadow-lg border p-4 z-50 ${
+                className={`absolute right-1 top-12 w-70 rounded-xl shadow-lg border p-4 z-50 ${
                   preferences.theme === "dark"
                     ? "bg-gray-800 border-gray-700 text-white"
                     : "bg-white border-gray-200 text-gray-900"
