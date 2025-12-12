@@ -94,6 +94,15 @@ export const useQuiz = () => {
   }, []);
 
   /**
+   * Set mock questions (fallback offline)
+   */
+  const setMockQuestions = useCallback((mockQs = [], mockAssessmentId = 'mock') => {
+    setQuestions(mockQs);
+    setAssessmentId(mockAssessmentId);
+    setError(null);
+  }, []);
+
+  /**
    * Submit quiz answers
    * @param {number} tutorialId - Tutorial ID
    * @param {number} assmtId - Assessment ID
@@ -208,6 +217,7 @@ export const useQuiz = () => {
     submitAnswers,
     resetProgress,
     clearError,
+    setMockQuestions, // <-- baru
   };
 };
 

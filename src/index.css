@@ -323,3 +323,32 @@ body {
     font-size: 1.75rem;
   }
 }
+
+/* =========================================================
+   PRINT STYLES (HANYA CETAK AREA ANALYTICS)
+   ========================================================= */
+@media print {
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background: white !important;
+  }
+  body * {
+    visibility: hidden;
+  }
+  #printable-analytics,
+  #printable-analytics * {
+    visibility: visible;
+  }
+  #printable-analytics {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background: white;
+    padding: 0 12px;
+  }
+  .print-hide {
+    display: none !important;
+  }
+}
