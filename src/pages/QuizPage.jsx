@@ -17,7 +17,16 @@ const QuizPage = () => {
 
   const storageKey = tutorialId ? `quiz-progress-${tutorialId}` : null;
 
-  const { questions, loading, error, assessmentId, fetchQuestions, submitAnswers } = useQuiz();
+  const { 
+    questions, 
+    loading, 
+    error, 
+    assessmentId, 
+    fetchQuestions, 
+    submitAnswers,
+    clearError 
+  } = useQuiz();
+  
   const {
     currentQuestionIndex,
     setCurrentQuestionIndex,
@@ -32,121 +41,295 @@ const QuizPage = () => {
   const [submitError, setSubmitError] = useState(null);
   const [lockedAnswers, setLockedAnswers] = useState({});
   const [isTimerActive, setIsTimerActive] = useState(true);
+  const [questionsAvailable, setQuestionsAvailable] = useState(false);
 
+  // ✅ FIX 1: Gunakan ref yang lebih robust untuk prevent double fetch
   const fetchedRef = useRef(false);
+  const fetchInProgressRef = useRef(false); // ← TAMBAHAN: Track fetch in progress
   const timeUpHandledRef = useRef(null);
+  const mountedRef = useRef(true);
 
-  // Load saved progress
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+      fetchInProgressRef.current = false; // Reset on unmount
+    };
+  }, []);
+
+  // ✅ FIX 2: Load saved progress - TANPA dependency yang memicu re-render
   useEffect(() => {
     if (!storageKey) return;
-    const saved = localStorage.getItem(storageKey);
-    if (!saved) return;
+    
+    // Hanya load sekali saat mount
+    if (fetchedRef.current) return;
+    
     try {
+      const saved = localStorage.getItem(storageKey);
+      if (!saved) return;
+      
       const parsed = JSON.parse(saved);
-      if (parsed?.tutorialId === tutorialId) {
-        if (parsed.completed && parsed.result) {
-          navigate(`/quiz-results-player/${tutorialId}?embed=1`, { state: { result: parsed.result } });
-          return;
-        }
-        if (parsed.answers) {
-          Object.entries(parsed.answers).forEach(([qIdx, ans]) => {
-            recordAnswer(parseInt(qIdx), ans);
-          });
-        }
-        if (parsed.lockedAnswers) setLockedAnswers(parsed.lockedAnswers);
-        if (typeof parsed.currentQuestionIndex === "number") {
-          setCurrentQuestionIndex(parsed.currentQuestionIndex);
-        }
+      
+      // Validasi structure
+      if (!parsed || parsed.tutorialId !== tutorialId) {
+        console.warn('Invalid saved progress, clearing...');
+        localStorage.removeItem(storageKey);
+        return;
       }
-    } catch (e) {
-      console.warn("Failed to parse saved quiz progress", e);
-    }
-  }, [storageKey, tutorialId, navigate, recordAnswer, setCurrentQuestionIndex]);
 
-  // Fetch questions – single call, with guard
+      // Jika sudah completed, redirect ke results
+      if (parsed.completed && parsed.result) {
+        console.log('✅ Quiz already completed, redirecting...');
+        navigate(`/quiz-results-player/${tutorialId}?embed=1`, { 
+          state: { result: parsed.result },
+          replace: true 
+        });
+        return;
+      }
+
+      // Restore answers
+      if (parsed.answers && typeof parsed.answers === 'object') {
+        Object.entries(parsed.answers).forEach(([qIdx, ans]) => {
+          const index = parseInt(qIdx, 10);
+          if (!isNaN(index)) {
+            recordAnswer(index, ans);
+          }
+        });
+      }
+
+      // Restore locked answers
+      if (parsed.lockedAnswers && typeof parsed.lockedAnswers === 'object') {
+        setLockedAnswers(parsed.lockedAnswers);
+      }
+
+      // Restore current question index
+      if (typeof parsed.currentQuestionIndex === "number") {
+        setCurrentQuestionIndex(parsed.currentQuestionIndex);
+      }
+
+      console.log('✅ Quiz progress restored');
+      
+    } catch (e) {
+      console.error("Failed to parse saved quiz progress:", e);
+      localStorage.removeItem(storageKey);
+    }
+  }, [storageKey]); // ← HANYA storageKey sebagai dependency
+
+  // ✅ FIX 3: Fetch questions - dengan guard yang lebih ketat
   useEffect(() => {
     if (!tutorialId) {
       setSubmitError("Tutorial ID tidak ditemukan");
       return;
     }
-    if (fetchedRef.current) return;
-    fetchedRef.current = true;
+
+    // ✅ DOUBLE GUARD: Cek fetchedRef DAN fetchInProgressRef
+    if (fetchedRef.current || fetchInProgressRef.current) {
+      console.log('⏭️ Fetch already done or in progress, skipping...');
+      return;
+    }
 
     const id = parseInt(tutorialId, 10);
+    
+    if (isNaN(id)) {
+      setSubmitError("Tutorial ID tidak valid");
+      return;
+    }
+
+    console.log('🔍 Fetching questions for tutorial:', id);
+
+    // Mark as fetched immediately
+    fetchedRef.current = true;
+    fetchInProgressRef.current = true;
+
     (async () => {
-      const res = await fetchQuestions(id);
-      if (!res) {
-        setSubmitError("Pertanyaan belum tersedia untuk submodul ini.");
-        return;
+      try {
+        const res = await fetchQuestions(id);
+        
+        if (!mountedRef.current) return;
+        
+        console.log('📦 Fetch result:', res);
+        
+        if (!res || !res.data) {
+          console.warn('⚠️ No questions returned from API');
+          setSubmitError("Pertanyaan belum tersedia untuk submodul ini.");
+          setQuestionsAvailable(false);
+          return;
+        }
+
+        // Cek apakah ada questions
+        const questionsData = res.data;
+        
+        if (!Array.isArray(questionsData) || questionsData.length === 0) {
+          console.warn('⚠️ Questions array is empty');
+          setSubmitError("Tidak ada soal yang tersedia untuk submodul ini.");
+          setQuestionsAvailable(false);
+          return;
+        }
+
+        console.log('✅ Questions loaded:', questionsData.length);
+        setQuestionsAvailable(true);
+        initializeQuiz();
+        
+      } catch (err) {
+        if (!mountedRef.current) return;
+        
+        console.error('❌ Error fetching questions:', err);
+        const errorMessage = err?.details || err?.message || "Gagal memuat pertanyaan";
+        setSubmitError(errorMessage);
+        setQuestionsAvailable(false);
+      } finally {
+        if (mountedRef.current) {
+          fetchInProgressRef.current = false; // Reset after fetch complete
+        }
       }
-      initializeQuiz();
     })();
-  }, [tutorialId, fetchQuestions, initializeQuiz]);
+  }, [tutorialId]); // ← HANYA tutorialId sebagai dependency
 
-  // Persist progress
+  // ✅ FIX 4: Persist progress - dengan throttling
   useEffect(() => {
-    if (!storageKey || !tutorialId) return;
-    const payload = {
-      tutorialId,
-      assessmentId,
-      currentQuestionIndex,
-      answers,
-      lockedAnswers,
-      completed: false,
-    };
-    localStorage.setItem(storageKey, JSON.stringify(payload));
-  }, [storageKey, tutorialId, assessmentId, currentQuestionIndex, answers, lockedAnswers]);
+    if (!storageKey || !tutorialId || !questionsAvailable) return;
+    
+    // Throttle dengan setTimeout untuk menghindari terlalu sering save
+    const timeoutId = setTimeout(() => {
+      try {
+        const payload = {
+          tutorialId,
+          assessmentId,
+          currentQuestionIndex,
+          answers,
+          lockedAnswers,
+          completed: false,
+          timestamp: Date.now(),
+        };
+        
+        localStorage.setItem(storageKey, JSON.stringify(payload));
+        
+      } catch (e) {
+        console.error('Failed to save quiz progress:', e);
+      }
+    }, 500); // Throttle 500ms
 
-  // reset guard tiap pindah soal
+    return () => clearTimeout(timeoutId);
+    
+  }, [
+    storageKey, 
+    tutorialId, 
+    assessmentId, 
+    currentQuestionIndex, 
+    answers, 
+    lockedAnswers,
+    questionsAvailable
+  ]);
+
+  // Reset timer guard when question changes
   useEffect(() => {
     timeUpHandledRef.current = null;
   }, [currentQuestionIndex]);
 
+  // Submit quiz handler
   const handleSubmitQuiz = useCallback(async () => {
-    if (isSubmitting) return;
+    if (isSubmitting) {
+      console.warn('⚠️ Submit already in progress');
+      return;
+    }
+
+    if (!assessmentId) {
+      setSubmitError("Assessment ID tidak ditemukan. Tidak dapat mengirim jawaban.");
+      return;
+    }
+
+    console.log('📤 Starting quiz submission...');
     setIsSubmitting(true);
     setIsTimerActive(false);
     setSubmitError(null);
+
     try {
+      // Prepare answers data
       const answersData = questions.map((question, idx) => {
         const answerIndex = answers[idx];
         const selectedOption =
           answerIndex !== undefined ? question?.multiple_choice?.[answerIndex] : null;
+        
         return {
           soal_id: question?.id,
           correct: selectedOption?.correct || false,
         };
       });
 
-      const result = await submitAnswers(parseInt(tutorialId), assessmentId, answersData);
+      console.log('📦 Submitting answers:', answersData.length, 'questions');
 
+      const result = await submitAnswers(
+        parseInt(tutorialId, 10), 
+        assessmentId, 
+        answersData
+      );
+
+      if (!mountedRef.current) return;
+
+      console.log('✅ Quiz submitted successfully');
+
+      // Save completed state
       if (storageKey) {
-        const saved = {
-          tutorialId,
-          assessmentId,
-          currentQuestionIndex,
-          answers,
-          lockedAnswers,
-          completed: true,
-          result,
-        };
-        localStorage.setItem(storageKey, JSON.stringify(saved));
+        try {
+          const saved = {
+            tutorialId,
+            assessmentId,
+            currentQuestionIndex,
+            answers,
+            lockedAnswers,
+            completed: true,
+            result,
+            completedAt: Date.now(),
+          };
+          localStorage.setItem(storageKey, JSON.stringify(saved));
+        } catch (e) {
+          console.error('Failed to save completed state:', e);
+        }
       }
 
-      // postMessage ke parent shell
+      // PostMessage to parent
       try {
-        window.parent.postMessage({ type: "quiz-submitted", tutorialId, result }, "*");
+        window.parent.postMessage(
+          { 
+            type: "quiz-submitted", 
+            tutorialId, 
+            result,
+            timestamp: Date.now()
+          }, 
+          "*"
+        );
+        console.log('📨 PostMessage sent to parent');
       } catch (e) {
-        console.warn("postMessage failed", e);
+        console.warn("PostMessage failed:", e);
       }
 
-      // redirect di dalam iframe ke player hasil
-      navigate(`/quiz-results-player/${tutorialId}?embed=1`, { state: { result } });
+      // Redirect to results page
+      navigate(`/quiz-results-player/${tutorialId}?embed=1`, { 
+        state: { result },
+        replace: true 
+      });
+
     } catch (err) {
-      const friendly = err?.raw?.details || err?.message || "Gagal mengirim jawaban";
+      if (!mountedRef.current) return;
+
+      console.error('❌ Quiz submission failed:', err);
+      
+      const friendly = 
+        err?.details || 
+        err?.message || 
+        "Gagal mengirim jawaban. Silakan coba lagi.";
+      
       setSubmitError(friendly);
       setIsTimerActive(true);
       setIsSubmitting(false);
+
+      Swal.fire({
+        title: "Gagal Mengirim",
+        text: friendly,
+        icon: "error",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#0f5eff",
+      });
     }
   }, [
     answers,
@@ -161,37 +344,50 @@ const QuizPage = () => {
     isSubmitting,
   ]);
 
+  // Time up handler
   const handleTimeUp = useCallback(() => {
-    if (timeUpHandledRef.current === currentQuestionIndex) return;
+    if (timeUpHandledRef.current === currentQuestionIndex) {
+      console.log('⏭️ Time up already handled for this question');
+      return;
+    }
+    
     timeUpHandledRef.current = currentQuestionIndex;
+    console.log('⏰ Time up for question:', currentQuestionIndex + 1);
 
     if (currentQuestionIndex >= questions.length - 1) {
+      console.log('🏁 Last question - auto submitting...');
       handleSubmitQuiz();
     } else {
+      console.log('➡️ Moving to next question...');
       nextQuestion(questions.length);
     }
   }, [currentQuestionIndex, questions.length, handleSubmitQuiz, nextQuestion]);
 
+  // Select answer handler
   const handleSelectAnswer = (index) => {
-    if (lockedAnswers[currentQuestionIndex]) return;
+    if (lockedAnswers[currentQuestionIndex]) {
+      console.warn('⚠️ Answer already locked for this question');
+      return;
+    }
+
+    console.log('✓ Answer selected:', index, 'for question:', currentQuestionIndex + 1);
     recordAnswer(currentQuestionIndex, index);
-    setLockedAnswers((prev) => ({ ...prev, [currentQuestionIndex]: true }));
+    setLockedAnswers((prev) => ({ 
+      ...prev, 
+      [currentQuestionIndex]: true 
+    }));
   };
 
-  const currentQuestion = questions[currentQuestionIndex];
-  const currentAnswer = getCurrentAnswer();
-  const isLastQuestion = currentQuestionIndex === questions.length - 1;
-  const progressPercent = questions.length
-    ? Math.round(((currentQuestionIndex + 1) / questions.length) * 100)
-    : 0;
-
+  // Next question handler
   const handleNextClick = () => {
     if (currentAnswer !== undefined) {
+      console.log('➡️ Moving to next question (answered)');
       nextQuestion(questions.length);
       return;
     }
+
     Swal.fire({
-      title: "Belum menjawab",
+      title: "Belum Menjawab",
       text: "Anda belum memilih jawaban untuk soal ini. Tetap lanjut?",
       icon: "warning",
       showCancelButton: true,
@@ -199,30 +395,133 @@ const QuizPage = () => {
       cancelButtonText: "Batal",
       reverseButtons: true,
       allowOutsideClick: false,
+      confirmButtonColor: "#0f5eff",
+      cancelButtonColor: "#6c757d",
     }).then((res) => {
       if (res.isConfirmed) {
+        console.log('➡️ Moving to next question (unanswered)');
         nextQuestion(questions.length);
       }
     });
   };
 
+  // Computed values
+  const currentQuestion = questions[currentQuestionIndex];
+  const currentAnswer = getCurrentAnswer();
+  const isLastQuestion = currentQuestionIndex === questions.length - 1;
+  const progressPercent = questions.length
+    ? Math.round(((currentQuestionIndex + 1) / questions.length) * 100)
+    : 0;
+
+  // Loading state
   if (loading) {
     return (
-      <LayoutWrapper showNavbar={!embed} showFooter={false} sidePanel={null} bottomBar={null} embed={embed}>
+      <LayoutWrapper 
+        showNavbar={!embed} 
+        showFooter={false} 
+        sidePanel={null} 
+        bottomBar={null} 
+        embed={embed}
+      >
         <Loading fullScreen text="Memuat kuis..." />
       </LayoutWrapper>
     );
   }
 
+  // Error state
   if (error || submitError) {
     const msg = submitError || error;
+    const isServerError = msg?.includes('server') || msg?.includes('500');
+    
     return (
-      <LayoutWrapper showNavbar={!embed} showFooter={false} sidePanel={null} bottomBar={null} embed={embed}>
-        <div className="min-h-screen flex items-center justify-center">
+      <LayoutWrapper 
+        showNavbar={!embed} 
+        showFooter={false} 
+        sidePanel={null} 
+        bottomBar={null} 
+        embed={embed}
+      >
+        <div className="min-h-screen flex items-center justify-center px-4">
           <div className="max-w-2xl mx-auto text-center">
-            <Alert type="error" title="Error" message={msg} />
-            <Button onClick={() => navigate(-1)} variant="primary" className="mt-4 cursor-pointer">
-              Kembali
+            <div className="mb-6">
+              <div className="text-6xl mb-4">⚠️</div>
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                {isServerError ? 'Server Error' : 'Terjadi Kesalahan'}
+              </h2>
+            </div>
+            
+            <Alert 
+              type="error" 
+              title="Error" 
+              message={msg} 
+            />
+            
+            <div className="mt-6 flex gap-3 justify-center">
+              <Button 
+                onClick={() => navigate(-1)} 
+                variant="secondary"
+                className="cursor-pointer"
+              >
+                ← Kembali
+              </Button>
+              
+              {isServerError && (
+                <Button 
+                  onClick={() => {
+                    clearError();
+                    setSubmitError(null);
+                    fetchedRef.current = false;
+                    fetchInProgressRef.current = false;
+                    window.location.reload();
+                  }} 
+                  variant="primary"
+                  className="cursor-pointer"
+                >
+                  🔄 Coba Lagi
+                </Button>
+              )}
+            </div>
+
+            {isServerError && (
+              <p className="mt-4 text-sm text-gray-500">
+                Jika masalah berlanjut, silakan hubungi administrator.
+              </p>
+            )}
+          </div>
+        </div>
+      </LayoutWrapper>
+    );
+  }
+
+  // No questions state
+  if (questions.length === 0 || !questionsAvailable) {
+    return (
+      <LayoutWrapper 
+        showNavbar={!embed} 
+        showFooter={false} 
+        sidePanel={null} 
+        bottomBar={null} 
+        embed={embed}
+      >
+        <div className="min-h-screen flex items-center justify-center px-4">
+          <div className="max-w-2xl mx-auto text-center">
+            <div className="mb-6">
+              <div className="text-6xl mb-4">📝</div>
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                Quiz Belum Tersedia
+              </h2>
+            </div>
+            
+            <p className="text-gray-600 mb-6">
+              Pertanyaan belum tersedia untuk submodul ini. Silakan coba lagi nanti atau hubungi instruktur.
+            </p>
+            
+            <Button 
+              onClick={() => navigate(-1)} 
+              variant="primary"
+              className="cursor-pointer"
+            >
+              ← Kembali ke Tutorial
             </Button>
           </div>
         </div>
@@ -230,26 +529,18 @@ const QuizPage = () => {
     );
   }
 
-  if (questions.length === 0) {
-    return (
-      <LayoutWrapper showNavbar={!embed} showFooter={false} sidePanel={null} bottomBar={null} embed={embed}>
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="max-w-2xl mx-auto text-center">
-            <p className="text-gray-600 mb-4">Pertanyaan belum tersedia untuk submodul ini.</p>
-            <Button onClick={() => navigate(-1)} variant="primary">
-              Kembali
-            </Button>
-          </div>
-        </div>
-      </LayoutWrapper>
-    );
-  }
-
+  // Main quiz interface
   return (
-    <LayoutWrapper showNavbar={!embed} showFooter={false} sidePanel={null} bottomBar={null} embed={embed}>
+    <LayoutWrapper 
+      showNavbar={!embed} 
+      showFooter={false} 
+      sidePanel={null} 
+      bottomBar={null} 
+      embed={embed}
+    >
       <div className="min-h-screen py-14 px-4">
         <div className="max-w-4xl mx-auto space-y-5 mt-10 sm:mt-12">
-          {/* Top bar */}
+          {/* Top bar with progress */}
           <div className="rounded-2xl bg-gradient-to-r from-[#0f5eff] to-[#0a4ed6] text-white shadow-lg p-6 sm:p-7">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
@@ -271,6 +562,8 @@ const QuizPage = () => {
                 />
               </div>
             </div>
+            
+            {/* Progress bar */}
             <div className="mt-4 h-2 w-full bg-white/25 rounded-full overflow-hidden">
               <div
                 className="h-full bg-white rounded-full transition-all duration-300"
@@ -279,7 +572,7 @@ const QuizPage = () => {
             </div>
           </div>
 
-          {/* Card soal */}
+          {/* Question card */}
           <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
             <QuizCard
               question={currentQuestion}
@@ -290,22 +583,23 @@ const QuizPage = () => {
               locked={!!lockedAnswers[currentQuestionIndex]}
             />
 
-            <div className="mt-6 flex justify-end">
+            {/* Navigation buttons */}
+            <div className="mt-6 flex justify-end gap-3">
               {isLastQuestion ? (
                 <Button
                   onClick={handleSubmitQuiz}
                   variant="primary"
                   disabled={isSubmitting}
-                  className="bg-[#0f5eff] hover:bg-[#0d52db] px-4 py-2 text-sm"
+                  className="bg-[#0f5eff] hover:bg-[#0d52db] px-6 py-2 text-sm font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isSubmitting ? "Mengirim..." : "✓ Selesai & Kirim"}
+                  {isSubmitting ? "⏳ Mengirim..." : "✓ Selesai & Kirim"}
                 </Button>
               ) : (
                 <Button
                   onClick={handleNextClick}
                   variant="primary"
                   disabled={false}
-                  className="bg-[#0f5eff] hover:bg-[#0d52db] px-4 py-2 text-sm"
+                  className="bg-[#0f5eff] hover:bg-[#0d52db] px-6 py-2 text-sm font-medium cursor-pointer"
                 >
                   Lanjut →
                 </Button>
@@ -313,10 +607,11 @@ const QuizPage = () => {
             </div>
           </div>
 
+          {/* Submit error alert */}
           {submitError && (
             <Alert
               type="error"
-              title="Error"
+              title="Gagal Mengirim"
               message={submitError}
               dismissible
               onClose={() => setSubmitError(null)}

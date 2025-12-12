@@ -11,7 +11,16 @@ import Button from "../components/common/Button";
 import Card from "../components/common/Card";
 import Loading from "../components/common/Loading";
 import { UserContext } from "../context/UserContext";
-import { buildSidebarItems, buildChain } from "../utils/navigationChain";
+import { 
+  buildSidebarItems, 
+  buildChain, 
+  isQuizCompleted,
+  getPrevDestination 
+} from "../utils/navigationChain";
+import { ROUTES } from "../constants/routes";
+
+const fillRoute = (pattern, params) =>
+  Object.entries(params).reduce((p, [k, v]) => p.replace(`:${k}`, v), pattern);
 
 const LearningPage = () => {
   const { id } = useParams();
@@ -49,25 +58,79 @@ const LearningPage = () => {
     currentTutorial?.title ||
     "";
 
+  /**
+   * BACK Navigation
+   * - Submodul 1: Kembali ke Home
+   * - Submodul N: Kembali ke Quiz Result Submodul N-1
+   */
   const goBackChain = () => {
-    if (chain.idx <= 0) {
-      navigate("/home");
+    if (!currentTutorial) {
+      navigate(ROUTES.HOME);
       return;
     }
-    const prev = tutorials[chain.idx - 1];
-    navigate(`/quiz-results/${prev.id}`);
+
+    const prevDest = getPrevDestination(tutorials, currentTutorial.id);
+    
+    if (prevDest.type === 'home') {
+      navigate(ROUTES.HOME);
+    } else if (prevDest.type === 'quiz-result') {
+      navigate(fillRoute(ROUTES.QUIZ_RESULTS, { tutorialId: prevDest.id }));
+    } else {
+      navigate(ROUTES.HOME);
+    }
   };
 
+  /**
+   * NEXT Navigation (REVISED - NO MARK COMPLETED)
+   * - User cukup baca materi, tidak perlu mark completed
+   * - Cek apakah quiz sudah dikerjakan
+   * - Jika sudah: Langsung ke Quiz Result
+   * - Jika belum: Ke Quiz Intro
+   */
   const goNextChain = () => {
     if (!currentTutorial) return;
-    navigate(`/quiz-intro/${currentTutorial.id}`);
+
+    console.log('→ Navigating to quiz for tutorial:', currentTutorial.id);
+
+    // Cek apakah quiz sudah dikerjakan
+    const quizCompleted = isQuizCompleted(currentTutorial.id);
+    
+    console.log('🔍 Quiz completion status:', quizCompleted);
+
+    if (quizCompleted) {
+      // Langsung ke results
+      console.log('✅ Quiz already completed, redirecting to results');
+      navigate(fillRoute(ROUTES.QUIZ_RESULTS, { tutorialId: currentTutorial.id }));
+    } else {
+      // Ke quiz intro
+      console.log('📝 Quiz not completed, redirecting to intro');
+      navigate(fillRoute(ROUTES.QUIZ_INTRO_SHELL, { tutorialId: currentTutorial.id }));
+    }
   };
 
   const handleSelectSidebar = (item) => {
-    if (item.type === "tutorial") navigate(`/learning/${item.id}`);
-    else if (item.type === "quiz-sub") navigate(`/quiz-intro/${item.id}`);
-    else if (item.type === "quiz-final") navigate("/quiz-final-intro");
-    else if (item.type === "dashboard") navigate("/dashboard-modul");
+    // Cek apakah item terkunci
+    if (item.locked) {
+      console.warn('🔒 Item locked:', item.label);
+      return;
+    }
+
+    if (item.type === "tutorial") {
+      navigate(fillRoute(ROUTES.LEARNING, { id: item.id }));
+    } else if (item.type === "quiz-sub") {
+      // Cek apakah quiz sudah dikerjakan
+      if (item.completed) {
+        // Langsung ke results
+        navigate(fillRoute(ROUTES.QUIZ_RESULTS, { tutorialId: item.id }));
+      } else {
+        // Ke quiz intro
+        navigate(fillRoute(ROUTES.QUIZ_INTRO_SHELL, { tutorialId: item.id }));
+      }
+    } else if (item.type === "quiz-final") {
+      navigate(ROUTES.QUIZ_FINAL_INTRO);
+    } else if (item.type === "dashboard") {
+      navigate(ROUTES.DASHBOARD_MODUL);
+    }
   };
 
   if (loading) {
@@ -84,11 +147,7 @@ const LearningPage = () => {
         <div className="flex items-center justify-center min-h-screen">
           <div className="max-w-md text-center">
             <Alert type="error" title="Terjadi Kesalahan" message={error} />
-            <Button
-              onClick={() => navigate("/home")}
-              variant="primary"
-              className="mt-4 cursor-pointer"
-            >
+            <Button onClick={() => navigate(ROUTES.HOME)} variant="primary" className="mt-4 cursor-pointer">
               Kembali ke Beranda
             </Button>
           </div>
@@ -107,11 +166,7 @@ const LearningPage = () => {
               title="Materi belum tersedia"
               message="Silakan kembali ke beranda atau pilih submodul lain."
             />
-            <Button
-              onClick={() => navigate("/home")}
-              variant="primary"
-              className="mt-4 cursor-pointer"
-            >
+            <Button onClick={() => navigate(ROUTES.HOME)} variant="primary" className="mt-4 cursor-pointer">
               Kembali ke Beranda
             </Button>
           </div>
@@ -149,7 +204,7 @@ const LearningPage = () => {
         !embed ? (
           <BottomBarTwoActions
             leftLabel="← Kembali"
-            rightLabel="Lanjut →"
+            rightLabel="Lanjut ke Quiz →"
             onLeft={goBackChain}
             onRight={goNextChain}
           />

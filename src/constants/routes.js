@@ -9,8 +9,13 @@ export const ROUTES = {
 
   // Quiz (submodul)
   QUIZ_INTRO: "/quiz-intro/:tutorialId",
-  QUIZ: "/quiz/:tutorialId",
-  QUIZ_RESULTS: "/quiz-results/:tutorialId",
+  QUIZ_INTRO_SHELL: "/quiz-intro-shell/:tutorialId",
+  QUIZ: "/quiz/:tutorialId", // shell player
+  QUIZ_RESULTS: "/quiz-results/:tutorialId", // shell results
+
+  // Player targets (iframe)
+  QUIZ_PLAYER: "/quiz-player/:tutorialId",
+  QUIZ_RESULTS_PLAYER: "/quiz-results-player/:tutorialId",
 
   // Quiz Final
   QUIZ_FINAL_INTRO: "/quiz-final-intro",
