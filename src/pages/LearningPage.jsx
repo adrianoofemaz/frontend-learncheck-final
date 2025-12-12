@@ -1,8 +1,3 @@
-/**
- * LearningPage
- * - Navbar global, Sidebar, Bottom bar (Back/Next chain)
- * - Embed: ?embed=1 akan hide navbar/footer/sidebar/bottombar
- */
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import LayoutWrapper from "../components/Layout/LayoutWrapper";
@@ -22,9 +17,10 @@ const LearningPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const embed = searchParams.get("embed") === "1";
+  const embed = searchParams.get("embed") === "1"; // Determine if we need to embed (hide elements)
 
-  const { currentTutorial, loading, error, selectTutorial, tutorials } = useLearning();
+  const { currentTutorial, loading, error, selectTutorial, tutorials } =
+    useLearning();
   const { getTutorialProgress } = useProgress();
   const { preferences } = useContext(UserContext);
 
@@ -35,7 +31,9 @@ const LearningPage = () => {
     if (id) {
       const parsed = parseInt(id, 10);
       if (!isNaN(parsed)) {
-        selectTutorial(parsed).catch((err) => console.error("Error selecting tutorial:", err));
+        selectTutorial(parsed).catch((err) =>
+          console.error("Error selecting tutorial:", err)
+        );
       }
     }
   }, [id, selectTutorial]);
@@ -47,7 +45,9 @@ const LearningPage = () => {
 
   const chain = buildChain(tutorials, currentTutorial?.id);
   const currentTitle =
-    tutorials.find((t) => t.id === currentTutorial?.id)?.title || currentTutorial?.title || "";
+    tutorials.find((t) => t.id === currentTutorial?.id)?.title ||
+    currentTutorial?.title ||
+    "";
 
   const goBackChain = () => {
     if (chain.idx <= 0) {
@@ -72,7 +72,7 @@ const LearningPage = () => {
 
   if (loading) {
     return (
-      <LayoutWrapper fullHeight embed={embed}>
+      <LayoutWrapper fullHeight embed={embed} showFooter={false}>
         <Loading fullScreen text="Memuat materi..." />
       </LayoutWrapper>
     );
@@ -80,11 +80,15 @@ const LearningPage = () => {
 
   if (error) {
     return (
-      <LayoutWrapper fullHeight embed={embed}>
+      <LayoutWrapper fullHeight embed={embed} showFooter={false}>
         <div className="flex items-center justify-center min-h-screen">
           <div className="max-w-md text-center">
             <Alert type="error" title="Terjadi Kesalahan" message={error} />
-            <Button onClick={() => navigate("/home")} variant="primary" className="mt-4 cursor-pointer">
+            <Button
+              onClick={() => navigate("/home")}
+              variant="primary"
+              className="mt-4 cursor-pointer"
+            >
               Kembali ke Beranda
             </Button>
           </div>
@@ -95,7 +99,7 @@ const LearningPage = () => {
 
   if (!currentTutorial) {
     return (
-      <LayoutWrapper fullHeight embed={embed}>
+      <LayoutWrapper fullHeight embed={embed} showFooter={false}>
         <div className="flex items-center justify-center min-h-screen">
           <div className="max-w-md text-center">
             <Alert
@@ -103,7 +107,11 @@ const LearningPage = () => {
               title="Materi belum tersedia"
               message="Silakan kembali ke beranda atau pilih submodul lain."
             />
-            <Button onClick={() => navigate("/home")} variant="primary" className="mt-4 cursor-pointer">
+            <Button
+              onClick={() => navigate("/home")}
+              variant="primary"
+              className="mt-4 cursor-pointer"
+            >
               Kembali ke Beranda
             </Button>
           </div>
@@ -113,12 +121,18 @@ const LearningPage = () => {
   }
 
   const isDark = preferences?.theme === "dark";
+  const LAYOUT_WIDTH_MAP = { fluid: "max-w-screen-xl", boxed: "max-w-4xl" };
+  const layoutWidthClass =
+    LAYOUT_WIDTH_MAP[preferences.layout_width] || "max-w-full";
 
   return (
     <LayoutWrapper
       fullHeight
       embed={embed}
-      contentClassName={`pt-25 pb-25 ${sidebarOpen ? "pr-80" : ""} transition-all duration-300`}
+      showFooter={false} // Make sure footer is never shown
+      contentClassName={`pt-25 pb-24 ${
+        sidebarOpen ? "pr-80" : ""
+      } transition-all duration-300`}
       sidePanel={
         !embed ? (
           <ModuleSidebar
@@ -142,32 +156,50 @@ const LearningPage = () => {
         ) : null
       }
     >
-      <div className="max-w-4xl mx-auto px-8">
+      <div
+        className={`max-w-4xl mx-auto px-8 transition-all duration-500 ${layoutWidthClass}`}
+      >
         <Card
           className={`mb-8 rounded-md ${
-            isDark ? "bg-[#111b2a] border-[#1f2a3a]" : "bg-white border-gray-200"
+            isDark
+              ? "bg-[#111b2a] border-[#1f2a3a]"
+              : "bg-white border-gray-200"
           }`}
           shadow="md"
           padding="lg"
           bordered
         >
           <div className="mb-6">
-            <h1 className="text-4xl font-extrabold text-blue-600 mb-2">Belajar Dasar AI</h1>
-            <h2 className={`text-2xl font-medium mb-4 ${isDark ? "text-gray-100" : "text-gray-900"}`}>
+            <h1 className="text-4xl font-extrabold text-blue-600 mb-2">
+              Belajar Dasar AI
+            </h1>
+            <h2
+              className={`text-2xl font-medium mb-4 ${
+                isDark ? "text-gray-100" : "text-gray-900"
+              }`}
+            >
               {currentTitle}
             </h2>
           </div>
 
           <div className="mb-6">
             <div className="flex items-center justify-between mb-2">
-              <span className={`text-sm font-medium ${isDark ? "text-gray-300" : "text-gray-700"}`}>
+              <span
+                className={`text-sm font-medium ${
+                  isDark ? "text-gray-300" : "text-gray-700"
+                }`}
+              >
                 Submodul {chain.idx + 1}/{chain.total}
               </span>
               <span className="text-sm font-semibold text-green-500">
                 {Math.round(((chain.idx + 1) / chain.total) * 100)}%
               </span>
             </div>
-            <div className={`w-full h-2 rounded-full overflow-hidden ${isDark ? "bg-[#243349]" : "bg-gray-200"}`}>
+            <div
+              className={`w-full h-2 rounded-full overflow-hidden ${
+                isDark ? "bg-[#243349]" : "bg-gray-200"
+              }`}
+            >
               <div
                 className="h-full bg-green-500 transition-all duration-300"
                 style={{ width: `${((chain.idx + 1) / chain.total) * 100}%` }}
@@ -176,11 +208,19 @@ const LearningPage = () => {
           </div>
         </Card>
 
-        <p className={`text-sm mb-6 ${isDark ? "text-gray-400" : "text-gray-500"}`}>
+        <p
+          className={`text-sm mb-6 ${
+            isDark ? "text-gray-400" : "text-gray-500"
+          }`}
+        >
           Belajar / Modul / {currentTitle}
         </p>
 
-        <MaterialContent title={currentTitle} content={currentTutorial?.data?.content} loading={loading} />
+        <MaterialContent
+          title={currentTitle}
+          content={currentTutorial?.data?.content}
+          loading={loading}
+        />
       </div>
     </LayoutWrapper>
   );

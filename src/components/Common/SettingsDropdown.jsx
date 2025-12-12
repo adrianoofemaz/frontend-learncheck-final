@@ -13,7 +13,7 @@ const SettingsDropdown = () => {
   ];
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 h-auto w-full max-w-xs overflow-hidden p-4 rounded-lg">
       {/* FONT STYLE */}
       <div>
         <p className="text-sm font-semibold mb-1">Jenis Font</p>
