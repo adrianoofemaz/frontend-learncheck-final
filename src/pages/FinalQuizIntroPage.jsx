@@ -6,8 +6,7 @@ import BottomBarTwoActions from "../components/Layout/BottomBarTwoActions";
 import { useLearning } from "../hooks/useLearning";
 import { useProgress } from "../context/ProgressContext";
 import { buildSidebarItems } from "../utils/navigationChain";
-import Card from "../components/common/Card";
-import Button from "../components/common/Button";
+import { Button, Card } from "../components/common";
 
 const FinalQuizIntroPage = () => {
   const [searchParams] = useSearchParams();
@@ -46,7 +45,9 @@ const FinalQuizIntroPage = () => {
   return (
     <LayoutWrapper
       embed={embed}
-      contentClassName={`pt-20 pb-24 ${sidebarOpen ? "pr-80" : ""} transition-all duration-300`}
+      contentClassName={`pt-20 pb-24 ${
+        sidebarOpen ? "pr-80" : ""
+      } transition-all duration-300`}
       sidePanel={
         !embed ? (
           <ModuleSidebar
@@ -73,7 +74,8 @@ const FinalQuizIntroPage = () => {
         <Card>
           <h1 className="text-3xl font-bold mb-4">Quiz Akhir Modul</h1>
           <p className="text-gray-700 mb-6">
-            10 soal, waktu total 10 menit. Navigasi bebas, feedback muncul setelah submit.
+            10 soal, waktu total 10 menit. Navigasi bebas, feedback muncul
+            setelah submit.
           </p>
           <Button onClick={goNextChain}>Mulai Quiz Final</Button>
         </Card>

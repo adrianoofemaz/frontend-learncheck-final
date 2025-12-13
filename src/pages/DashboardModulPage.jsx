@@ -28,7 +28,9 @@ const DashboardModulPage = ({ data }) => {
   return (
     <LayoutWrapper
       embed={embed}
-      contentClassName={`pt-20 pb-24 ${sidebarOpen ? "pr-80" : ""} transition-all duration-300`}
+      contentClassName={`pt-20 pb-24 ${
+        sidebarOpen ? "pr-80" : ""
+      } transition-all duration-300`}
       sidePanel={
         !embed ? (
           <ModuleSidebar
@@ -36,8 +38,10 @@ const DashboardModulPage = ({ data }) => {
             currentId={null}
             onSelect={(item) => {
               if (item.type === "tutorial") navigate(`/learning/${item.id}`);
-              else if (item.type === "quiz-sub") navigate(`/quiz-intro/${item.id}`);
-              else if (item.type === "quiz-final") navigate("/quiz-final-intro");
+              else if (item.type === "quiz-sub")
+                navigate(`/quiz-intro/${item.id}`);
+              else if (item.type === "quiz-final")
+                navigate("/quiz-final-intro");
               else if (item.type === "dashboard") navigate("/dashboard-modul");
             }}
             isOpen={sidebarOpen}
@@ -59,8 +63,12 @@ const DashboardModulPage = ({ data }) => {
       <div className="max-w-6xl mx-auto py-10 space-y-6 px-4">
         <h1 className="text-3xl font-bold">Dashboard Analytic</h1>
         <Card>
-          <p className="text-sm text-gray-600">Nilai akhir: {data?.score ?? "-"}</p>
-          <p className="text-sm text-gray-600">Status kelulusan: {data?.status ?? "-"}</p>
+          <p className="text-sm text-gray-600">
+            Nilai akhir: {data?.score ?? "-"}
+          </p>
+          <p className="text-sm text-gray-600">
+            Status kelulusan: {data?.status ?? "-"}
+          </p>
           {/* Tambahkan grafik/heatmap/PDF ketika endpoint siap */}
         </Card>
       </div>
