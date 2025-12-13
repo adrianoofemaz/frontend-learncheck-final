@@ -4,8 +4,8 @@ import { useAuth } from "../../hooks/useAuth";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/solid";
 import Button from "../common/Button";
 import { UserContext } from "../../context/UserContext";
-import ThemeToggle from "../Common/ThemeToggle";
-import SettingsDropdown from "../Common/SettingsDropdown";
+import ThemeToggle from "../common/ThemeToggle";
+import SettingsDropdown from "../common/SettingsDropdown";
 
 const Navbar = () => {
   const navigate = useNavigate();
