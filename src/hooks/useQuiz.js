@@ -66,7 +66,9 @@ export const useQuiz = () => {
     try {
       console.log('Submitting answers:', { tutorialId, assessmentId: assmtId, answers });
       const response = await quizService.submitAnswers(tutorialId, assmtId, answers);
-      console.log('Submit response:', response);
+      console.log('ASUUUUU Submit response:', response);
+      //
+      
       return response;
     } catch (err) {
       console.error('Error submitting answers:', err);

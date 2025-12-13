@@ -1,39 +1,73 @@
-import React, { useMemo, useState } from "react";
+/**
+ * QuizFinalIntroPage (player)
+ * Desain disamakan dengan QuizIntroPage (submodul) tetapi untuk Quiz Akhir Modul:
+ * - 10 soal
+ * - Durasi 10 menit
+ */
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import Button from "../components/common/Button";
+import Loading from "../components/common/Loading";
+import { Alert } from "../components/common";
 import LayoutWrapper from "../components/Layout/LayoutWrapper";
 import ModuleSidebar from "../components/Layout/ModuleSidebar";
 import BottomBarTwoActions from "../components/Layout/BottomBarTwoActions";
 import { useLearning } from "../hooks/useLearning";
 import { useProgress } from "../context/ProgressContext";
-import { buildSidebarItems } from "../utils/navigationChain";
-import Card from "../components/common/Card";
-import Button from "../components/common/Button";
+import { buildSidebarItems, buildChain } from "../utils/navigationChain";
 
-const FinalQuizIntroPage = () => {
+const QuizFinalIntroPage = () => {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const embed = searchParams.get("embed") === "1";
-  const navigate = useNavigate();
-  const { tutorials } = useLearning();
+
+  const {
+    tutorials,
+    currentTutorial,
+    selectTutorial,
+    fetchTutorials,
+    loading: learningLoading,
+  } = useLearning();
   const { getTutorialProgress } = useProgress();
+
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [tutorialsFetched, setTutorialsFetched] = useState(false);
+  const selectedRef = useRef(null);
+
+  const loading = learningLoading;
+  const totalQuestions = 10;
+  const totalDuration = "10 menit";
 
   const sidebarItems = useMemo(
     () => buildSidebarItems(tutorials, getTutorialProgress),
     [tutorials, getTutorialProgress]
   );
+  const chain = useMemo(
+    () => buildChain(tutorials, currentTutorial?.id),
+    [tutorials, currentTutorial?.id]
+  );
 
-  const goBackChain = () => {
-    // kembali ke submodul terakhir (quiz result terakhir)
-    if (tutorials.length === 0) {
-      navigate("/home");
-      return;
+  // Fetch daftar tutorial sekali (untuk sidebar)
+  useEffect(() => {
+    if (!tutorialsFetched) {
+      fetchTutorials(1).finally(() => setTutorialsFetched(true));
     }
-    const last = tutorials[tutorials.length - 1];
-    navigate(`/quiz-results/${last.id}`);
-  };
+  }, [tutorialsFetched, fetchTutorials]);
 
-  const goNextChain = () => {
-    navigate("/quiz-final"); // mulai iframe quiz final
+  // Pilih tutorial aktif kalau ada (supaya sidebar highlight, tidak wajib untuk final quiz)
+  useEffect(() => {
+    if (tutorials.length === 0) return;
+    const firstId = tutorials[0]?.id;
+    if (!firstId) return;
+    if (selectedRef.current === firstId) return;
+    selectedRef.current = firstId;
+    selectTutorial(firstId).catch((err) =>
+      console.error("Error selecting tutorial:", err)
+    );
+  }, [tutorials, selectTutorial]);
+
+  const handleStartQuiz = () => {
+    navigate("/quiz-final?embed=0");
   };
 
   const handleSelectSidebar = (item) => {
@@ -43,17 +77,33 @@ const FinalQuizIntroPage = () => {
     else if (item.type === "dashboard") navigate("/dashboard-modul");
   };
 
+  if (loading) {
+    return (
+      <LayoutWrapper
+        showNavbar={!embed}
+        showFooter={false}
+        embed={embed}
+        fullHeight
+      >
+        <Loading fullScreen text="Mempersiapkan kuis akhir..." />
+      </LayoutWrapper>
+    );
+  }
+
   return (
     <LayoutWrapper
+      showNavbar={!embed}
+      showFooter={false}
       embed={embed}
-      contentClassName={`pt-20 pb-24 ${
-        sidebarOpen ? "pr-80" : ""
+      contentClassName={`pt-28 pb-25 ${
+        !embed && sidebarOpen ? "pr-80" : ""
       } transition-all duration-300`}
       sidePanel={
         !embed ? (
           <ModuleSidebar
             items={sidebarItems}
-            currentId={null}
+            currentId={currentTutorial?.id}
+            currentType="quiz-final"
             onSelect={handleSelectSidebar}
             isOpen={sidebarOpen}
             onToggle={() => setSidebarOpen((p) => !p)}
@@ -63,26 +113,87 @@ const FinalQuizIntroPage = () => {
       bottomBar={
         !embed ? (
           <BottomBarTwoActions
-            leftLabel="← Kembali"
-            rightLabel="Mulai Quiz Final →"
-            onLeft={goBackChain}
-            onRight={goNextChain}
+            leftLabel="← Dashboard"
+            rightLabel="Mulai Kuis →"
+            onLeft={() => navigate("/dashboard-modul")}
+            onRight={handleStartQuiz}
           />
         ) : null
       }
     >
-      <div className="max-w-3xl mx-auto px-4 py-12">
-        <Card>
-          <h1 className="text-3xl font-bold mb-4">Quiz Akhir Modul</h1>
-          <p className="text-gray-700 mb-6">
-            10 soal, waktu total 10 menit. Navigasi bebas, feedback muncul
-            setelah submit.
-          </p>
-          <Button onClick={goNextChain}>Mulai Quiz Final</Button>
-        </Card>
+      <div className="w-full flex justify-center px-4">
+        <div className="w-full max-w-4xl">
+          <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <div className="h-12 bg-gradient-to-r from-[#1e7bff] to-[#0f5eff]" />
+            <div className="py-6 px-6">
+              <div className="flex justify-center mb-4">
+                <span className="px-4 py-2 bg-blue-50 text-blue-700 text-sm font-semibold rounded-full shadow">
+                  Quiz Akhir Modul
+                </span>
+              </div>
+              <h1 className="text-3xl font-extrabold text-center text-gray-900 mb-2">
+                LearnCheck Final!
+              </h1>
+              <p className="text-center text-gray-600 italic mb-6">
+                “Let’s have some fun and test your understanding!”
+              </p>
+
+              <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 mb-6">
+                <h2 className="text-xl font-semibold text-center text-gray-900 mb-4">
+                  Evaluasi Akhir Modul
+                </h2>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+                  <div className="flex items-center gap-3">
+                    <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-50 text-blue-600 text-lg font-semibold">
+                      ≡
+                    </span>
+                    <div>
+                      <p className="text-sm text-gray-600">Jumlah Soal</p>
+                      <p className="text-lg font-bold text-gray-900">
+                        {totalQuestions} Soal
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-50 text-blue-600 text-lg font-semibold">
+                      ⏱
+                    </span>
+                    <div>
+                      <p className="text-sm text-gray-600">Durasi</p>
+                      <p className="text-lg font-bold text-gray-900">
+                        {totalDuration}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-center">
+                <Button
+                  onClick={handleStartQuiz}
+                  variant="primary"
+                  className="px-10 py-3 text-base cursor-pointer"
+                >
+                  Mulai Kuis
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Jika ingin alert fallback ketika data modul tidak ada */}
+          {!currentTutorial && (
+            <div className="mt-6">
+              <Alert
+                type="info"
+                title="Info"
+                message="Tidak ada submodul aktif. Sidebar tetap dapat digunakan untuk navigasi modul."
+              />
+            </div>
+          )}
+        </div>
       </div>
     </LayoutWrapper>
   );
 };
 
-export default FinalQuizIntroPage;
+export default QuizFinalIntroPage;

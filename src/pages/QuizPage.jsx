@@ -13,6 +13,49 @@ import {
   DEFAULT_MOCK_FEEDBACK,
 } from "../constants/mockQuestions";
 
+/* -------------------------------------------------------------------------- */
+/* Helpers: simpan hasil quiz submodul ke localStorage                        */
+/* -------------------------------------------------------------------------- */
+const SUBMODULE_RESULT_KEY = "submodule-results";
+
+const loadSubmoduleResults = () => {
+  try {
+    const raw = localStorage.getItem(SUBMODULE_RESULT_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+};
+
+const saveSubmoduleResult = (
+  tutorialId,
+  name,
+  score,
+  correct,
+  total,
+  durationSec
+) => {
+  const existing = loadSubmoduleResults();
+  const idx = existing.findIndex((e) => String(e.id) === String(tutorialId));
+  const attempts = idx >= 0 ? (existing[idx].attempts || 0) + 1 : 1;
+  const entry = {
+    id: tutorialId,
+    name: name || `Submodul ${tutorialId}`,
+    score,
+    correct,
+    total,
+    durationSec,
+    attempts,
+  };
+  if (idx >= 0) {
+    existing[idx] = entry;
+  } else {
+    existing.push(entry);
+  }
+  localStorage.setItem(SUBMODULE_RESULT_KEY, JSON.stringify(existing));
+};
+/* -------------------------------------------------------------------------- */
+
 const QuizPage = () => {
   const navigate = useNavigate();
   const { tutorialId } = useParams();
@@ -50,7 +93,18 @@ const QuizPage = () => {
   const fetchedRef = useRef(false);
   const timeUpHandledRef = useRef(null);
 
-  // Load saved progress
+  const goToResults = useCallback(
+    (result) => {
+      const url = `/quiz-results-player/${tutorialId}?embed=0`;
+      if (embed && window.top) {
+        window.top.location.href = url;
+      } else {
+        navigate(url, { state: { result } });
+      }
+    },
+    [embed, navigate, tutorialId]
+  );
+
   useEffect(() => {
     if (!storageKey) return;
     const saved = localStorage.getItem(storageKey);
@@ -59,14 +113,12 @@ const QuizPage = () => {
       const parsed = JSON.parse(saved);
       if (parsed?.tutorialId === tutorialId) {
         if (parsed.completed && parsed.result) {
-          navigate(`/quiz-results-player/${tutorialId}?embed=1`, {
-            state: { result: parsed.result },
-          });
+          goToResults(parsed.result);
           return;
         }
         if (parsed.answers) {
           Object.entries(parsed.answers).forEach(([qIdx, ans]) => {
-            recordAnswer(parseInt(qIdx), ans);
+            recordAnswer(parseInt(qIdx, 10), ans);
           });
         }
         if (parsed.lockedAnswers) setLockedAnswers(parsed.lockedAnswers);
@@ -77,9 +129,14 @@ const QuizPage = () => {
     } catch (e) {
       console.warn("Failed to parse saved quiz progress", e);
     }
-  }, [storageKey, tutorialId, navigate, recordAnswer, setCurrentQuestionIndex]);
+  }, [
+    storageKey,
+    tutorialId,
+    recordAnswer,
+    setCurrentQuestionIndex,
+    goToResults,
+  ]);
 
-  // Fetch questions – single call, with guard
   useEffect(() => {
     if (!tutorialId) {
       setSubmitError("Tutorial ID tidak ditemukan");
@@ -108,7 +165,6 @@ const QuizPage = () => {
     })();
   }, [tutorialId, fetchQuestions, initializeQuiz, setMockQuestions]);
 
-  // Persist progress
   useEffect(() => {
     if (!storageKey || !tutorialId) return;
     const payload = {
@@ -129,7 +185,6 @@ const QuizPage = () => {
     lockedAnswers,
   ]);
 
-  // reset guard tiap pindah soal
   useEffect(() => {
     timeUpHandledRef.current = null;
   }, [currentQuestionIndex]);
@@ -169,6 +224,16 @@ const QuizPage = () => {
       feedback: DEFAULT_MOCK_FEEDBACK,
     };
 
+    // Simpan ringkasan submodul ke localStorage
+    saveSubmoduleResult(
+      tutorialId,
+      result?.tutorial_key || `Submodul ${tutorialId}`,
+      result.score,
+      correctCount,
+      questions.length,
+      durationSec
+    );
+
     if (storageKey) {
       const saved = {
         tutorialId,
@@ -182,7 +247,6 @@ const QuizPage = () => {
       localStorage.setItem(storageKey, JSON.stringify(saved));
       localStorage.setItem(`quiz-result-${tutorialId}`, JSON.stringify(result));
     }
-
     try {
       window.parent.postMessage(
         { type: "quiz-submitted", tutorialId, result },
@@ -192,18 +256,16 @@ const QuizPage = () => {
       console.warn("postMessage failed", e);
     }
 
-    navigate(`/quiz-results-player/${tutorialId}?embed=1`, {
-      state: { result },
-    });
+    goToResults(result);
   }, [
     answers,
     currentQuestionIndex,
     lockedAnswers,
-    navigate,
     questions,
     startTime,
     storageKey,
     tutorialId,
+    goToResults,
   ]);
 
   const handleSubmitQuiz = useCallback(async () => {
@@ -229,9 +291,19 @@ const QuizPage = () => {
       });
 
       const result = await submitAnswers(
-        parseInt(tutorialId),
+        parseInt(tutorialId, 10),
         assessmentId,
         answersData
+      );
+
+      // Simpan ringkasan submodul ke localStorage
+      saveSubmoduleResult(
+        tutorialId,
+        result?.tutorial_key || `Submodul ${tutorialId}`,
+        result?.score ?? 0,
+        result?.benar ?? 0,
+        result?.total ?? questions.length,
+        result?.duration ?? 0
       );
 
       if (storageKey) {
@@ -255,10 +327,7 @@ const QuizPage = () => {
       } catch (e) {
         console.warn("postMessage failed", e);
       }
-
-      navigate(`/quiz-results-player/${tutorialId}?embed=1`, {
-        state: { result },
-      });
+      goToResults(result);
     } catch (err) {
       const friendly =
         err?.raw?.details || err?.message || "Gagal mengirim jawaban";
@@ -269,7 +338,6 @@ const QuizPage = () => {
   }, [
     answers,
     assessmentId,
-    navigate,
     questions,
     submitAnswers,
     tutorialId,
@@ -279,6 +347,7 @@ const QuizPage = () => {
     isSubmitting,
     isMock,
     handleSubmitMock,
+    goToResults,
   ]);
 
   const handleTimeUp = useCallback(() => {
@@ -412,7 +481,6 @@ const QuizPage = () => {
             />
           )}
 
-          {/* Top bar */}
           <div className="rounded-2xl bg-gradient-to-r from-[#0f5eff] to-[#0a4ed6] text-white shadow-lg p-6 sm:p-7">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
@@ -442,8 +510,7 @@ const QuizPage = () => {
             </div>
           </div>
 
-          {/* Card soal */}
-          <div className="bg-white rounded-2xl shadow-lg p-6 sm:8">
+          <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
             <QuizCard
               question={currentQuestion}
               selectedAnswer={currentAnswer}
@@ -451,6 +518,7 @@ const QuizPage = () => {
               questionNumber={currentQuestionIndex + 1}
               totalQuestions={questions.length}
               locked={!!lockedAnswers[currentQuestionIndex]}
+              showFeedback={true} // submodul: tampilkan feedback
             />
 
             <div className="mt-6 flex justify-end">
