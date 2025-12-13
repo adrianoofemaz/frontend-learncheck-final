@@ -81,11 +81,8 @@ const ResultsPage = () => {
   };
 
   const goBackChain = () => {
-    let target = "/home";
-    if (chain.idx > 0) {
-      const prev = tutorials[chain.idx - 1];
-      target = `/learning/${prev.id}`;
-    }
+    // Kembali dulu ke learning submodul yang sama (hindari lompat ke submodul sebelumnya)
+    const target = `/learning/${currentId}`;
     if (isIframe) {
       postNavToParent(target);
     } else {
@@ -162,7 +159,15 @@ const ResultsPage = () => {
     >
       <div className="min-h-screen py-10 px-4">
         <div className="max-w-4xl mx-auto space-y-8">
-          <ResultCard score={score} correct={correct} total={total} duration={duration} isPass={isPass} onRetry={handleRetry} onReview={handleReview} />
+          <ResultCard
+            score={score}
+            correct={correct}
+            total={total}
+            duration={duration}
+            isPass={isPass}
+            onRetry={handleRetry}
+            onReview={handleReview}
+          />
 
           {(ringkasan || analisis || saran || rekomendasi) && (
             <div className="bg-red-50 border border-red-200 rounded-2xl p-5 shadow-sm">

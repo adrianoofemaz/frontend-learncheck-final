@@ -13,6 +13,15 @@ import Loading from "../components/common/Loading";
 import { UserContext } from "../context/UserContext";
 import { buildSidebarItems, buildChain } from "../utils/navigationChain";
 
+const quizDone = (tid) => {
+  if (typeof window === "undefined") return false;
+  try {
+    return !!localStorage.getItem(`quiz-result-${tid}`);
+  } catch {
+    return false;
+  }
+};
+
 const LearningPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -55,16 +64,9 @@ const LearningPage = () => {
 
   const goNextChain = () => {
     if (!currentTutorial) return;
-    navigate(`/quiz-intro/${currentTutorial.id}`);
-  };
-
-  const quizDone = (tid) => {
-    if (typeof window === "undefined") return false;
-    try {
-      return !!localStorage.getItem(`quiz-result-${tid}`);
-    } catch {
-      return false;
-    }
+    const tid = currentTutorial.id;
+    const target = quizDone(tid) ? `/quiz-results-player/${tid}` : `/quiz-intro/${tid}`;
+    navigate(target);
   };
 
   const handleSelectSidebar = (item) => {

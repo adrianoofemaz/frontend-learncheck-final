@@ -1,26 +1,18 @@
 /**
  * useLearning Hook
  * Handle tutorial/learning materials
- * ✅ FIXED: Tutorial list now matches backend exactly (order matters for navigation)
+ * Urutan submodul mengikuti MODULES_DATA (satu sumber)
  */
 import { useState, useCallback, useEffect } from 'react';
 import tutorialService from '../services/tutorialService';
+import { MODULES_DATA } from '../constants/modulesData';
+
+const BASE_SUBMODULES = MODULES_DATA[0]?.submodules ?? [];
 
 export const useLearning = () => {
   const [modules, setModules] = useState([]);
   // Urutan diselaraskan dengan backend (gating progress & navigasi)
-  const [tutorials] = useState([
-    { id: 35363, title: 'Penerapan AI dalam Dunia Nyata' },
-    { id: 35368, title: 'Pengenalan AI' },
-    { id: 35373, title: 'Taksonomi AI' },
-    { id: 35378, title: 'AI Workflow' },
-    { id: 35383, title: '[Story] Belajar Mempermudah Pekerjaan dengan AI' },
-    { id: 35398, title: 'Pengenalan Data' },
-    { id: 35403, title: 'Kriteria Data untuk AI' },
-    { id: 35408, title: '[Story] Apa yang Diperlukan untuk Membuat AI?' },
-    { id: 35428, title: 'Tipe-Tipe Machine Learning' },
-    { id: 35793, title: 'Infrastruktur Data di Industri' },
-  ]);
+  const [tutorials] = useState(BASE_SUBMODULES);
   const [currentTutorial, setCurrentTutorial] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);

@@ -7,21 +7,19 @@ import { API_ENDPOINTS } from "../constants/apiEndpoints";
 import { MODULES_DATA } from "../constants/modulesData";
 
 /**
+ * Satu sumber urutan submodul: MODULES_DATA
+ */
+const BASE_SUBMODULES = MODULES_DATA[0]?.submodules ?? [];
+
+/**
  * Mock singkat untuk fallback (jika backend 404/down).
  * Urutan diselaraskan dengan backend.
  */
-const MOCK_TUTORIALS = [
-  { id: 35363, title: "Penerapan AI dalam Dunia Nyata", content: "<p>Konten mock.</p>" },
-  { id: 35368, title: "Pengenalan AI", content: "<p>Konten mock.</p>" },
-  { id: 35373, title: "Taksonomi AI", content: "<p>Konten mock.</p>" },
-  { id: 35378, title: "AI Workflow", content: "<p>Konten mock.</p>" },
-  { id: 35383, title: "[Story] Belajar Mempermudah Pekerjaan dengan AI", content: "<p>Konten mock.</p>" },
-  { id: 35398, title: "Pengenalan Data", content: "<p>Konten mock.</p>" },
-  { id: 35403, title: "Kriteria Data untuk AI", content: "<p>Konten mock.</p>" },
-  { id: 35408, title: "[Story] Apa yang Diperlukan untuk Membuat AI?", content: "<p>Konten mock.</p>" },
-  { id: 35428, title: "Tipe-Tipe Machine Learning", content: "<p>Konten mock.</p>" },
-  { id: 35793, title: "Infrastruktur Data di Industri", content: "<p>Konten mock.</p>" },
-];
+const MOCK_TUTORIALS = BASE_SUBMODULES.map((t) => ({
+  id: t.id,
+  title: t.title,
+  content: "<p>Konten mock.</p>",
+}));
 
 const getMock = (id) => MOCK_TUTORIALS.find((t) => t.id === id) || null;
 
