@@ -24,9 +24,9 @@ export const MODULES_DATA = [
       { id: 35383, title: "[Story] Belajar Mempermudah Pekerjaan dengan AI" },
       { id: 35398, title: "Pengenalan Data" },
       { id: 35403, title: "Kriteria Data untuk AI" },
-      { id: 35793, title: "Infrastruktur Data di Industri" },
       { id: 35408, title: "[Story] Apa yang Diperlukan untuk Membuat AI?" },
       { id: 35428, title: "Tipe-Tipe Machine Learning" },
+      { id: 35793, title: "Infrastruktur Data di Industri" },
     ],
   },
 ];

@@ -6,10 +6,9 @@ import api from "./api";
 import { API_ENDPOINTS } from "../constants/apiEndpoints";
 import { MODULES_DATA } from "../constants/modulesData";
 
-
 /**
  * Mock singkat untuk fallback (jika backend 404/down).
- * Isi konten boleh Anda ganti dengan versi lengkap kalau perlu.
+ * Urutan diselaraskan dengan backend.
  */
 const MOCK_TUTORIALS = [
   { id: 35363, title: "Penerapan AI dalam Dunia Nyata", content: "<p>Konten mock.</p>" },
@@ -19,9 +18,9 @@ const MOCK_TUTORIALS = [
   { id: 35383, title: "[Story] Belajar Mempermudah Pekerjaan dengan AI", content: "<p>Konten mock.</p>" },
   { id: 35398, title: "Pengenalan Data", content: "<p>Konten mock.</p>" },
   { id: 35403, title: "Kriteria Data untuk AI", content: "<p>Konten mock.</p>" },
-  { id: 35793, title: "Infrastruktur Data di Industri", content: "<p>Konten mock.</p>" },
   { id: 35408, title: "[Story] Apa yang Diperlukan untuk Membuat AI?", content: "<p>Konten mock.</p>" },
   { id: 35428, title: "Tipe-Tipe Machine Learning", content: "<p>Konten mock.</p>" },
+  { id: 35793, title: "Infrastruktur Data di Industri", content: "<p>Konten mock.</p>" },
 ];
 
 const getMock = (id) => MOCK_TUTORIALS.find((t) => t.id === id) || null;
@@ -36,11 +35,10 @@ export const tutorialService = {
     try {
       const res = await api.get(API_ENDPOINTS.TUTORIAL_DETAIL(id));
 
-      // 🟢 Ambil konten dari envelope { tutorial: { data: {...} } }
       const envelope = res.data?.tutorial;
       const raw =
         envelope?.data ??
-        res.data?.data ?? // kalau backend taruh langsung di data
+        res.data?.data ??
         res.data ??
         null;
 
@@ -54,7 +52,7 @@ export const tutorialService = {
 
       const content =
         extracted !== undefined && extracted !== null
-          ? extracted // termasuk string kosong
+          ? extracted
           : typeof raw === "string"
           ? raw
           : Array.isArray(raw)
