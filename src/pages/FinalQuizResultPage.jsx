@@ -6,10 +6,17 @@ import BottomBarTwoActions from "../components/Layout/BottomBarTwoActions";
 import { useLearning } from "../hooks/useLearning";
 import { useProgress } from "../context/ProgressContext";
 import { buildSidebarItems } from "../utils/navigationChain";
-import ResultCard from "../components/Features/feedback/ResultCard";
-import AnswerReview from "../components/Features/feedback/AnswerReview";
+import ResultCard from "../components/features/feedback/ResultCard";
+import AnswerReview from "../components/features/feedback/AnswerReview";
 
-const FinalQuizResultPage = ({ score, correct, total, duration, answers, questions }) => {
+const FinalQuizResultPage = ({
+  score,
+  correct,
+  total,
+  duration,
+  answers,
+  questions,
+}) => {
   const [searchParams] = useSearchParams();
   const embed = searchParams.get("embed") === "1";
   const navigate = useNavigate();
@@ -41,7 +48,9 @@ const FinalQuizResultPage = ({ score, correct, total, duration, answers, questio
   return (
     <LayoutWrapper
       embed={embed}
-      contentClassName={`pt-20 pb-24 ${sidebarOpen ? "pr-80" : ""} transition-all duration-300`}
+      contentClassName={`pt-20 pb-24 ${
+        sidebarOpen ? "pr-80" : ""
+      } transition-all duration-300`}
       sidePanel={
         !embed ? (
           <ModuleSidebar
@@ -65,7 +74,12 @@ const FinalQuizResultPage = ({ score, correct, total, duration, answers, questio
       }
     >
       <div className="max-w-3xl mx-auto py-10 space-y-8">
-        <ResultCard score={score} correct={correct} total={total} duration={duration} />
+        <ResultCard
+          score={score}
+          correct={correct}
+          total={total}
+          duration={duration}
+        />
         <AnswerReview answers={answers} questions={questions} />
       </div>
     </LayoutWrapper>

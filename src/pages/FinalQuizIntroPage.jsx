@@ -6,7 +6,8 @@ import BottomBarTwoActions from "../components/Layout/BottomBarTwoActions";
 import { useLearning } from "../hooks/useLearning";
 import { useProgress } from "../context/ProgressContext";
 import { buildSidebarItems } from "../utils/navigationChain";
-import { Button, Card } from "../components/common";
+import Card from "../components/common/Card";
+import Button from "../components/common/Button";
 
 const FinalQuizIntroPage = () => {
   const [searchParams] = useSearchParams();
