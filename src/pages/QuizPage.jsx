@@ -5,10 +5,13 @@ import LayoutWrapper from "../components/Layout/LayoutWrapper";
 import { useQuizProgress } from "../hooks/useQuizProgress";
 import { useQuiz } from "../hooks/useQuiz";
 import { QuizCard, QuizTimer } from "../components/features/quiz";
-import { Alert } from "../components/common";
+import Alert from "../components/common/Alert";
 import Button from "../components/common/Button";
 import Loading from "../components/common/Loading";
-import { getMockQuestions, DEFAULT_MOCK_FEEDBACK } from "../constants/mockQuestions";
+import {
+  getMockQuestions,
+  DEFAULT_MOCK_FEEDBACK,
+} from "../constants/mockQuestions";
 
 const QuizPage = () => {
   const navigate = useNavigate();
@@ -56,7 +59,9 @@ const QuizPage = () => {
       const parsed = JSON.parse(saved);
       if (parsed?.tutorialId === tutorialId) {
         if (parsed.completed && parsed.result) {
-          navigate(`/quiz-results-player/${tutorialId}?embed=1`, { state: { result: parsed.result } });
+          navigate(`/quiz-results-player/${tutorialId}?embed=1`, {
+            state: { result: parsed.result },
+          });
           return;
         }
         if (parsed.answers) {
@@ -115,7 +120,14 @@ const QuizPage = () => {
       completed: false,
     };
     localStorage.setItem(storageKey, JSON.stringify(payload));
-  }, [storageKey, tutorialId, assessmentId, currentQuestionIndex, answers, lockedAnswers]);
+  }, [
+    storageKey,
+    tutorialId,
+    assessmentId,
+    currentQuestionIndex,
+    answers,
+    lockedAnswers,
+  ]);
 
   // reset guard tiap pindah soal
   useEffect(() => {
@@ -123,7 +135,9 @@ const QuizPage = () => {
   }, [currentQuestionIndex]);
 
   const handleSubmitMock = useCallback(() => {
-    const durationSec = startTime ? Math.round((Date.now() - startTime.getTime()) / 1000) : 0;
+    const durationSec = startTime
+      ? Math.round((Date.now() - startTime.getTime()) / 1000)
+      : 0;
     let correctCount = 0;
     const detail = questions.map((q, idx) => {
       const selectedIndex = answers[idx];
@@ -170,13 +184,27 @@ const QuizPage = () => {
     }
 
     try {
-      window.parent.postMessage({ type: "quiz-submitted", tutorialId, result }, "*");
+      window.parent.postMessage(
+        { type: "quiz-submitted", tutorialId, result },
+        "*"
+      );
     } catch (e) {
       console.warn("postMessage failed", e);
     }
 
-    navigate(`/quiz-results-player/${tutorialId}?embed=1`, { state: { result } });
-  }, [answers, currentQuestionIndex, lockedAnswers, navigate, questions, startTime, storageKey, tutorialId]);
+    navigate(`/quiz-results-player/${tutorialId}?embed=1`, {
+      state: { result },
+    });
+  }, [
+    answers,
+    currentQuestionIndex,
+    lockedAnswers,
+    navigate,
+    questions,
+    startTime,
+    storageKey,
+    tutorialId,
+  ]);
 
   const handleSubmitQuiz = useCallback(async () => {
     if (isSubmitting) return;
@@ -191,14 +219,20 @@ const QuizPage = () => {
       const answersData = questions.map((question, idx) => {
         const answerIndex = answers[idx];
         const selectedOption =
-          answerIndex !== undefined ? question?.multiple_choice?.[answerIndex] : null;
+          answerIndex !== undefined
+            ? question?.multiple_choice?.[answerIndex]
+            : null;
         return {
           soal_id: question?.id,
           correct: selectedOption?.correct || false,
         };
       });
 
-      const result = await submitAnswers(parseInt(tutorialId), assessmentId, answersData);
+      const result = await submitAnswers(
+        parseInt(tutorialId),
+        assessmentId,
+        answersData
+      );
 
       if (storageKey) {
         const saved = {
@@ -214,14 +248,20 @@ const QuizPage = () => {
       }
 
       try {
-        window.parent.postMessage({ type: "quiz-submitted", tutorialId, result }, "*");
+        window.parent.postMessage(
+          { type: "quiz-submitted", tutorialId, result },
+          "*"
+        );
       } catch (e) {
         console.warn("postMessage failed", e);
       }
 
-      navigate(`/quiz-results-player/${tutorialId}?embed=1`, { state: { result } });
+      navigate(`/quiz-results-player/${tutorialId}?embed=1`, {
+        state: { result },
+      });
     } catch (err) {
-      const friendly = err?.raw?.details || err?.message || "Gagal mengirim jawaban";
+      const friendly =
+        err?.raw?.details || err?.message || "Gagal mengirim jawaban";
       setSubmitError(friendly);
       setIsTimerActive(true);
       setIsSubmitting(false);
@@ -315,7 +355,11 @@ const QuizPage = () => {
         <div className="min-h-screen flex items-center justify-center">
           <div className="max-w-2xl mx-auto text-center">
             <Alert type="error" title="Error" message={msg} />
-            <Button onClick={() => navigate(-1)} variant="primary" className="mt-4 cursor-pointer">
+            <Button
+              onClick={() => navigate(-1)}
+              variant="primary"
+              className="mt-4 cursor-pointer"
+            >
               Kembali
             </Button>
           </div>
@@ -336,7 +380,9 @@ const QuizPage = () => {
       >
         <div className="min-h-screen flex items-center justify-center">
           <div className="max-w-2xl mx-auto text-center">
-            <p className="text-gray-600 mb-4">Pertanyaan belum tersedia untuk submodul ini.</p>
+            <p className="text-gray-600 mb-4">
+              Pertanyaan belum tersedia untuk submodul ini.
+            </p>
             <Button onClick={() => navigate(-1)} variant="primary">
               Kembali
             </Button>
