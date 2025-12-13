@@ -23,6 +23,25 @@ const ResultsPage = () => {
   const [showReview, setShowReview] = useState(false);
   const reviewRef = useRef(null);
 
+  const storageKey = tutorialId ? `quiz-progress-${tutorialId}` : null;
+  const clearProgress = () => {
+    if (!storageKey) return;
+    try {
+      localStorage.removeItem(storageKey);
+    } catch (e) {
+      console.warn("Failed to clear quiz progress", e);
+    }
+  };
+
+  const isIframe = typeof window !== "undefined" && window.self !== window.top;
+  const postNavToParent = (route) => {
+    try {
+      window.parent.postMessage({ type: "nav-parent", route }, "*");
+    } catch (e) {
+      console.warn("postMessage nav-parent failed", e);
+    }
+  };
+
   const stateResult = location.state?.result;
   const localResult = (() => {
     try {
@@ -49,28 +68,44 @@ const ResultsPage = () => {
   const questions = resultData?.questions || [];
 
   const currentId = parseInt(tutorialId, 10);
-  const sidebarItems = useMemo(
-    () => buildSidebarItems(tutorials, getTutorialProgress),
-    [tutorials, getTutorialProgress]
-  );
+  const sidebarItems = useMemo(() => buildSidebarItems(tutorials, getTutorialProgress), [tutorials, getTutorialProgress]);
   const chain = buildChain(tutorials, currentId);
 
-  const goBackChain = () => {
-    if (chain.idx <= 0) {
-      navigate("/home");
-      return;
+  const quizDone = (tid) => {
+    if (typeof window === "undefined") return false;
+    try {
+      return !!localStorage.getItem(`quiz-result-${tid}`);
+    } catch {
+      return false;
     }
-    const prev = tutorials[chain.idx - 1];
-    navigate(`/learning/${prev.id}`);
+  };
+
+  const goBackChain = () => {
+    let target = "/home";
+    if (chain.idx > 0) {
+      const prev = tutorials[chain.idx - 1];
+      target = `/learning/${prev.id}`;
+    }
+    if (isIframe) {
+      postNavToParent(target);
+    } else {
+      navigate(target);
+    }
   };
 
   const goNextChain = () => {
+    let target;
     if (chain.idx < chain.total - 1) {
       const next = tutorials[chain.idx + 1];
-      navigate(`/learning/${next.id}`);
-      return;
+      target = `/learning/${next.id}`;
+    } else {
+      target = "/quiz-final-intro";
     }
-    navigate("/quiz-final-intro");
+    if (isIframe) {
+      postNavToParent(target);
+    } else {
+      navigate(target);
+    }
   };
 
   const isPass = total > 0 ? (correct / total) * 100 >= 60 : false;
@@ -80,6 +115,13 @@ const ResultsPage = () => {
     setTimeout(() => {
       if (reviewRef.current) reviewRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 50);
+  };
+
+  const handleRetry = () => {
+    clearProgress(); // pastikan attempt baru
+    const target = `/quiz-intro/${tutorialId}`;
+    if (isIframe) postNavToParent(target);
+    else navigate(target);
   };
 
   return (
@@ -92,11 +134,18 @@ const ResultsPage = () => {
         <ModuleSidebar
           items={sidebarItems}
           currentId={currentId}
+          currentType="quiz-sub"
           onSelect={(item) => {
-            if (item.type === "tutorial") navigate(`/learning/${item.id}`);
-            else if (item.type === "quiz-sub") navigate(`/quiz-intro/${item.id}`);
-            else if (item.type === "quiz-final") navigate("/quiz-final-intro");
-            else if (item.type === "dashboard") navigate("/dashboard-modul");
+            if (item.type === "tutorial") {
+              navigate(`/learning/${item.id}`);
+            } else if (item.type === "quiz-sub") {
+              const target = quizDone(item.id) ? `/quiz-results-player/${item.id}` : `/quiz-intro/${item.id}`;
+              navigate(target);
+            } else if (item.type === "quiz-final") {
+              navigate("/quiz-final-intro");
+            } else if (item.type === "dashboard") {
+              navigate("/dashboard-modul");
+            }
           }}
           isOpen={sidebarOpen}
           onToggle={() => setSidebarOpen((p) => !p)}
@@ -113,15 +162,7 @@ const ResultsPage = () => {
     >
       <div className="min-h-screen py-10 px-4">
         <div className="max-w-4xl mx-auto space-y-8">
-          <ResultCard
-            score={score}
-            correct={correct}
-            total={total}
-            duration={duration}
-            isPass={isPass}
-            onRetry={() => navigate(`/quiz-intro/${tutorialId}`)}
-            onReview={handleReview}
-          />
+          <ResultCard score={score} correct={correct} total={total} duration={duration} isPass={isPass} onRetry={handleRetry} onReview={handleReview} />
 
           {(ringkasan || analisis || saran || rekomendasi) && (
             <div className="bg-red-50 border border-red-200 rounded-2xl p-5 shadow-sm">

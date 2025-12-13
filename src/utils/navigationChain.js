@@ -21,17 +21,16 @@ export const buildSidebarItems = (tutorials, getProgress) => {
       progressAllowed: idx === 0 ? true : !!prevQuizDone,
     });
 
-    // Quiz submodul: boleh jika materinya sudah ditandai selesai
+    // Quiz submodul: boleh jika materinya selesai (getProgress) ATAU quiz sudah pernah selesai (quizDone)
     items.push({
       type: "quiz-sub",
       id: t.id,
       label: `Quiz Submodul ${idx + 1}`,
       desc: "Quiz submodul",
-      progressAllowed: !!getProgress(t.id),
+      progressAllowed: !!getProgress(t.id) || quizDone(t.id),
     });
   });
 
-  // Quiz final & dashboard: semua quiz submodul harus selesai
   const allQuizDone = tutorials.every((t) => quizDone(t.id));
 
   items.push({

@@ -10,9 +10,6 @@ import Button from "../components/common/Button";
 import Loading from "../components/common/Loading";
 import { getMockQuestions, DEFAULT_MOCK_FEEDBACK } from "../constants/mockQuestions";
 
-/* -------------------------------------------------------------------------- */
-/* Helpers: simpan hasil quiz submodul ke localStorage                        */
-/* -------------------------------------------------------------------------- */
 const SUBMODULE_RESULT_KEY = "submodule-results";
 
 const loadSubmoduleResults = () => {
@@ -28,23 +25,11 @@ const saveSubmoduleResult = (tutorialId, name, score, correct, total, durationSe
   const existing = loadSubmoduleResults();
   const idx = existing.findIndex((e) => String(e.id) === String(tutorialId));
   const attempts = idx >= 0 ? (existing[idx].attempts || 0) + 1 : 1;
-  const entry = {
-    id: tutorialId,
-    name: name || `Submodul ${tutorialId}`,
-    score,
-    correct,
-    total,
-    durationSec,
-    attempts,
-  };
-  if (idx >= 0) {
-    existing[idx] = entry;
-  } else {
-    existing.push(entry);
-  }
+  const entry = { id: tutorialId, name: name || `Submodul ${tutorialId}`, score, correct, total, durationSec, attempts };
+  if (idx >= 0) existing[idx] = entry;
+  else existing.push(entry);
   localStorage.setItem(SUBMODULE_RESULT_KEY, JSON.stringify(existing));
 };
-/* -------------------------------------------------------------------------- */
 
 const QuizPage = () => {
   const navigate = useNavigate();
@@ -54,15 +39,7 @@ const QuizPage = () => {
 
   const storageKey = tutorialId ? `quiz-progress-${tutorialId}` : null;
 
-  const {
-    questions,
-    loading,
-    error,
-    assessmentId,
-    fetchQuestions,
-    submitAnswers,
-    setMockQuestions,
-  } = useQuiz();
+  const { questions, loading, error, assessmentId, fetchQuestions, submitAnswers, setMockQuestions } = useQuiz();
   const {
     currentQuestionIndex,
     setCurrentQuestionIndex,
@@ -85,14 +62,10 @@ const QuizPage = () => {
 
   const goToResults = useCallback(
     (result) => {
-      const url = `/quiz-results-player/${tutorialId}?embed=0`;
-      if (embed && window.top) {
-        window.top.location.href = url;
-      } else {
-        navigate(url, { state: { result } });
-      }
+      const url = `/quiz-results-player/${tutorialId}`; // tanpa embed=1 agar sidebar/bottom muncul
+      navigate(url, { state: { result } });
     },
-    [embed, navigate, tutorialId]
+    [navigate, tutorialId]
   );
 
   useEffect(() => {
@@ -199,7 +172,6 @@ const QuizPage = () => {
       feedback: DEFAULT_MOCK_FEEDBACK,
     };
 
-    // Simpan ringkasan submodul ke localStorage
     saveSubmoduleResult(
       tutorialId,
       result?.tutorial_key || `Submodul ${tutorialId}`,
@@ -243,8 +215,7 @@ const QuizPage = () => {
     try {
       const answersData = questions.map((question, idx) => {
         const answerIndex = answers[idx];
-        const selectedOption =
-          answerIndex !== undefined ? question?.multiple_choice?.[answerIndex] : null;
+        const selectedOption = answerIndex !== undefined ? question?.multiple_choice?.[answerIndex] : null;
         return {
           soal_id: question?.id,
           correct: selectedOption?.correct || false,
@@ -253,14 +224,37 @@ const QuizPage = () => {
 
       const result = await submitAnswers(parseInt(tutorialId, 10), assessmentId, answersData);
 
-      // Simpan ringkasan submodul ke localStorage
+      // Enrich result dengan detail + questions jika backend tidak mengirim
+      const detail =
+        result?.detail ||
+        result?.answers ||
+        questions.map((q, idx) => {
+          const selectedIndex = answers[idx];
+          const selected = q?.multiple_choice?.[selectedIndex];
+          const correctChoice = q?.multiple_choice?.find((o) => o.correct);
+          return {
+            soal_id: q?.id,
+            correct: !!selected?.correct,
+            user_answer: selected?.option || selected?.answer || "",
+            answer: correctChoice?.option || correctChoice?.answer || "",
+            explanation: selected?.explanation || correctChoice?.explanation || q?.explanation || "",
+          };
+        });
+
+      const resultEnriched = {
+        ...result,
+        detail,
+        answers: result.answers || detail,
+        questions: result.questions || questions,
+      };
+
       saveSubmoduleResult(
         tutorialId,
-        result?.tutorial_key || `Submodul ${tutorialId}`,
-        result?.score ?? 0,
-        result?.benar ?? 0,
-        result?.total ?? questions.length,
-        result?.duration ?? 0
+        resultEnriched?.tutorial_key || `Submodul ${tutorialId}`,
+        resultEnriched?.score ?? 0,
+        resultEnriched?.benar ?? 0,
+        resultEnriched?.total ?? questions.length,
+        resultEnriched?.duration ?? 0
       );
 
       if (storageKey) {
@@ -271,17 +265,18 @@ const QuizPage = () => {
           answers,
           lockedAnswers,
           completed: true,
-          result,
+          result: resultEnriched,
         };
         localStorage.setItem(storageKey, JSON.stringify(saved));
+        localStorage.setItem(`quiz-result-${tutorialId}`, JSON.stringify(resultEnriched));
       }
 
       try {
-        window.parent.postMessage({ type: "quiz-submitted", tutorialId, result }, "*");
+        window.parent.postMessage({ type: "quiz-submitted", tutorialId, result: resultEnriched }, "*");
       } catch (e) {
         console.warn("postMessage failed", e);
       }
-      goToResults(result);
+      goToResults(resultEnriched);
     } catch (err) {
       const friendly = err?.raw?.details || err?.message || "Gagal mengirim jawaban";
       setSubmitError(friendly);
@@ -350,14 +345,7 @@ const QuizPage = () => {
 
   if (loading) {
     return (
-      <LayoutWrapper
-        showNavbar={!embed}
-        showFooter={false}
-        sidePanel={null}
-        bottomBar={null}
-        embed={embed}
-        contentClassName="pb-16"
-      >
+      <LayoutWrapper showNavbar={!embed} showFooter={false} sidePanel={null} bottomBar={null} embed={embed} contentClassName="pb-16">
         <Loading fullScreen text="Memuat kuis..." />
       </LayoutWrapper>
     );
@@ -366,14 +354,7 @@ const QuizPage = () => {
   if ((error || submitError) && !isMock) {
     const msg = submitError || error;
     return (
-      <LayoutWrapper
-        showNavbar={!embed}
-        showFooter={false}
-        sidePanel={null}
-        bottomBar={null}
-        embed={embed}
-        contentClassName="pb-16"
-      >
+      <LayoutWrapper showNavbar={!embed} showFooter={false} sidePanel={null} bottomBar={null} embed={embed} contentClassName="pb-16">
         <div className="min-h-screen flex items-center justify-center">
           <div className="max-w-2xl mx-auto text-center">
             <Alert type="error" title="Error" message={msg} />
@@ -388,15 +369,8 @@ const QuizPage = () => {
 
   if (questions.length === 0) {
     return (
-      <LayoutWrapper
-        showNavbar={!embed}
-        showFooter={false}
-        sidePanel={null}
-        bottomBar={null}
-        embed={embed}
-        contentClassName="pb-16"
-      >
-        <div className="min-h-screen flex items-center justify-center">
+      <LayoutWrapper showNavbar={!embed} showFooter={false} sidePanel={null} bottomBar={null} embed={embed} contentClassName="pb-16">
+        <div className="min-h-screen flex itemsCenter justifyCenter">
           <div className="max-w-2xl mx-auto text-center">
             <p className="text-gray-600 mb-4">Pertanyaan belum tersedia untuk submodul ini.</p>
             <Button onClick={() => navigate(-1)} variant="primary">
@@ -409,51 +383,28 @@ const QuizPage = () => {
   }
 
   return (
-    <LayoutWrapper
-      showNavbar={!embed}
-      showFooter={false}
-      sidePanel={null}
-      bottomBar={null}
-      embed={embed}
-      contentClassName="pb-16"
-    >
+    <LayoutWrapper showNavbar={!embed} showFooter={false} sidePanel={null} bottomBar={null} embed={embed} contentClassName="pb-16">
       <div className="min-h-screen py-14 px-4">
         <div className="max-w-4xl mx-auto space-y-5 mt-10 sm:mt-12">
           {isMock && (
-            <Alert
-              type="info"
-              title="Mode offline (mock)"
-              message="Menampilkan soal mock karena backend bermasalah."
-              dismissible={false}
-            />
+            <Alert type="info" title="Mode offline (mock)" message="Menampilkan soal mock karena backend bermasalah." dismissible={false} />
           )}
 
           <div className="rounded-2xl bg-gradient-to-r from-[#0f5eff] to-[#0a4ed6] text-white shadow-lg p-6 sm:p-7">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-wide opacity-90">
-                  Quiz Submodul
-                </p>
+                <p className="text-sm font-semibold uppercase tracking-wide opacity-90">Quiz Submodul</p>
                 <p className="text-base sm:text-lg font-medium opacity-90">
                   Soal {currentQuestionIndex + 1} dari {questions.length}
                 </p>
               </div>
               <div className="flex items-center gap-3 text-sm sm:text-base">
                 <div className="font-semibold">Sisa Waktu</div>
-                <QuizTimer
-                  duration={30}
-                  isActive={isTimerActive && !isSubmitting}
-                  onTimeUp={handleTimeUp}
-                  variant="light"
-                  resetKey={currentQuestionIndex}
-                />
+                <QuizTimer duration={30} isActive={isTimerActive && !isSubmitting} onTimeUp={handleTimeUp} variant="light" resetKey={currentQuestionIndex} />
               </div>
             </div>
             <div className="mt-4 h-2 w-full bg-white/25 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-white rounded-full transition-all duration-300"
-                style={{ width: `${progressPercent}%` }}
-              />
+              <div className="h-full bg-white rounded-full transition-all duration-300" style={{ width: `${progressPercent}%` }} />
             </div>
           </div>
 
@@ -465,26 +416,16 @@ const QuizPage = () => {
               questionNumber={currentQuestionIndex + 1}
               totalQuestions={questions.length}
               locked={!!lockedAnswers[currentQuestionIndex]}
-              showFeedback={true} // submodul: tampilkan feedback
+              showFeedback={true}
             />
 
             <div className="mt-6 flex justify-end">
               {isLastQuestion ? (
-                <Button
-                  onClick={handleSubmitQuiz}
-                  variant="primary"
-                  disabled={isSubmitting}
-                  className="bg-[#0f5eff] hover:bg-[#0d52db] px-4 py-2 text-sm"
-                >
+                <Button onClick={handleSubmitQuiz} variant="primary" disabled={isSubmitting} className="bg-[#0f5eff] hover:bg-[#0d52db] px-4 py-2 text-sm">
                   {isSubmitting ? "Mengirim..." : "✓ Selesai & Kirim"}
                 </Button>
               ) : (
-                <Button
-                  onClick={handleNextClick}
-                  variant="primary"
-                  disabled={false}
-                  className="bg-[#0f5eff] hover:bg-[#0d52db] px-4 py-2 text-sm"
-                >
+                <Button onClick={handleNextClick} variant="primary" disabled={false} className="bg-[#0f5eff] hover:bg-[#0d52db] px-4 py-2 text-sm">
                   Lanjut →
                 </Button>
               )}
@@ -492,13 +433,7 @@ const QuizPage = () => {
           </div>
 
           {submitError && !isMock && (
-            <Alert
-              type="error"
-              title="Error"
-              message={submitError}
-              dismissible
-              onClose={() => setSubmitError(null)}
-            />
+            <Alert type="error" title="Error" message={submitError} dismissible onClose={() => setSubmitError(null)} />
           )}
         </div>
       </div>

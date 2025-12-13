@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import finalQuizService from '../services/finalQuizService';
+import { useState, useCallback } from "react";
+import finalQuizService from "../services/finalQuizService";
 
 export const useFinalQuiz = () => {
   const [questions, setQuestions] = useState([]);
@@ -8,6 +8,7 @@ export const useFinalQuiz = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [submitted, setSubmitted] = useState(false);
+  const [submitResult, setSubmitResult] = useState(null);
 
   const loadQuestions = useCallback(async () => {
     setLoading(true);
@@ -18,8 +19,9 @@ export const useFinalQuiz = () => {
       setCurrentIndex(0);
       setAnswers({});
       setSubmitted(false);
+      setSubmitResult(null);
     } catch (err) {
-      setError(err.message || 'Gagal memuat quiz final');
+      setError(err.message || "Gagal memuat quiz final");
     } finally {
       setLoading(false);
     }
@@ -37,10 +39,26 @@ export const useFinalQuiz = () => {
     setCurrentIndex((i) => Math.max(i - 1, 0));
   }, []);
 
-  const submit = useCallback(() => {
-    setSubmitted(true);
-    // TODO: kirim ke backend jika ada endpoint submit
-  }, []);
+  const submit = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      // Transform answers object -> array { question_id, answer }
+      const payload = Object.entries(answers).map(([question_id, answer]) => ({
+        question_id,
+        answer: String(answer),
+      }));
+      const res = await finalQuizService.submitFinalAnswers(payload);
+      setSubmitted(true);
+      setSubmitResult(res);
+      return res;
+    } catch (err) {
+      setError(err.message || "Gagal mengirim jawaban");
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [answers]);
 
   return {
     questions,
@@ -49,6 +67,7 @@ export const useFinalQuiz = () => {
     loading,
     error,
     submitted,
+    submitResult,
     loadQuestions,
     selectAnswer,
     next,

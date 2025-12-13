@@ -141,7 +141,6 @@ const QuizFinalPage = () => {
       <div
         className="min-h-screen pt-20 pb-10 px-4 flex justify-center"
         style={{
-          backgroundColor: "#f5f8ff",
           backgroundImage:
             "radial-gradient(circle at 20% 20%, rgba(15,94,255,0.06) 0, transparent 35%), radial-gradient(circle at 80% 30%, rgba(15,94,255,0.06) 0, transparent 35%), radial-gradient(circle at 30% 70%, rgba(15,94,255,0.06) 0, transparent 35%), radial-gradient(circle at 75% 75%, rgba(15,94,255,0.06) 0, transparent 35%)",
         }}

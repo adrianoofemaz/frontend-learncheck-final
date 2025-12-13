@@ -76,16 +76,6 @@ const LoginPage = () => {
             <div className="flex-1 border-t border-gray-300"></div>
           </div>
 
-          {/* Google Sign In */}
-          <button className="w-full py-2 sm:py-3 px-4 border-2 border-gray-300 rounded-lg text-gray-700 font-semibold hover:bg-gray-50 transition flex items-center justify-center gap-2 sm:gap-3 text-sm sm:text-base">
-            <img 
-              src="/assets/images/logo google.png" 
-              alt="Google Logo"
-              className="w-5 h-5 object-contain"
-            />
-            <span>Sign in with Google</span>
-          </button>
-
           {/* Register Link */}
           <div className="mt-4 sm:mt-6 text-center text-xs sm:text-sm text-gray-600">
             Belum punya akun? {' '}
