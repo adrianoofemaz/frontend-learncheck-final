@@ -9,6 +9,17 @@ import { buildSidebarItems, buildChain } from "../utils/navigationChain";
 import ResultCard from "../components/Features/feedback/ResultCard";
 import AnswerReview from "../components/Features/feedback/AnswerReview";
 import Button from "../components/common/Button";
+import { getUserKey } from "../utils/storage";
+import { quizDone } from "../utils/accessControl";
+
+// helper: pastikan nilai aman dirender sebagai string
+const toText = (val) => {
+  if (!val) return "";
+  if (typeof val === "string") return val;
+  if (Array.isArray(val)) return val.filter(Boolean).join(" ");
+  if (typeof val === "object") return Object.values(val || {}).filter(Boolean).join(" ");
+  return String(val);
+};
 
 const ResultsPage = () => {
   const { tutorialId } = useParams();
@@ -23,10 +34,30 @@ const ResultsPage = () => {
   const [showReview, setShowReview] = useState(false);
   const reviewRef = useRef(null);
 
+  const userKey = getUserKey();
+  const storageKey = tutorialId ? `${userKey}:quiz-progress-${tutorialId}` : null;
+  const clearProgress = () => {
+    if (!storageKey) return;
+    try {
+      localStorage.removeItem(storageKey);
+    } catch (e) {
+      console.warn("Failed to clear quiz progress", e);
+    }
+  };
+
+  const isIframe = typeof window !== "undefined" && window.self !== window.top;
+  const postNavToParent = (route) => {
+    try {
+      window.parent.postMessage({ type: "nav-parent", route }, "*");
+    } catch (e) {
+      console.warn("postMessage nav-parent failed", e);
+    }
+  };
+
   const stateResult = location.state?.result;
   const localResult = (() => {
     try {
-      const raw = localStorage.getItem(`quiz-result-${tutorialId}`);
+      const raw = localStorage.getItem(`${userKey}:quiz-result-${tutorialId}`);
       return raw ? JSON.parse(raw) : null;
     } catch {
       return null;
@@ -40,37 +71,41 @@ const ResultsPage = () => {
   const duration = resultData?.lama_mengerjakan ?? resultData?.duration ?? "";
 
   const feedback = resultData?.feedback || {};
-  const ringkasan = feedback.summary || "";
-  const analisis = feedback.analysis || "";
-  const saran = feedback.advice || "";
-  const rekomendasi = feedback.recommendation || "";
+  const ringkasan = toText(feedback.summary);
+  const analisis = toText(feedback.analysis);
+  const saran = toText(feedback.advice);
+  const rekomendasi = toText(feedback.recommendation);
 
   const answers = resultData?.detail || resultData?.answers || [];
   const questions = resultData?.questions || [];
 
   const currentId = parseInt(tutorialId, 10);
-  const sidebarItems = useMemo(
-    () => buildSidebarItems(tutorials, getTutorialProgress),
-    [tutorials, getTutorialProgress]
-  );
+  const sidebarItems = useMemo(() => buildSidebarItems(tutorials, getTutorialProgress), [tutorials, getTutorialProgress]);
   const chain = buildChain(tutorials, currentId);
 
   const goBackChain = () => {
-    if (chain.idx <= 0) {
-      navigate("/home");
-      return;
+    // Kembali dulu ke learning submodul yang sama (hindari lompat ke submodul sebelumnya)
+    const target = `/learning/${currentId}`;
+    if (isIframe) {
+      postNavToParent(target);
+    } else {
+      navigate(target);
     }
-    const prev = tutorials[chain.idx - 1];
-    navigate(`/learning/${prev.id}`);
   };
 
   const goNextChain = () => {
+    let target;
     if (chain.idx < chain.total - 1) {
       const next = tutorials[chain.idx + 1];
-      navigate(`/learning/${next.id}`);
-      return;
+      target = `/learning/${next.id}`;
+    } else {
+      target = "/quiz-final-intro";
     }
-    navigate("/quiz-final-intro");
+    if (isIframe) {
+      postNavToParent(target);
+    } else {
+      navigate(target);
+    }
   };
 
   const isPass = total > 0 ? (correct / total) * 100 >= 60 : false;
@@ -80,6 +115,13 @@ const ResultsPage = () => {
     setTimeout(() => {
       if (reviewRef.current) reviewRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 50);
+  };
+
+  const handleRetry = () => {
+    clearProgress(); // pastikan attempt baru
+    const target = `/quiz-intro/${tutorialId}`;
+    if (isIframe) postNavToParent(target);
+    else navigate(target);
   };
 
   return (
@@ -92,11 +134,20 @@ const ResultsPage = () => {
         <ModuleSidebar
           items={sidebarItems}
           currentId={currentId}
+          currentType="quiz-sub"
           onSelect={(item) => {
-            if (item.type === "tutorial") navigate(`/learning/${item.id}`);
-            else if (item.type === "quiz-sub") navigate(`/quiz-intro/${item.id}`);
-            else if (item.type === "quiz-final") navigate("/quiz-final-intro");
-            else if (item.type === "dashboard") navigate("/dashboard-modul");
+            if (item.type === "tutorial") {
+              navigate(`/learning/${item.id}`);
+            } else if (item.type === "quiz-sub") {
+              const target = getTutorialProgress(item.id) && quizDone(item.id)
+                ? `/quiz-results-player/${item.id}`
+                : `/quiz-intro/${item.id}`;
+              navigate(target);
+            } else if (item.type === "quiz-final") {
+              navigate("/quiz-final-intro");
+            } else if (item.type === "dashboard") {
+              navigate("/dashboard-modul");
+            }
           }}
           isOpen={sidebarOpen}
           onToggle={() => setSidebarOpen((p) => !p)}
@@ -119,7 +170,7 @@ const ResultsPage = () => {
             total={total}
             duration={duration}
             isPass={isPass}
-            onRetry={() => navigate(`/quiz-intro/${tutorialId}`)}
+            onRetry={handleRetry}
             onReview={handleReview}
           />
 

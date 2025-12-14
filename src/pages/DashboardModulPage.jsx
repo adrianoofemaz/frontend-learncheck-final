@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import LayoutWrapper from "../components/Layout/LayoutWrapper";
 import ModuleSidebar from "../components/Layout/ModuleSidebar";
@@ -9,8 +9,10 @@ import { buildSidebarItems } from "../utils/navigationChain";
 import Card from "../components/common/Card";
 import Button from "../components/common/Button";
 import SubmoduleScoreChart from "../components/features/analytics/SubmoduleScoreCharts";
+import { nsKey, getUserKey } from "../utils/storage";
 
 const SUBMODULE_RESULT_KEY = "submodule-results";
+const FINAL_RESULT_KEY = (userKey) => `${userKey}:quiz-final-result`;
 
 const SUBMODULE_TITLE_MAP = {
   35363: "Penerapan AI dalam Dunia Nyata",
@@ -50,10 +52,20 @@ const computePassStatus = ({ submodules = [], finalScore = 0 }) => {
 
 const loadLocalSubmodules = () => {
   try {
-    const raw = localStorage.getItem(SUBMODULE_RESULT_KEY);
+    const key = nsKey(SUBMODULE_RESULT_KEY);
+    const raw = localStorage.getItem(key);
     return raw ? JSON.parse(raw) : [];
   } catch {
     return [];
+  }
+};
+
+const loadLocalFinal = () => {
+  try {
+    const raw = localStorage.getItem(FINAL_RESULT_KEY(getUserKey()));
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
   }
 };
 
@@ -76,14 +88,20 @@ const DashboardModulPage = ({ data }) => {
   const { getTutorialProgress } = useProgress();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [localSubs, setLocalSubs] = useState([]);
+  const [finalLocal, setFinalLocal] = useState(null);
 
   useEffect(() => {
     setLocalSubs(loadLocalSubmodules());
+    setFinalLocal(loadLocalFinal());
   }, []);
 
   const payload = state?.analytics || data || {};
-  const submodules = payload.submodules || localSubs || [];
-  const finalScore = payload.finalScore ?? state?.score ?? 0;
+  const submodules =
+    Array.isArray(payload.submodules) && payload.submodules.length > 0
+      ? payload.submodules
+      : localSubs || [];
+  const finalScore =
+    payload.finalScore ?? finalLocal?.score ?? state?.score ?? 0;
   const totalLearningSeconds = payload.totalLearningSeconds ?? 5400; // fallback 1.5h
   const pass = computePassStatus({ submodules, finalScore });
 
@@ -110,9 +128,12 @@ const DashboardModulPage = ({ data }) => {
                 if (item.type === "tutorial") navigate(`/learning/${item.id}`);
                 else if (item.type === "quiz-sub")
                   navigate(`/quiz-intro/${item.id}`);
-                else if (item.type === "quiz-final")
-                  navigate("/quiz-final-intro");
-                else if (item.type === "dashboard")
+                else if (item.type === "quiz-final") {
+                  const target = finalLocal
+                    ? "/quiz-final-result"
+                    : "/quiz-final-intro";
+                  navigate(target);
+                } else if (item.type === "dashboard")
                   navigate("/dashboard-modul");
               }}
               isOpen={sidebarOpen}
@@ -134,7 +155,6 @@ const DashboardModulPage = ({ data }) => {
         ) : null
       }
     >
-      {/* hanya area ini yang dicetak */}
       <div
         id="printable-analytics"
         className="max-w-6xl mx-auto py-10 space-y-6 px-4"
@@ -184,7 +204,7 @@ const DashboardModulPage = ({ data }) => {
           </Card>
         </div>
 
-        <Card className="p-4 bg-white rounded-2xl shadow-sm border border-gray-100">
+        <Card className="p-4 bg-white rounded-2xl shadow-sm border border-gray-100 min-w-0">
           <p className="font-semibold text-gray-800 mb-3">
             Nilai Quiz Submodul
           </p>

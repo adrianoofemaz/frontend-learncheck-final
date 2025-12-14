@@ -12,12 +12,13 @@ import Card from "../components/common/Card";
 import Loading from "../components/common/Loading";
 import { UserContext } from "../context/UserContext";
 import { buildSidebarItems, buildChain } from "../utils/navigationChain";
+import { quizDone } from "../utils/accessControl";
 
 const LearningPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const embed = searchParams.get("embed") === "1"; // Determine if we need to embed (hide elements)
+  const embed = searchParams.get("embed") === "1";
 
   const { currentTutorial, loading, error, selectTutorial, tutorials } =
     useLearning();
@@ -38,6 +39,10 @@ const LearningPage = () => {
     }
   }, [id, selectTutorial]);
 
+  // Selesai jika progres backend true dan ada hasil kuis lokal
+  const isSubmoduleCompleted = (tid) =>
+    !!getTutorialProgress(tid) && quizDone(tid);
+
   const sidebarItems = useMemo(
     () => buildSidebarItems(tutorials, getTutorialProgress),
     [tutorials, getTutorialProgress]
@@ -55,25 +60,42 @@ const LearningPage = () => {
       return;
     }
     const prev = tutorials[chain.idx - 1];
-    navigate(`/quiz-results/${prev.id}`);
+    navigate(`/quiz-results-player/${prev.id}`);
   };
 
   const goNextChain = () => {
     if (!currentTutorial) return;
-    navigate(`/quiz-intro/${currentTutorial.id}`);
+    const tid = currentTutorial.id;
+    const target = isSubmoduleCompleted(tid)
+      ? `/quiz-results-player/${tid}`
+      : `/quiz-intro/${tid}`;
+    navigate(target);
   };
 
   const handleSelectSidebar = (item) => {
-    if (item.type === "tutorial") navigate(`/learning/${item.id}`);
-    else if (item.type === "quiz-sub") navigate(`/quiz-intro/${item.id}`);
-    else if (item.type === "quiz-final") navigate("/quiz-final-intro");
-    else if (item.type === "dashboard") navigate("/dashboard-modul");
+    if (item.type === "tutorial") {
+      navigate(`/learning/${item.id}`);
+    } else if (item.type === "quiz-sub") {
+      const target = isSubmoduleCompleted(item.id)
+        ? `/quiz-results-player/${item.id}`
+        : `/quiz-intro/${item.id}`;
+      navigate(target);
+    } else if (item.type === "quiz-final") {
+      navigate("/quiz-final-intro");
+    } else if (item.type === "dashboard") {
+      navigate("/dashboard-modul");
+    }
   };
 
   if (loading) {
     return (
-      <LayoutWrapper fullHeight embed={embed} showFooter={false}>
-        <Loading fullScreen text="Memuat materi..." />
+      <LayoutWrapper
+        showNavbar={!embed}
+        showFooter={false}
+        embed={embed}
+        fullHeight
+      >
+        <Loading fullScreen text="Mempersiapkan kuis..." />
       </LayoutWrapper>
     );
   }
@@ -100,7 +122,7 @@ const LearningPage = () => {
   if (!currentTutorial) {
     return (
       <LayoutWrapper fullHeight embed={embed} showFooter={false}>
-        <div className="flex items-center justify-center min-h-screen">
+        <div className="flex items-center justifyCenter min-h-screen">
           <div className="max-w-md text-center">
             <Alert
               type="warning"
@@ -129,7 +151,7 @@ const LearningPage = () => {
     <LayoutWrapper
       fullHeight
       embed={embed}
-      showFooter={false} // Make sure footer is never shown
+      showFooter={false}
       contentClassName={`pt-25 pb-24 ${
         sidebarOpen ? "pr-80" : ""
       } transition-all duration-300`}

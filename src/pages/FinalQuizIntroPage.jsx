@@ -1,9 +1,3 @@
-/**
- * QuizFinalIntroPage (player)
- * Desain disamakan dengan QuizIntroPage (submodul) tetapi untuk Quiz Akhir Modul:
- * - 10 soal
- * - Durasi 10 menit
- */
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Button from "../components/common/Button";
@@ -15,6 +9,7 @@ import BottomBarTwoActions from "../components/Layout/BottomBarTwoActions";
 import { useLearning } from "../hooks/useLearning";
 import { useProgress } from "../context/ProgressContext";
 import { buildSidebarItems, buildChain } from "../utils/navigationChain";
+import { finalQuizDone } from "../utils/accessControl";
 
 const QuizFinalIntroPage = () => {
   const navigate = useNavigate();
@@ -47,14 +42,12 @@ const QuizFinalIntroPage = () => {
     [tutorials, currentTutorial?.id]
   );
 
-  // Fetch daftar tutorial sekali (untuk sidebar)
   useEffect(() => {
     if (!tutorialsFetched) {
       fetchTutorials(1).finally(() => setTutorialsFetched(true));
     }
   }, [tutorialsFetched, fetchTutorials]);
 
-  // Pilih tutorial aktif kalau ada (supaya sidebar highlight, tidak wajib untuk final quiz)
   useEffect(() => {
     if (tutorials.length === 0) return;
     const firstId = tutorials[0]?.id;
@@ -67,14 +60,16 @@ const QuizFinalIntroPage = () => {
   }, [tutorials, selectTutorial]);
 
   const handleStartQuiz = () => {
-    navigate("/quiz-final?embed=0");
+    navigate("/quiz-final");
   };
 
   const handleSelectSidebar = (item) => {
     if (item.type === "tutorial") navigate(`/learning/${item.id}`);
     else if (item.type === "quiz-sub") navigate(`/quiz-intro/${item.id}`);
-    else if (item.type === "quiz-final") navigate("/quiz-final-intro");
-    else if (item.type === "dashboard") navigate("/dashboard-modul");
+    else if (item.type === "quiz-final") {
+      const target = finalQuizDone() ? "/quiz-final-result" : "/quiz-final-intro";
+      navigate(target);
+    } else if (item.type === "dashboard") navigate("/dashboard-modul");
   };
 
   if (loading) {
@@ -180,7 +175,6 @@ const QuizFinalIntroPage = () => {
             </div>
           </div>
 
-          {/* Jika ingin alert fallback ketika data modul tidak ada */}
           {!currentTutorial && (
             <div className="mt-6">
               <Alert

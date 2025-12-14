@@ -18,14 +18,13 @@ const LoginPage = () => {
       const response = await login(formData.username, formData.password);
       console.log("Login response:", response);
 
-      // REDIRECT KE HOME SETELAH LOGIN BERHASIL
       if (response && response.token) {
-        console.log("Redirecting to /home...");
-        navigate("/home", { replace: true });
+        // Reload ke /home supaya state/context/storage segar untuk akun baru
+        window.location.replace("/home");
       }
     } catch (err) {
       console.error("Login error:", err);
-      setServerError(err?.error || "Login gagal.   Silakan coba lagi.");
+      setServerError(err?.error || "Login gagal. Silakan coba lagi.");
     }
   };
 

@@ -2,18 +2,73 @@
  * ProgressContext
  * Manage user learning progress
  */
-
-import React, { createContext, useState, useCallback, useContext } from 'react';
+import React, { createContext, useState, useCallback, useContext, useEffect, useRef } from 'react';
 import { STORAGE_KEYS } from '../constants/config';
+import { nsKey, getUserKey } from '../utils/storage';
+import userService from '../services/userService';
+import authService from '../services/authService';
 
 export const ProgressContext = createContext();
 
 export const ProgressProvider = ({ children }) => {
-  const [progress, setProgress] = useState(
-    JSON.parse(sessionStorage. getItem(STORAGE_KEYS.progress)) || {}
-  );
+  const userKey = getUserKey();
+  const prevUserKeyRef = useRef(userKey);
+
+  const loadProgressLocal = (ukey) => {
+    try {
+      return JSON.parse(sessionStorage.getItem(nsKey(STORAGE_KEYS.progress, ukey))) || {};
+    } catch {
+      return {};
+    }
+  };
+
+  const [progress, setProgress] = useState(() => loadProgressLocal(userKey));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // Reload progress dari backend tiap userKey berubah; kosongkan state dulu
+  useEffect(() => {
+    const prevKey = prevUserKeyRef.current;
+    if (prevKey !== userKey) {
+      setProgress({}); // hindari tampil progres user lama
+      prevUserKeyRef.current = userKey;
+    }
+
+    let cancelled = false;
+    const fetchProgress = async () => {
+      setLoading(true);
+      setError(null);
+
+      // Skip jika belum ada token (hindari 401 loop di login)
+      const token = authService.getToken();
+      if (!token) {
+        setProgress(loadProgressLocal(userKey));
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const res = await userService.getProfile(); // backend kembalikan progress map
+        const backendProgress = res?.progress || {};
+        if (!cancelled) {
+          setProgress(backendProgress);
+          sessionStorage.setItem(nsKey(STORAGE_KEYS.progress, userKey), JSON.stringify(backendProgress));
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(err?.message || 'Gagal memuat progres');
+          // fallback ke progres lokal supaya tidak blank
+          setProgress(loadProgressLocal(userKey));
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+    fetchProgress();
+    return () => {
+      cancelled = true;
+    };
+  }, [userKey]);
 
   /**
    * Update progress untuk tutorial tertentu
@@ -21,46 +76,18 @@ export const ProgressProvider = ({ children }) => {
   const updateTutorialProgress = useCallback((tutorialId, status = true) => {
     try {
       setProgress((prev) => {
-        const updated = {
-          ...prev,
-          [tutorialId]: status,
-        };
-        // Save to sessionStorage
-        sessionStorage.setItem(
-          STORAGE_KEYS.progress,
-          JSON.stringify(updated)
-        );
+        const updated = { ...prev, [tutorialId]: status };
+        sessionStorage.setItem(nsKey(STORAGE_KEYS.progress, userKey), JSON.stringify(updated));
         return updated;
       });
     } catch (err) {
       setError(err.message);
     }
-  }, []);
+  }, [userKey]);
 
-  /**
-   * Get progress untuk tutorial tertentu
-   */
-  const getTutorialProgress = useCallback((tutorialId) => {
-    return progress[tutorialId] || false;
-  }, [progress]);
-
-  /**
-   * Get completed count
-   */
-  const getCompletedCount = useCallback(() => {
-    return Object.values(progress).filter((status) => status === true).length;
-  }, [progress]);
-
-  /**
-   * Get total count
-   */
-  const getTotalCount = useCallback(() => {
-    return Object.keys(progress).length;
-  }, [progress]);
-
-  /**
-   * Get completion percentage
-   */
+  const getTutorialProgress = useCallback((tutorialId) => progress[tutorialId] || false, [progress]);
+  const getCompletedCount = useCallback(() => Object.values(progress).filter((status) => status === true).length, [progress]);
+  const getTotalCount = useCallback(() => Object.keys(progress).length, [progress]);
   const getCompletionPercentage = useCallback(() => {
     const total = getTotalCount();
     if (total === 0) return 0;
@@ -68,24 +95,18 @@ export const ProgressProvider = ({ children }) => {
     return Math.round((completed / total) * 100);
   }, [getTotalCount, getCompletedCount]);
 
-  /**
-   * Reset all progress
-   */
   const resetProgress = useCallback(() => {
     try {
       const resetData = {};
-      Object.keys(progress). forEach((key) => {
+      Object.keys(progress).forEach((key) => {
         resetData[key] = false;
       });
       setProgress(resetData);
-      sessionStorage.setItem(
-        STORAGE_KEYS.progress,
-        JSON.stringify(resetData)
-      );
+      sessionStorage.setItem(nsKey(STORAGE_KEYS.progress, userKey), JSON.stringify(resetData));
     } catch (err) {
       setError(err.message);
     }
-  }, [progress]);
+  }, [progress, userKey]);
 
   const value = {
     progress,
@@ -99,11 +120,7 @@ export const ProgressProvider = ({ children }) => {
     resetProgress,
   };
 
-  return (
-    <ProgressContext.Provider value={value}>
-      {children}
-    </ProgressContext.Provider>
-  );
+  return <ProgressContext.Provider value={value}>{children}</ProgressContext.Provider>;
 };
 
 /**

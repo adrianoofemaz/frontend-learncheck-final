@@ -5,12 +5,13 @@
 import React, { createContext, useState, useCallback, useRef } from "react";
 import userService from "../services/userService";
 import { STORAGE_KEYS } from "../constants/config";
+import { nsKey } from "../utils/storage";
 
 export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
   const [preferences, setPreferences] = useState(
-    JSON.parse(sessionStorage.getItem(STORAGE_KEYS.preferences)) || {
+    JSON.parse(sessionStorage.getItem(nsKey(STORAGE_KEYS.preferences))) || {
       theme: "light",
       font_size: "md",
       font: "sans",
@@ -28,10 +29,7 @@ export const UserProvider = ({ children }) => {
     try {
       const response = await userService.getPreferences();
       setPreferences(response.preference);
-      sessionStorage.setItem(
-        STORAGE_KEYS.preferences,
-        JSON.stringify(response.preference)
-      );
+      sessionStorage.setItem(nsKey(STORAGE_KEYS.preferences), JSON.stringify(response.preference));
     } catch (err) {
       setError(err.message || "Failed to fetch preferences");
     } finally {
@@ -52,10 +50,7 @@ export const UserProvider = ({ children }) => {
       try {
         const response = await userService.updatePreferences(newPreferences);
         setPreferences(response.preference);
-        sessionStorage.setItem(
-          STORAGE_KEYS.preferences,
-          JSON.stringify(response.preference)
-        );
+        sessionStorage.setItem(nsKey(STORAGE_KEYS.preferences), JSON.stringify(response.preference));
         return response;
       } catch (err) {
         setError(err.message || "Failed to update preferences");

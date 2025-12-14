@@ -14,11 +14,11 @@ import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
 
 // Pages - Main
-import ClassDetailPage from "./pages/ClassDetailPage";
+import ClassDetailPage from "./pages/HomePage";
 import LearningPage from "./pages/LearningPage";
 import QuizIntroPage from "./pages/QuizIntroPage";
-import QuizPage from "./pages/QuizPage";                 // PLAYER (iframe)
-import ResultsPage from "./pages/ResultsPage";           // PLAYER (iframe)
+import QuizPage from "./pages/QuizPage";           // PLAYER (iframe-capable)
+import ResultsPage from "./pages/ResultsPage";     // RESULT (iframe-capable)
 import NotFoundPage from "./pages/NotFoundPage";
 
 // Pages - Final Quiz & Dashboard Modul
@@ -27,7 +27,7 @@ import FinalQuizPage from "./pages/FinalQuizPage";
 import FinalQuizResultPage from "./pages/FinalQuizResultPage";
 import DashboardModulPage from "./pages/DashboardModulPage";
 
-// Shell pages (baru)
+// Shell pages (opsional)
 import QuizShellPage from "./pages/QuizShellPage";
 import QuizResultsShellPage from "./pages/QuizResultsShellPage";
 
@@ -54,14 +54,14 @@ function App() {
                 <Route path={ROUTES.LEARNING} element={<LearningPage />} />
                 <Route path={ROUTES.QUIZ_INTRO} element={<QuizIntroPage />} />
 
-                {/* Shell (iframe container) */}
+                {/* Shell (opsional) */}
                 <Route path={ROUTES.QUIZ} element={<QuizShellPage />} />
                 <Route path={ROUTES.QUIZ_RESULTS} element={<QuizResultsShellPage />} />
 
-                {/* Player targets (iframe) */}
-                <Route path="/quiz-player/:tutorialId" element={<QuizPage />} />
-                <Route path="/quiz-results-player/:tutorialId" element={<ResultsPage />} />
-          
+                {/* Alias player langsung (iframe) */}
+                <Route path={ROUTES.QUIZ_PLAYER} element={<QuizPage />} />
+                <Route path={ROUTES.QUIZ_RESULTS_PLAYER} element={<ResultsPage />} />
+
                 {/* Final Quiz */}
                 <Route path={ROUTES.QUIZ_FINAL_INTRO} element={<FinalQuizIntroPage />} />
                 <Route path={ROUTES.QUIZ_FINAL} element={<FinalQuizPage />} />

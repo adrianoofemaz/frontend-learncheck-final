@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 
 const IconCircleX = ({ className = "w-5 h-5 text-red-500" }) => (
   <svg className={className} viewBox="0 0 20 20" fill="none">
@@ -44,12 +44,18 @@ const IconChevron = ({ open }) => (
 );
 
 const AnswerReview = ({ answers = [], questions = [] }) => {
+  const [openMap, setOpenMap] = useState({});
+
+  const normalizedAnswers = useMemo(() => answers, [answers]);
+
   const getAnswerFor = (q, idx) => {
-    const direct = answers[idx];
+    const direct = normalizedAnswers[idx];
     if (direct) return direct;
     if (q?.id) {
       return (
-        answers.find((a) => a?.soal_id?.toString() === q.id?.toString()) || {}
+        normalizedAnswers.find(
+          (a) => a?.soal_id?.toString() === q.id?.toString()
+        ) || {}
       );
     }
     return {};
@@ -70,7 +76,9 @@ const AnswerReview = ({ answers = [], questions = [] }) => {
           q?.explanation ||
           "";
 
-        const [open, setOpen] = useState(false);
+        const open = !!openMap[idx];
+        const toggle = () =>
+          setOpenMap((prev) => ({ ...prev, [idx]: !prev[idx] }));
 
         const cardBorder = isCorrect ? "border-green-500/80" : "border-red-500";
         const IconStatus = isCorrect ? IconCircleCheck : IconCircleX;
@@ -82,7 +90,7 @@ const AnswerReview = ({ answers = [], questions = [] }) => {
           >
             <button
               type="button"
-              onClick={() => setOpen((p) => !p)}
+              onClick={toggle}
               className="w-full flex items-start gap-3 p-4 sm:p-5 text-left"
             >
               <div className="mt-1">

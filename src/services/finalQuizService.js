@@ -1,29 +1,41 @@
-import api from './api';
-import { API_ENDPOINTS } from '../constants/apiEndpoints';
-import authService from './authService';
+import api from "./api";
+import { API_ENDPOINTS } from "../constants/apiEndpoints";
+import authService from "./authService";
 
-// Dummy 10 soal untuk render UI; ganti dengan fetch backend saat siap
-const dummyQuestions = Array.from({ length: 10 }).map((_, idx) => ({
-  id: `q${idx + 1}`,
-  assessment: `Soal final ke-${idx + 1}: Apa jawaban yang tepat?`,
-  multiple_choice: [
-    { id: 1, option: 'Pilihan A' },
-    { id: 2, option: 'Pilihan B' },
-    { id: 3, option: 'Pilihan C' },
-    { id: 4, option: 'Pilihan D' },
-  ],
-}));
+/**
+ * Map backend final questions (option_1..4) ke bentuk multiple_choice standar
+ */
+const mapFinalQuestions = (raw = []) =>
+  raw.map((q) => ({
+    id: q.id,
+    assessment: q.assessment,
+    multiple_choice: [
+      { id: 1, option: q.option_1 },
+      { id: 2, option: q.option_2 },
+      { id: 3, option: q.option_3 },
+      { id: 4, option: q.option_4 },
+    ],
+    tutorial_id: q.tutorial_id,
+  }));
 
 const finalQuizService = {
   getFinalQuestions: async () => {
     const token = authService.getToken();
-    if (!token) throw new Error('Silakan login terlebih dahulu');
+    if (!token) throw new Error("Silakan login terlebih dahulu");
 
-    // TODO: aktifkan ketika backend ready
-    // const res = await api.get(API_ENDPOINTS.QUESTIONS_FINAL);
-    // return res.data?.data?.questions || res.data;
+    const res = await api.get(API_ENDPOINTS.QUESTIONS_FINAL);
+    // Backend: res.data = { success, data: [ {id, assessment, option_1..4} ] }
+    const raw = res.data?.data || res.data || [];
+    return mapFinalQuestions(raw);
+  },
 
-    return dummyQuestions;
+  submitFinalAnswers: async (answers) => {
+    const token = authService.getToken();
+    if (!token) throw new Error("Silakan login terlebih dahulu");
+
+    // answers: [{ question_id, answer }]
+    const res = await api.post(API_ENDPOINTS.SUBMIT_FINAL_ANSWERS, { answers });
+    return res.data;
   },
 };
 

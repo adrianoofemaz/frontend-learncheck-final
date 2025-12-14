@@ -138,17 +138,6 @@ const Navbar = () => {
                 <SettingsDropdown />
               </div>
             )}
-
-            {/* FONT SIZE SELECT
-            <select
-              value={preferences.font_size}
-              onChange={handleFontSizeChange}
-              className="text-sm font-medium"
-            >
-              <option value="sm">Small</option>
-              <option value="md">Medium</option>
-              <option value="lg">Large</option>
-            </select> */}
           </div>
 
           {/* MOBILE MENU TOGGLE */}

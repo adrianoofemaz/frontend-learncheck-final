@@ -12,22 +12,20 @@ import {
   getMockQuestions,
   DEFAULT_MOCK_FEEDBACK,
 } from "../constants/mockQuestions";
+import { getUserKey } from "../utils/storage";
+import { useProgress } from "../context/ProgressContext";
 
-/* -------------------------------------------------------------------------- */
-/* Helpers: simpan hasil quiz submodul ke localStorage                        */
-/* -------------------------------------------------------------------------- */
-const SUBMODULE_RESULT_KEY = "submodule-results";
-
-const loadSubmoduleResults = () => {
+const submoduleResultKey = (uid) => `${uid}:submodule-results`;
+const loadSubmoduleResults = (uid) => {
   try {
-    const raw = localStorage.getItem(SUBMODULE_RESULT_KEY);
+    const raw = localStorage.getItem(submoduleResultKey(uid));
     return raw ? JSON.parse(raw) : [];
   } catch {
     return [];
   }
 };
-
 const saveSubmoduleResult = (
+  uid,
   tutorialId,
   name,
   score,
@@ -35,7 +33,7 @@ const saveSubmoduleResult = (
   total,
   durationSec
 ) => {
-  const existing = loadSubmoduleResults();
+  const existing = loadSubmoduleResults(uid);
   const idx = existing.findIndex((e) => String(e.id) === String(tutorialId));
   const attempts = idx >= 0 ? (existing[idx].attempts || 0) + 1 : 1;
   const entry = {
@@ -47,22 +45,21 @@ const saveSubmoduleResult = (
     durationSec,
     attempts,
   };
-  if (idx >= 0) {
-    existing[idx] = entry;
-  } else {
-    existing.push(entry);
-  }
-  localStorage.setItem(SUBMODULE_RESULT_KEY, JSON.stringify(existing));
+  if (idx >= 0) existing[idx] = entry;
+  else existing.push(entry);
+  localStorage.setItem(submoduleResultKey(uid), JSON.stringify(existing));
 };
-/* -------------------------------------------------------------------------- */
 
 const QuizPage = () => {
   const navigate = useNavigate();
   const { tutorialId } = useParams();
   const [searchParams] = useSearchParams();
   const embed = searchParams.get("embed") === "1";
+  const userKey = getUserKey();
 
-  const storageKey = tutorialId ? `quiz-progress-${tutorialId}` : null;
+  const storageKey = tutorialId
+    ? `${userKey}:quiz-progress-${tutorialId}`
+    : null;
 
   const {
     questions,
@@ -82,6 +79,7 @@ const QuizPage = () => {
     nextQuestion,
     initializeQuiz,
   } = useQuizProgress();
+  const { updateTutorialProgress } = useProgress();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
@@ -95,14 +93,10 @@ const QuizPage = () => {
 
   const goToResults = useCallback(
     (result) => {
-      const url = `/quiz-results-player/${tutorialId}?embed=0`;
-      if (embed && window.top) {
-        window.top.location.href = url;
-      } else {
-        navigate(url, { state: { result } });
-      }
+      const url = `/quiz-results-player/${tutorialId}`; // tanpa embed=1 agar sidebar/bottom muncul
+      navigate(url, { state: { result } });
     },
-    [embed, navigate, tutorialId]
+    [navigate, tutorialId]
   );
 
   useEffect(() => {
@@ -224,8 +218,8 @@ const QuizPage = () => {
       feedback: DEFAULT_MOCK_FEEDBACK,
     };
 
-    // Simpan ringkasan submodul ke localStorage
     saveSubmoduleResult(
+      userKey,
       tutorialId,
       result?.tutorial_key || `Submodul ${tutorialId}`,
       result.score,
@@ -245,8 +239,13 @@ const QuizPage = () => {
         result,
       };
       localStorage.setItem(storageKey, JSON.stringify(saved));
-      localStorage.setItem(`quiz-result-${tutorialId}`, JSON.stringify(result));
+      localStorage.setItem(
+        `${userKey}:quiz-result-${tutorialId}`,
+        JSON.stringify(result)
+      );
     }
+    updateTutorialProgress?.(tutorialId, true);
+
     try {
       window.parent.postMessage(
         { type: "quiz-submitted", tutorialId, result },
@@ -266,6 +265,8 @@ const QuizPage = () => {
     storageKey,
     tutorialId,
     goToResults,
+    userKey,
+    updateTutorialProgress,
   ]);
 
   const handleSubmitQuiz = useCallback(async () => {
@@ -296,14 +297,41 @@ const QuizPage = () => {
         answersData
       );
 
-      // Simpan ringkasan submodul ke localStorage
+      const detail =
+        result?.detail ||
+        result?.answers ||
+        questions.map((q, idx) => {
+          const selectedIndex = answers[idx];
+          const selected = q?.multiple_choice?.[selectedIndex];
+          const correctChoice = q?.multiple_choice?.find((o) => o.correct);
+          return {
+            soal_id: q?.id,
+            correct: !!selected?.correct,
+            user_answer: selected?.option || selected?.answer || "",
+            answer: correctChoice?.option || correctChoice?.answer || "",
+            explanation:
+              selected?.explanation ||
+              correctChoice?.explanation ||
+              q?.explanation ||
+              "",
+          };
+        });
+
+      const resultEnriched = {
+        ...result,
+        detail,
+        answers: result.answers || detail,
+        questions: result.questions || questions,
+      };
+
       saveSubmoduleResult(
+        userKey,
         tutorialId,
-        result?.tutorial_key || `Submodul ${tutorialId}`,
-        result?.score ?? 0,
-        result?.benar ?? 0,
-        result?.total ?? questions.length,
-        result?.duration ?? 0
+        resultEnriched?.tutorial_key || `Submodul ${tutorialId}`,
+        resultEnriched?.score ?? 0,
+        resultEnriched?.benar ?? 0,
+        resultEnriched?.total ?? questions.length,
+        resultEnriched?.duration ?? 0
       );
 
       if (storageKey) {
@@ -314,20 +342,25 @@ const QuizPage = () => {
           answers,
           lockedAnswers,
           completed: true,
-          result,
+          result: resultEnriched,
         };
         localStorage.setItem(storageKey, JSON.stringify(saved));
+        localStorage.setItem(
+          `${userKey}:quiz-result-${tutorialId}`,
+          JSON.stringify(resultEnriched)
+        );
       }
+      updateTutorialProgress?.(tutorialId, true);
 
       try {
         window.parent.postMessage(
-          { type: "quiz-submitted", tutorialId, result },
+          { type: "quiz-submitted", tutorialId, result: resultEnriched },
           "*"
         );
       } catch (e) {
         console.warn("postMessage failed", e);
       }
-      goToResults(result);
+      goToResults(resultEnriched);
     } catch (err) {
       const friendly =
         err?.raw?.details || err?.message || "Gagal mengirim jawaban";
@@ -348,6 +381,8 @@ const QuizPage = () => {
     isMock,
     handleSubmitMock,
     goToResults,
+    userKey,
+    updateTutorialProgress,
   ]);
 
   const handleTimeUp = useCallback(() => {
@@ -447,7 +482,7 @@ const QuizPage = () => {
         embed={embed}
         contentClassName="pb-16"
       >
-        <div className="min-h-screen flex items-center justify-center">
+        <div className="min-h-screen flex itemsCenter justifyCenter">
           <div className="max-w-2xl mx-auto text-center">
             <p className="text-gray-600 mb-4">
               Pertanyaan belum tersedia untuk submodul ini.
@@ -518,7 +553,7 @@ const QuizPage = () => {
               questionNumber={currentQuestionIndex + 1}
               totalQuestions={questions.length}
               locked={!!lockedAnswers[currentQuestionIndex]}
-              showFeedback={true} // submodul: tampilkan feedback
+              showFeedback={true}
             />
 
             <div className="mt-6 flex justify-end">

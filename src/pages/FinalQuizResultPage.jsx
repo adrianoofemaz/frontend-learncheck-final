@@ -6,8 +6,13 @@ import BottomBarTwoActions from "../components/Layout/BottomBarTwoActions";
 import { useLearning } from "../hooks/useLearning";
 import { useProgress } from "../context/ProgressContext";
 import { buildSidebarItems } from "../utils/navigationChain";
-import ResultCard from "../components/features/feedback/ResultCard";
-import AnswerReview from "../components/features/feedback/AnswerReview";
+import ResultCard from "../components/Features/feedback/ResultCard";
+import AnswerReview from "../components/Features/feedback/AnswerReview";
+import Button from "../components/common/Button";
+import { getUserKey } from "../utils/storage";
+import { finalQuizDone } from "../utils/accessControl";
+
+const FINAL_RESULT_KEY = (userKey) => `${userKey}:quiz-final-result`;
 
 const FinalQuizResultPage = () => {
   const { state } = useLocation();
@@ -19,59 +24,66 @@ const FinalQuizResultPage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [showReview, setShowReview] = useState(false);
 
-  const {
-    score = 0,
-    correct = 0,
-    total = 0,
-    duration = 0,
-    answers = [],
-    questions = [],
-  } = state || {};
+  const userKey = getUserKey();
 
-  const answersList = useMemo(() => {
-    if (Array.isArray(answers)) return answers;
-    return Object.entries(answers || {}).map(([idx, val]) => {
-      const q = questions?.[idx];
-      const sel = q?.multiple_choice?.[val];
-      return {
-        questionId: q?.id ?? Number(idx),
-        selectedIndex: val ?? null,
-        selectedOption: sel?.option || sel?.answer || "",
-        correct: !!sel?.correct,
-      };
-    });
-  }, [answers, questions]);
+  const localResult = useMemo(() => {
+    try {
+      const raw = localStorage.getItem(FINAL_RESULT_KEY(userKey));
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  }, [userKey]);
+
+  const data = state || localResult || null;
+
+  useEffect(() => {
+    if (!data) {
+      navigate("/quiz-final-intro", { replace: true });
+    }
+  }, [data, navigate]);
+
+  if (!data) {
+    return null;
+  }
+
+  const score = data?.score ?? 0;
+  const correct = data?.correct ?? 0;
+  const total = data?.total ?? 0;
+  const duration = data?.lama_mengerjakan || data?.duration || "";
+
+  const answers = data?.answers || data?.detail || [];
+  const questions = data?.questions || [];
 
   const sidebarItems = useMemo(
     () => buildSidebarItems(tutorials, getTutorialProgress),
     [tutorials, getTutorialProgress]
   );
 
-  const goBackChain = () => {
-    if (tutorials.length === 0) {
-      navigate("/home");
-      return;
-    }
-    const last = tutorials[tutorials.length - 1];
-    navigate(`/learning/${last.id}`);
-  };
-
   const handleSelectSidebar = (item) => {
     if (item.type === "tutorial") navigate(`/learning/${item.id}`);
     else if (item.type === "quiz-sub") navigate(`/quiz-intro/${item.id}`);
-    else if (item.type === "quiz-final") navigate("/quiz-final-intro");
-    else if (item.type === "dashboard") navigate("/dashboard-modul");
+    else if (item.type === "quiz-final") {
+      // kalau sudah punya hasil final, boleh balik ke result, else ke intro
+      const target = finalQuizDone()
+        ? "/quiz-final-result"
+        : "/quiz-final-intro";
+      navigate(target);
+    } else if (item.type === "dashboard") navigate("/dashboard-modul");
   };
 
-  useEffect(() => {
-    if (!state) {
-      navigate("/dashboard-modul");
+  const handleRetry = () => {
+    try {
+      localStorage.removeItem(FINAL_RESULT_KEY(userKey));
+    } catch (e) {
+      console.warn("Failed to clear final result", e);
     }
-  }, [state, navigate]);
+    navigate("/quiz-final-intro");
+  };
 
   const handleDashboard = () => {
     navigate("/dashboard-modul", {
-      state: { score, correct, total, duration },
+      state: { analytics: { finalScore: score } },
     });
   };
 
@@ -97,7 +109,7 @@ const FinalQuizResultPage = () => {
           <BottomBarTwoActions
             leftLabel="← Kembali"
             rightLabel="Selesai"
-            onLeft={goBackChain}
+            onLeft={() => navigate("/dashboard-modul")}
             onRight={() => navigate("/home")}
           />
         ) : null
@@ -106,22 +118,20 @@ const FinalQuizResultPage = () => {
       <div className="max-w-3xl mx-auto py-10 space-y-8">
         <ResultCard
           title="Quiz Akhir Modul"
-          subtitle="Penerapan AI dalam Dunia Nyata"
+          subtitle="Berkenalan dengan AI"
           score={score}
           correct={correct}
           total={total}
           duration={duration}
           isPass={score >= 70}
-          onRetry={() => navigate("/quiz-final-intro")}
+          onRetry={handleRetry}
           onReview={() => setShowReview((v) => !v)}
-          onDashboard={handleDashboard} // tombol Dashboard di samping Review
+          onDashboard={handleDashboard}
           reviewLabel={showReview ? "Tutup Review" : "Review Soal"}
           dashboardLabel="Dashboard"
         />
 
-        {showReview && (
-          <AnswerReview answers={answersList} questions={questions} />
-        )}
+        {showReview && <AnswerReview answers={answers} questions={questions} />}
       </div>
     </LayoutWrapper>
   );
