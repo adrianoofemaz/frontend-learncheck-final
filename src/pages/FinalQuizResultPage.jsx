@@ -8,9 +8,8 @@ import { useProgress } from "../context/ProgressContext";
 import { buildSidebarItems } from "../utils/navigationChain";
 import ResultCard from "../components/Features/feedback/ResultCard";
 import AnswerReview from "../components/Features/feedback/AnswerReview";
-import Button from "../components/common/Button";
 import { getUserKey } from "../utils/storage";
-import { finalQuizDone } from "../utils/accessControl";
+import { finalQuizDone, quizDone } from "../utils/accessControl";
 
 const FINAL_RESULT_KEY = (userKey) => `${userKey}:quiz-final-result`;
 
@@ -43,15 +42,12 @@ const FinalQuizResultPage = () => {
     }
   }, [data, navigate]);
 
-  if (!data) {
-    return null;
-  }
+  if (!data) return null;
 
   const score = data?.score ?? 0;
   const correct = data?.correct ?? 0;
   const total = data?.total ?? 0;
   const duration = data?.lama_mengerjakan || data?.duration || "";
-
   const answers = data?.answers || data?.detail || [];
   const questions = data?.questions || [];
 
@@ -64,10 +60,7 @@ const FinalQuizResultPage = () => {
     if (item.type === "tutorial") navigate(`/learning/${item.id}`);
     else if (item.type === "quiz-sub") navigate(`/quiz-intro/${item.id}`);
     else if (item.type === "quiz-final") {
-      // kalau sudah punya hasil final, boleh balik ke result, else ke intro
-      const target = finalQuizDone()
-        ? "/quiz-final-result"
-        : "/quiz-final-intro";
+      const target = finalQuizDone() ? "/quiz-final-result" : "/quiz-final-intro";
       navigate(target);
     } else if (item.type === "dashboard") navigate("/dashboard-modul");
   };
@@ -81,18 +74,24 @@ const FinalQuizResultPage = () => {
     navigate("/quiz-final-intro");
   };
 
-  const handleDashboard = () => {
-    navigate("/dashboard-modul", {
-      state: { analytics: { finalScore: score } },
-    });
+  const handleBack = () => {
+    const lastDone = [...tutorials].reverse().find((t) => quizDone(t.id));
+    if (lastDone) {
+      navigate(`/quiz-results-player/${lastDone.id}`);
+      return;
+    }
+    navigate("/quiz-final-intro");
+  };
+
+  const handleFinish = () => {
+    navigate("/dashboard-modul", { state: { analytics: { finalScore: score } } });
   };
 
   return (
     <LayoutWrapper
       embed={embed}
-      contentClassName={`pt-20 pb-24 ${
-        sidebarOpen ? "pr-80" : ""
-      } transition-all duration-300`}
+      showFooter={false} // ⬅️ hilangkan footer di halaman hasil final
+      contentClassName={`pt-20 pb-24 ${sidebarOpen ? "pr-80" : ""} transition-all duration-300`}
       sidePanel={
         !embed ? (
           <ModuleSidebar
@@ -108,9 +107,9 @@ const FinalQuizResultPage = () => {
         !embed ? (
           <BottomBarTwoActions
             leftLabel="← Kembali"
-            rightLabel="Selesai"
-            onLeft={() => navigate("/dashboard-modul")}
-            onRight={() => navigate("/home")}
+            rightLabel="Dashboard →"
+            onLeft={handleBack}
+            onRight={handleFinish}
           />
         ) : null
       }
@@ -126,9 +125,7 @@ const FinalQuizResultPage = () => {
           isPass={score >= 70}
           onRetry={handleRetry}
           onReview={() => setShowReview((v) => !v)}
-          onDashboard={handleDashboard}
           reviewLabel={showReview ? "Tutup Review" : "Review Soal"}
-          dashboardLabel="Dashboard"
         />
 
         {showReview && <AnswerReview answers={answers} questions={questions} />}

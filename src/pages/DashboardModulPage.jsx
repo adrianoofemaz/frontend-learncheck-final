@@ -27,8 +27,7 @@ const SUBMODULE_TITLE_MAP = {
   35428: "Tipe-Tipe Machine Learning",
 };
 
-const fmtPct = (v) =>
-  v === null || v === undefined ? "-" : `${Math.round(v)}%`;
+const fmtPct = (v) => (v === null || v === undefined ? "-" : `${Math.round(v)}%`);
 const fmtTime = (sec) => {
   if (sec === null || sec === undefined) return "-";
   const h = Math.floor(sec / 3600);
@@ -100,8 +99,7 @@ const DashboardModulPage = ({ data }) => {
     Array.isArray(payload.submodules) && payload.submodules.length > 0
       ? payload.submodules
       : localSubs || [];
-  const finalScore =
-    payload.finalScore ?? finalLocal?.score ?? state?.score ?? 0;
+  const finalScore = payload.finalScore ?? finalLocal?.score ?? state?.score ?? 0;
   const totalLearningSeconds = payload.totalLearningSeconds ?? 5400; // fallback 1.5h
   const pass = computePassStatus({ submodules, finalScore });
 
@@ -115,9 +113,8 @@ const DashboardModulPage = ({ data }) => {
   return (
     <LayoutWrapper
       embed={embed}
-      contentClassName={`pt-20 pb-24 ${
-        sidebarOpen ? "pr-80" : ""
-      } transition-all duration-300`}
+      showFooter={false} // footer disembunyikan di dashboard modul
+      contentClassName={`pt-20 pb-24 ${sidebarOpen ? "pr-80" : ""} transition-all duration-300`}
       sidePanel={
         !embed ? (
           <div className="print-hide">
@@ -126,15 +123,11 @@ const DashboardModulPage = ({ data }) => {
               currentId={null}
               onSelect={(item) => {
                 if (item.type === "tutorial") navigate(`/learning/${item.id}`);
-                else if (item.type === "quiz-sub")
-                  navigate(`/quiz-intro/${item.id}`);
+                else if (item.type === "quiz-sub") navigate(`/quiz-intro/${item.id}`);
                 else if (item.type === "quiz-final") {
-                  const target = finalLocal
-                    ? "/quiz-final-result"
-                    : "/quiz-final-intro";
+                  const target = finalLocal ? "/quiz-final-result" : "/quiz-final-intro";
                   navigate(target);
-                } else if (item.type === "dashboard")
-                  navigate("/dashboard-modul");
+                } else if (item.type === "dashboard") navigate("/dashboard-modul");
               }}
               isOpen={sidebarOpen}
               onToggle={() => setSidebarOpen((p) => !p)}
@@ -155,59 +148,38 @@ const DashboardModulPage = ({ data }) => {
         ) : null
       }
     >
-      <div
-        id="printable-analytics"
-        className="max-w-6xl mx-auto py-10 space-y-6 px-4"
-      >
+      <div id="printable-analytics" className="max-w-6xl mx-auto py-10 space-y-6 px-4">
         <div className="text-center space-y-1">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Analytics Dashboard
-          </h1>
-          <p className="text-gray-600">
-            Modul: {payload.moduleTitle || "Berkenalan dengan AI"}
-          </p>
+          <h1 className="text-3xl font-bold text-gray-900">Analytics Dashboard</h1>
+          <p className="text-gray-600">Modul: {payload.moduleTitle || "Berkenalan dengan AI"}</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <Card className="p-4 flex items-center gap-3 bg-white rounded-2xl shadow-sm border border-gray-100">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
-              %
-            </div>
+            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">%</div>
             <div>
               <p className="text-sm text-gray-500">Nilai Akhir Modul</p>
-              <p className="text-xl font-semibold text-gray-900">
-                {fmtPct(finalScore)}
-              </p>
+              <p className="text-xl font-semibold text-gray-900">{fmtPct(finalScore)}</p>
             </div>
           </Card>
           <Card className="p-4 flex items-center gap-3 bg-white rounded-2xl shadow-sm border border-gray-100">
-            <div className="w-10 h-10 rounded-xl bg-green-50 text-green-600 flex items-center justify-center font-bold">
-              ✓
-            </div>
+            <div className="w-10 h-10 rounded-xl bg-green-50 text-green-600 flex items-center justify-center font-bold">✓</div>
             <div>
               <p className="text-sm text-gray-500">Status Kelulusan</p>
-              <p className="text-xl font-semibold text-gray-900">
-                {pass ? "Lulus" : "Belum Lulus"}
-              </p>
+              <p className="text-xl font-semibold text-gray-900">{pass ? "Lulus" : "Belum Lulus"}</p>
             </div>
           </Card>
           <Card className="p-4 flex items-center gap-3 bg-white rounded-2xl shadow-sm border border-gray-100">
-            <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
-              ⏱
-            </div>
+            <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">⏱</div>
             <div>
               <p className="text-sm text-gray-500">Total Waktu Belajar</p>
-              <p className="text-xl font-semibold text-gray-900">
-                {fmtTime(totalLearningSeconds)}
-              </p>
+              <p className="text-xl font-semibold text-gray-900">{fmtTime(totalLearningSeconds)}</p>
             </div>
           </Card>
         </div>
 
         <Card className="p-4 bg-white rounded-2xl shadow-sm border border-gray-100 min-w-0">
-          <p className="font-semibold text-gray-800 mb-3">
-            Nilai Quiz Submodul
-          </p>
+          <p className="font-semibold text-gray-800 mb-3">Nilai Quiz Submodul</p>
           <SubmoduleScoreChart
             data={submodules.map((s, i) => ({
               name: getSubmoduleName(s, i),
@@ -217,9 +189,7 @@ const DashboardModulPage = ({ data }) => {
         </Card>
 
         <Card className="p-4 bg-white rounded-2xl shadow-sm border border-gray-100">
-          <p className="font-semibold text-gray-800 mb-4">
-            Peta Kelemahan Anda
-          </p>
+          <p className="font-semibold text-gray-800 mb-4">Peta Kelemahan Anda</p>
           <div className="overflow-x-auto rounded-2xl shadow-sm border border-blue-100">
             <table className="min-w-full text-sm text-left border-collapse table-fixed">
               <colgroup>
@@ -233,9 +203,7 @@ const DashboardModulPage = ({ data }) => {
                   <th className="px-5 py-3 font-semibold">Materi</th>
                   <th className="px-5 py-3 font-semibold text-center">Nilai</th>
                   <th className="px-5 py-3 font-semibold text-center">Waktu</th>
-                  <th className="px-5 py-3 font-semibold text-center">
-                    Percobaan
-                  </th>
+                  <th className="px-5 py-3 font-semibold text-center">Percobaan</th>
                 </tr>
               </thead>
               <tbody>
@@ -256,18 +224,10 @@ const DashboardModulPage = ({ data }) => {
                       key={`${s.id ?? i}`}
                       className={`${bg} border-b border-[#d9e4f5] last:border-0 text-[15px]`}
                     >
-                      <td className="px-5 py-3 text-gray-800 align-top">
-                        {getSubmoduleName(s, i)}
-                      </td>
-                      <td className="px-5 py-3 text-gray-800 text-center">
-                        {fmtPct(score)}
-                      </td>
-                      <td className="px-5 py-3 text-gray-800 text-center">
-                        {dur} detik
-                      </td>
-                      <td className="px-5 py-3 text-gray-800 text-center">
-                        {attempts}x
-                      </td>
+                      <td className="px-5 py-3 text-gray-800 align-top">{getSubmoduleName(s, i)}</td>
+                      <td className="px-5 py-3 text-gray-800 text-center">{fmtPct(score)}</td>
+                      <td className="px-5 py-3 text-gray-800 text-center">{dur} detik</td>
+                      <td className="px-5 py-3 text-gray-800 text-center">{attempts}x</td>
                     </tr>
                   );
                 })}
@@ -275,9 +235,8 @@ const DashboardModulPage = ({ data }) => {
             </table>
           </div>
           <div className="mt-4 text-sm text-gray-700 leading-relaxed bg-white border border-blue-100 rounded-xl p-4 shadow-sm">
-            Beberapa materi masih menunjukkan area yang perlu diperkuat. Gunakan
-            insight nilai, waktu, dan percobaan untuk fokus belajar di submodul
-            dengan skor rendah atau waktu pengerjaan yang lama.
+            Beberapa materi masih menunjukkan area yang perlu diperkuat. Gunakan insight nilai, waktu, dan percobaan
+            untuk fokus belajar di submodul dengan skor rendah atau waktu pengerjaan yang lama.
           </div>
         </Card>
 
