@@ -150,7 +150,7 @@ const BenefitsSection = ({ benefits }) => {
           <div
             key={benefit.id}
             className={`flex flex-col h-full items-center text-center backdrop-blur rounded-xl shadow-sm p-4 sm:p-5 border-1 hover:shadow-xl transform duration-500 ease-in-out hover:scale-105 ${
-              preferences.theme === "dark"
+              preferences?.theme === "dark"
                 ? "text-white bg-gray-700 border-gray-700"
                 : "text-gray-900 border-gray-200 bg-white"
             }`}
@@ -160,14 +160,16 @@ const BenefitsSection = ({ benefits }) => {
             </div>
             <h3
               className={`font-semibold ${
-                preferences.theme === "dark" ? "text-white" : "text-gray-900"
+                preferences?.theme === "dark" ? "text-white" : "text-gray-900"
               } mb-2 min-h-[48px] flex items-center justify-center`}
             >
               {benefit.title}
             </h3>
             <p
               className={`text-sm ${
-                preferences.theme === "dark" ? "text-gray-300" : "text-gray-600"
+                preferences?.theme === "dark"
+                  ? "text-gray-300"
+                  : "text-gray-600"
               } leading-relaxed`}
             >
               {benefit.desc}
