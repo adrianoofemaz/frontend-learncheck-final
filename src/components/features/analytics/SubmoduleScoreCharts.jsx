@@ -9,7 +9,39 @@ import {
   CartesianGrid,
 } from "recharts";
 
-const CHART_HEIGHT = 280;
+const CHART_HEIGHT = 320;
+
+// >>> Atur batas panjang label yang ditampilkan di axis (default 14)
+const MAX_LABEL_LEN = 15;
+// >>> Atur rotasi label (derajat). 0 untuk lurus, negatif untuk miring ke kiri.
+const LABEL_ANGLE = -20;
+
+const truncateLabel = (value, maxLen = MAX_LABEL_LEN) => {
+  if (!value) return "";
+  const s = String(value);
+  return s.length > maxLen ? `${s.slice(0, maxLen - 3)}...` : s;
+};
+
+const CustomTick = ({ x, y, payload }) => {
+  const full = payload?.value ?? "";
+  const text = truncateLabel(full);
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <text
+        x={0}
+        y={0}
+        dy={20}
+        textAnchor="end"
+        fill="#4b5563"
+        fontSize={11}
+        transform={`rotate(${LABEL_ANGLE})`}
+        title={full} // hover menampilkan teks penuh
+      >
+        {text}
+      </text>
+    </g>
+  );
+};
 
 const SubmoduleScoreChart = ({ data = [] }) => {
   const containerRef = useRef(null);
@@ -40,7 +72,17 @@ const SubmoduleScoreChart = ({ data = [] }) => {
     >
       {ready ? (
         <ResponsiveContainer width={width} height={CHART_HEIGHT}>
-          <AreaChart data={data} margin={{ top: 10, right: 10, bottom: 10, left: 0 }}>
+          <AreaChart
+            data={data}
+            margin={{
+              top: 10,
+              right: 36,
+              // >>> Atur bottom margin jika label terpotong (default 45)
+              bottom: 36,
+              // >>> Atur left margin jika label paling kiri terpotong (default 12)
+              left: 12,
+            }}
+          >
             <defs>
               <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#1e7bff" stopOpacity={0.6} />
@@ -48,7 +90,11 @@ const SubmoduleScoreChart = ({ data = [] }) => {
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-            <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+            <XAxis
+              dataKey="name"
+              interval={0} // tampilkan semua tick
+              tick={<CustomTick />}
+            />
             <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} />
             <Tooltip />
             <Area

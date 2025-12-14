@@ -97,6 +97,99 @@ const getQuizResultFromLocal = (id) => {
   }
 };
 
+// Palet lembut agar selaras dengan tema (biru-putih)
+const PALETTE = {
+  green: "#e6f7ec",
+  yellow: "#fff7da",
+  orange: "#ffe6d9",
+};
+
+// Ambang score: tinggi/menengah/rendah
+const colorScore = (score) => {
+  if (score >= 85) return PALETTE.green;
+  if (score >= 60) return PALETTE.yellow;
+  return PALETTE.orange;
+};
+
+// Ambang waktu (detik): singkat/menengah/lama
+const colorTime = (sec) => {
+  if (sec <= 55) return PALETTE.green;
+  if (sec <= 75) return PALETTE.yellow;
+  return PALETTE.orange;
+};
+
+// Ambang percobaan: sedikit/sedang/banyak
+const colorAttempts = (att) => {
+  if (att <= 1) return PALETTE.green;
+  if (att === 2) return PALETTE.yellow;
+  return PALETTE.orange;
+};
+
+// Build rekomendasi dari submodul & kesalahan final quiz
+const buildRecommendations = ({ submodules, finalAnswers }) => {
+  const recs = [];
+
+  // Submodul paling lemah (skor rendah / durasi tinggi / percobaan banyak)
+  const weakSubs = [...submodules]
+    .sort((a, b) => {
+      const sa = a.score ?? 0;
+      const sb = b.score ?? 0;
+      if (sa !== sb) return sa - sb;
+      const da = a.durationSec ?? 0;
+      const db = b.durationSec ?? 0;
+      if (da !== db) return db - da;
+      const aa = a.attempts ?? 0;
+      const ab = b.attempts ?? 0;
+      return ab - aa;
+    })
+    .filter((s) => (s.score ?? 0) < 75)
+    .slice(0, 3);
+
+  weakSubs.forEach((s) => {
+    recs.push(
+      `Fokus ulang: ${s.name} (skor ${fmtPct(s.score)}, ${s.durationSec || 0} detik, ${s.attempts ?? 1}x).`
+    );
+  });
+
+  // Kesalahan di quiz final dikelompokkan per submodul
+  if (Array.isArray(finalAnswers) && finalAnswers.length) {
+    const group = finalAnswers
+      .filter((a) => a && a.correct === false)
+      .reduce((acc, a) => {
+        const sid = normalizeId(a.tutorial_id) || "unknown";
+        acc[sid] = acc[sid] || { count: 0, ids: [] };
+        acc[sid].count += 1;
+        acc[sid].ids.push(a.soal_id || a.question_id);
+        return acc;
+      }, {});
+
+    const entries = Object.entries(group).map(([sid, v]) => ({
+      id: sid === "unknown" ? null : Number(sid),
+      count: v.count,
+    }));
+
+    const sorted = entries.sort((a, b) => b.count - a.count).slice(0, 3);
+    sorted.forEach(({ id, count }) => {
+      if (id) {
+        const title = SUBMODULE_TITLE_MAP[id] || `Submodul ${id}`;
+        recs.push(`Quiz final: ${count} jawaban salah terkait ${title}, ulangi materi tersebut.`);
+      } else {
+        recs.push(
+          `Quiz final: ${count} jawaban salah belum terpetakan ke submodul. Cek kembali soal yang salah di review.`
+        );
+      }
+    });
+  }
+
+  if (recs.length === 0) {
+    recs.push(
+      "Semua submodul sudah cukup baik. Lanjutkan ke materi berikutnya atau cek ulang quiz final untuk memperkuat pemahaman."
+    );
+  }
+
+  return recs;
+};
+
 const DashboardModulPage = ({ data }) => {
   const { state } = useLocation();
   const [searchParams] = useSearchParams();
@@ -123,15 +216,16 @@ const DashboardModulPage = ({ data }) => {
   const submodules = (Array.isArray(submodulesRaw) ? submodulesRaw : []).map((s, i) => {
     const qr = getQuizResultFromLocal(s.id) || {};
     const durLocal = coerceDurationSec(s);
-    const durFallback = durLocal > 0
-      ? durLocal
-      : (() => {
-          const num = Number(qr?.duration);
-          if (Number.isFinite(num) && num > 0) return num;
-          const txt = qr?.lama_mengerjakan;
-          const parsedTxt = parseInt(String(txt || "").replace(/[^0-9]/g, ""), 10);
-          return Number.isFinite(parsedTxt) ? parsedTxt : 0;
-        })();
+    const durFallback =
+      durLocal > 0
+        ? durLocal
+        : (() => {
+            const num = Number(qr?.duration);
+            if (Number.isFinite(num) && num > 0) return num;
+            const txt = qr?.lama_mengerjakan;
+            const parsedTxt = parseInt(String(txt || "").replace(/[^0-9]/g, ""), 10);
+            return Number.isFinite(parsedTxt) ? parsedTxt : 0;
+          })();
 
     return {
       ...s,
@@ -145,8 +239,10 @@ const DashboardModulPage = ({ data }) => {
   });
 
   const finalScore = payload.finalScore ?? finalLocal?.score ?? state?.score ?? 0;
-  const totalLearningSeconds = payload.totalLearningSeconds ?? 5400; // fallback 1.5h
   const pass = computePassStatus({ submodules, finalScore });
+
+  // Total waktu belajar: jumlah durasi submodul; fallback 0 jika tidak ada
+  const totalLearningSeconds = submodules.reduce((acc, s) => acc + (s.durationSec || 0), 0);
 
   const sidebarItems = useMemo(
     () => buildSidebarItems(tutorials, getTutorialProgress),
@@ -154,6 +250,36 @@ const DashboardModulPage = ({ data }) => {
   );
 
   const goBackChain = () => navigate("/quiz-final-result");
+
+  const passIcon = pass ? "✓" : "!";
+  const passIconBg = pass ? "bg-green-50 text-green-600" : "bg-amber-50 text-amber-600";
+  const passText = pass ? "Lulus" : "Belum Lulus";
+
+  // --- Enrich final answers dengan tutorial_id dari rawQuestions jika kosong (supaya tidak "Submodul ?") ---
+  const rawQuestionsMap = (() => {
+    const qlist =
+      finalLocal?.rawQuestions ||
+      finalLocal?.questions ||
+      payload?.finalQuestions ||
+      [];
+    const m = new Map();
+    qlist.forEach((q) => {
+      if (q?.id && q?.tutorial_id) m.set(q.id, q.tutorial_id);
+    });
+    return m;
+  })();
+
+  const finalAnswersRaw = finalLocal?.answers || finalLocal?.detail || payload.finalAnswers || [];
+  const finalAnswers = finalAnswersRaw.map((a) => {
+    const tid =
+      a?.tutorial_id ??
+      rawQuestionsMap.get(a?.soal_id) ??
+      rawQuestionsMap.get(a?.question_id) ??
+      null;
+    return { ...a, tutorial_id: tid };
+  });
+
+  const recommendations = buildRecommendations({ submodules, finalAnswers });
 
   return (
     <LayoutWrapper
@@ -207,13 +333,17 @@ const DashboardModulPage = ({ data }) => {
               <p className="text-xl font-semibold text-gray-900">{fmtPct(finalScore)}</p>
             </div>
           </Card>
+
           <Card className="p-4 flex items-center gap-3 bg-white rounded-2xl shadow-sm border border-gray-100">
-            <div className="w-10 h-10 rounded-xl bg-green-50 text-green-600 flex items-center justify-center font-bold">✓</div>
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold ${passIconBg}`}>
+              {passIcon}
+            </div>
             <div>
               <p className="text-sm text-gray-500">Status Kelulusan</p>
-              <p className="text-xl font-semibold text-gray-900">{pass ? "Lulus" : "Belum Lulus"}</p>
+              <p className="text-xl font-semibold text-gray-900">{passText}</p>
             </div>
           </Card>
+
           <Card className="p-4 flex items-center gap-3 bg-white rounded-2xl shadow-sm border border-gray-100">
             <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">⏱</div>
             <div>
@@ -256,32 +386,46 @@ const DashboardModulPage = ({ data }) => {
                   const score = s.score ?? 0;
                   const dur = s.durationSec ?? 0;
                   const attempts = s.attempts ?? 1;
-                  const bg =
-                    score >= 85
-                      ? "bg-[#e8f7f0]"
-                      : score >= 70
-                      ? "bg-[#eef9ff]"
-                      : score >= 50
-                      ? "bg-[#fff9e8]"
-                      : "bg-[#ffecec]";
+
                   return (
                     <tr
                       key={`${s.id ?? i}`}
-                      className={`${bg} border-b border-[#d9e4f5] last:border-0 text-[15px]`}
+                      className="border-b border-[#d9e4f5] last:border-0 text-[15px]"
                     >
                       <td className="px-5 py-3 text-gray-800 align-top">{s.name}</td>
-                      <td className="px-5 py-3 text-gray-800 text-center">{fmtPct(score)}</td>
-                      <td className="px-5 py-3 text-gray-800 text-center">{dur} detik</td>
-                      <td className="px-5 py-3 text-gray-800 text-center">{attempts}x</td>
+                      <td
+                        className="px-5 py-3 text-gray-800 text-center"
+                        style={{ backgroundColor: colorScore(score) }}
+                      >
+                        {fmtPct(score)}
+                      </td>
+                      <td
+                        className="px-5 py-3 text-gray-800 text-center"
+                        style={{ backgroundColor: colorTime(dur) }}
+                      >
+                        {dur} detik
+                      </td>
+                      <td
+                        className="px-5 py-3 text-gray-800 text-center"
+                        style={{ backgroundColor: colorAttempts(attempts) }}
+                      >
+                        {attempts}x
+                      </td>
                     </tr>
                   );
                 })}
               </tbody>
             </table>
           </div>
-          <div className="mt-4 text-sm text-gray-700 leading-relaxed bg-white border border-blue-100 rounded-xl p-4 shadow-sm">
-            Beberapa materi masih menunjukkan area yang perlu diperkuat. Gunakan insight nilai, waktu, dan percobaan
-            untuk fokus belajar di submodul dengan skor rendah atau waktu pengerjaan yang lama.
+
+          {/* Rekomendasi kontekstual */}
+          <div className="mt-4 text-sm text-gray-700 leading-relaxed bg-white border border-blue-100 rounded-xl p-4 shadow-sm space-y-2">
+            <p className="font-semibold text-gray-800">Rekomendasi belajar</p>
+            <ul className="list-disc pl-5 space-y-1">
+              {recommendations.map((r, idx) => (
+                <li key={idx}>{r}</li>
+              ))}
+            </ul>
           </div>
         </Card>
 

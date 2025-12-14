@@ -83,8 +83,7 @@ const QuizFinalPage = () => {
   const buildSubmissionPayload = () =>
     questions.map((q, idx) => {
       const ansIdx = answers[idx];
-      const optionKey =
-        ansIdx === undefined || ansIdx === null ? "" : String(ansIdx + 1); // API expects "1"-"4"
+      const optionKey = ansIdx === undefined || ansIdx === null ? "" : String(ansIdx + 1); // API expects "1"-"4"
       return {
         question_id: q.id,
         answer: optionKey,
@@ -112,12 +111,16 @@ const QuizFinalPage = () => {
         ? Math.max(0, Math.round((Date.now() - startTimeRef.current) / 1000))
         : 0;
 
-      // Bangun data questions + answers untuk review
+      // Lookup tutorial_id per soal (agar dashboard bisa rekomendasi dari final)
+      const tutorialByQuestion = new Map(questions.map((q) => [q.id, q.tutorial_id]));
+
+      // Bangun data questions + answers untuk review, termasuk tutorial_id
       const enrichedQuestions = results.map((r) => {
         const opts = r.options || {};
         return {
           id: r.question_id,
           assessment: r.question,
+          tutorial_id: tutorialByQuestion.get(r.question_id) || r.tutorial_id || null,
           multiple_choice: ["1", "2", "3", "4"].map((key) => ({
             id: Number(key),
             option: opts[key] || "",
@@ -130,6 +133,7 @@ const QuizFinalPage = () => {
         const opts = r.options || {};
         return {
           soal_id: r.question_id,
+          tutorial_id: tutorialByQuestion.get(r.question_id) || r.tutorial_id || null,
           correct: !!r.is_true,
           user_answer: opts[r.user_answer] || r.user_answer || "",
           answer: opts[r.correct_answer] || r.correct_answer || "",
@@ -148,6 +152,7 @@ const QuizFinalPage = () => {
         detail: answersArr,
         questions: enrichedQuestions,
         rawResults: results,
+        rawQuestions: questions, // simpan untuk referensi mapping bila perlu
       };
 
       // Simpan lokal untuk fallback
