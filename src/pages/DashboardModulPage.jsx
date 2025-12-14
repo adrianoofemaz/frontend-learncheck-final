@@ -78,6 +78,25 @@ const getSubmoduleName = (s, i) => {
   return `Submodul ${i + 1}`;
 };
 
+// Parse durasi dari data submodule (durationSec) atau teks lama_mengerjakan/duration
+const coerceDurationSec = (s) => {
+  if (s.durationSec !== undefined && s.durationSec !== null) return s.durationSec;
+  const raw = s.lama_mengerjakan || s.duration;
+  const parsed = parseInt(String(raw || "").replace(/[^0-9]/g, ""), 10);
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
+// Ambil hasil quiz submodul dari localStorage quiz-result-<id>
+const getQuizResultFromLocal = (id) => {
+  try {
+    const raw = localStorage.getItem(`${getUserKey()}:quiz-result-${id}`);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+};
+
 const DashboardModulPage = ({ data }) => {
   const { state } = useLocation();
   const [searchParams] = useSearchParams();
@@ -95,10 +114,36 @@ const DashboardModulPage = ({ data }) => {
   }, []);
 
   const payload = state?.analytics || data || {};
-  const submodules =
+  const submodulesRaw =
     Array.isArray(payload.submodules) && payload.submodules.length > 0
       ? payload.submodules
       : localSubs || [];
+
+  // Normalisasi + backfill skor/durasi dari quiz-result jika field kosong
+  const submodules = (Array.isArray(submodulesRaw) ? submodulesRaw : []).map((s, i) => {
+    const qr = getQuizResultFromLocal(s.id) || {};
+    const durLocal = coerceDurationSec(s);
+    const durFallback = durLocal > 0
+      ? durLocal
+      : (() => {
+          const num = Number(qr?.duration);
+          if (Number.isFinite(num) && num > 0) return num;
+          const txt = qr?.lama_mengerjakan;
+          const parsedTxt = parseInt(String(txt || "").replace(/[^0-9]/g, ""), 10);
+          return Number.isFinite(parsedTxt) ? parsedTxt : 0;
+        })();
+
+    return {
+      ...s,
+      name: getSubmoduleName(s, i),
+      score: s.score ?? qr?.score ?? 0,
+      correct: s.correct ?? qr?.benar ?? 0,
+      total: s.total ?? qr?.total ?? 0,
+      durationSec: durFallback,
+      attempts: s.attempts ?? 1,
+    };
+  });
+
   const finalScore = payload.finalScore ?? finalLocal?.score ?? state?.score ?? 0;
   const totalLearningSeconds = payload.totalLearningSeconds ?? 5400; // fallback 1.5h
   const pass = computePassStatus({ submodules, finalScore });
@@ -181,8 +226,8 @@ const DashboardModulPage = ({ data }) => {
         <Card className="p-4 bg-white rounded-2xl shadow-sm border border-gray-100 min-w-0">
           <p className="font-semibold text-gray-800 mb-3">Nilai Quiz Submodul</p>
           <SubmoduleScoreChart
-            data={submodules.map((s, i) => ({
-              name: getSubmoduleName(s, i),
+            data={submodules.map((s) => ({
+              name: s.name,
               score: s.score ?? 0,
             }))}
           />
@@ -224,7 +269,7 @@ const DashboardModulPage = ({ data }) => {
                       key={`${s.id ?? i}`}
                       className={`${bg} border-b border-[#d9e4f5] last:border-0 text-[15px]`}
                     >
-                      <td className="px-5 py-3 text-gray-800 align-top">{getSubmoduleName(s, i)}</td>
+                      <td className="px-5 py-3 text-gray-800 align-top">{s.name}</td>
                       <td className="px-5 py-3 text-gray-800 text-center">{fmtPct(score)}</td>
                       <td className="px-5 py-3 text-gray-800 text-center">{dur} detik</td>
                       <td className="px-5 py-3 text-gray-800 text-center">{attempts}x</td>

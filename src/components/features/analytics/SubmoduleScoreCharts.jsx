@@ -13,23 +13,24 @@ const CHART_HEIGHT = 280;
 
 const SubmoduleScoreChart = ({ data = [] }) => {
   const containerRef = useRef(null);
-  const [ready, setReady] = useState(false);
+  const [width, setWidth] = useState(0);
 
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
 
-    const observer = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        const { width, height } = entry.contentRect || {};
-        if (width > 0 && height > 0) {
-          setReady(true);
-        }
-      }
-    });
+    const update = (entry) => {
+      const rect = entry?.contentRect || el.getBoundingClientRect();
+      const w = rect?.width ?? 0;
+      if (w > 8) setWidth(w);
+    };
+
+    const observer = new ResizeObserver((entries) => entries.forEach(update));
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
+
+  const ready = width > 8;
 
   return (
     <div
@@ -38,7 +39,7 @@ const SubmoduleScoreChart = ({ data = [] }) => {
       style={{ minWidth: 0, height: CHART_HEIGHT, minHeight: CHART_HEIGHT }}
     >
       {ready ? (
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width={width} height={CHART_HEIGHT}>
           <AreaChart data={data} margin={{ top: 10, right: 10, bottom: 10, left: 0 }}>
             <defs>
               <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
