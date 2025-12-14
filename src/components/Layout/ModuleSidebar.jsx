@@ -1,4 +1,4 @@
-import React, { useContext, useState, useMemo } from "react";
+import React, { useContext, useState, useMemo, useEffect } from "react";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -6,6 +6,7 @@ import {
   LockClosedIcon,
 } from "@heroicons/react/24/solid";
 import { UserContext } from "../../context/UserContext";
+import { quizDone } from "../../utils/accessControl";
 
 /**
  * ModuleSidebar dengan struktur NESTED (hierarki modul-submodul)
@@ -24,8 +25,8 @@ const ModuleSidebar = ({
   const { preferences } = useContext(UserContext);
 
   // State untuk expand/collapse
-  const [expandedModules, setExpandedModules] = useState({ 1: true });
-  const [expandedSubmodules, setExpandedSubmodules] = useState({ 1.1: true });
+  const [expandedModules, setExpandedModules] = useState({});
+  const [expandedSubmodules, setExpandedSubmodules] = useState({});
 
   // Konversi flat items ke nested structure jika diperlukan
   const nestedData = useMemo(() => {
@@ -78,6 +79,30 @@ const ModuleSidebar = ({
       })),
     };
   }, [items, modules, extraItems]);
+
+  useEffect(() => {
+    const autoExpandedSubs = {};
+    const autoExpandedModules = {};
+
+    nestedData.modules.forEach((module) => {
+      module.submodules?.forEach((sub) => {
+        if (sub.quiz && quizDone(sub.tutorialId)) {
+          autoExpandedSubs[sub.id] = true;
+          autoExpandedModules[module.id] = true;
+        }
+      });
+    });
+
+    setExpandedSubmodules((prev) => ({
+      ...autoExpandedSubs,
+      ...prev,
+    }));
+
+    setExpandedModules((prev) => ({
+      ...autoExpandedModules,
+      ...prev,
+    }));
+  }, [nestedData]);
 
   const toggleModuleExpand = (moduleId) => {
     setExpandedModules((prev) => ({
