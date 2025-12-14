@@ -3,11 +3,11 @@
  * User login page dengan split layout - Responsive
  */
 
-import React from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
-import { LoginForm } from '../../components/features/auth';
-import './auth.css';
+import React from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+import { LoginForm } from "../../components/features/auth";
+import "./auth.css";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -15,48 +15,49 @@ const LoginPage = () => {
 
   const handleLogin = async (formData, setServerError) => {
     try {
-      const response = await login(formData.  username, formData.password);
-      console.log('Login response:', response);
-      
+      const response = await login(formData.username, formData.password);
+      console.log("Login response:", response);
+
       // REDIRECT KE HOME SETELAH LOGIN BERHASIL
       if (response && response.token) {
-        console.log('Redirecting to /home...');
-        navigate('/home', { replace: true });
+        console.log("Redirecting to /home...");
+        navigate("/home", { replace: true });
       }
     } catch (err) {
-      console.error('Login error:', err);
-      setServerError(err?.  error || 'Login gagal.   Silakan coba lagi.');
+      console.error("Login error:", err);
+      setServerError(err?.error || "Login gagal.   Silakan coba lagi.");
     }
   };
 
   return (
     <div className="auth-container h-screen flex flex-col lg:flex-row bg-white overflow-hidden">
       {/* Left Side - Logo & Pattern - FULL */}
-      <div className="hidden lg:flex lg:flex-1 items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 overflow-hidden">
-        <img 
-          src="/assets/images/Dicoding Login.png" 
+      <div className="auth-left hidden lg:flex flex-1 items-center justify-center">
+        <img
+          src="/assets/images/QuizMate.png"
           alt="Dicoding Logo"
           className="w-full h-full object-cover"
         />
       </div>
 
-      {/* Divider */}
-      <div className="auth-divider hidden lg:block"></div>
-
       {/* Right Side - Form */}
-      <div className="flex-1 w-full lg:w-1/2 flex items-center justify-center lg:h-screen overflow-hidden">
-        <div className="w-full max-w-md px-4 sm:px-6">
+      <div className="auth-right flex-1 bg-white w-full lg:w-1/2 flex items-center justify-center">
+        <div className="w-full max-w-md -translate-y-12">
           {/* Header */}
-          <div className="text-center mb-6 sm:mb-8">
+          <div className="text-center mb-10">
             <div className="flex items-center justify-center mb-4 sm:mb-6">
-              <img 
-                src="/assets/images/logo-login.jpg" 
+              <img
+                src="/assets/images/QuizMate Icon.png"
                 alt="Logo"
-                className="w-20 sm:w-28 h-20 sm:h-28 object-contain"
+                className="w-96 h-96 sm:w-28 sm:h-28 object-contain "
               />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Selamat Datang Kembali</h1>
-            <p className="text-xs sm:text-sm text-gray-600">Masukkan username dan password untuk login</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+              Selamat Datang Kembali
+            </h1>
+            <p className="text-xs sm:text-sm text-gray-600">
+              Masukkan username dan password untuk login
+            </p>
           </div>
 
           {/* Auth Error */}
@@ -69,27 +70,13 @@ const LoginPage = () => {
           {/* Form */}
           <LoginForm onSubmit={handleLogin} loading={loading} />
 
-          {/* Divider */}
-          <div className="flex items-center my-4 sm:my-6">
-            <div className="flex-1 border-t border-gray-300"></div>
-            <span className="px-3 sm:px-4 text-gray-500 text-xs sm:text-sm">Or</span>
-            <div className="flex-1 border-t border-gray-300"></div>
-          </div>
-
-          {/* Google Sign In */}
-          <button className="w-full py-2 sm:py-3 px-4 border-2 border-gray-300 rounded-lg text-gray-700 font-semibold hover:bg-gray-50 transition flex items-center justify-center gap-2 sm:gap-3 text-sm sm:text-base">
-            <img 
-              src="/assets/images/logo google.png" 
-              alt="Google Logo"
-              className="w-5 h-5 object-contain"
-            />
-            <span>Sign in with Google</span>
-          </button>
-
           {/* Register Link */}
           <div className="mt-4 sm:mt-6 text-center text-xs sm:text-sm text-gray-600">
-            Belum punya akun? {' '}
-            <Link to="/register" className="text-blue-600 font-medium hover:underline">
+            Belum punya akun?{" "}
+            <Link
+              to="/register"
+              className="text-blue-600 font-medium hover:underline"
+            >
               Register
             </Link>
           </div>

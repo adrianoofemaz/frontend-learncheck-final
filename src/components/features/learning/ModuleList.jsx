@@ -34,9 +34,6 @@ const ModuleList = ({
                     <CheckCircleIcon className="w-5 h-5 text-green-600 shrink-0" />
                   )}
                 </div>
-                <p className="text-sm text-gray-600 line-clamp-2">
-                  {module.description || "Pelajari topik ini"}
-                </p>
               </div>
 
               <Button

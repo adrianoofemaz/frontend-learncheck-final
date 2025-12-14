@@ -3,11 +3,11 @@
  * User registration page dengan split layout
  */
 
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import authService from '../../services/authService';
-import { RegisterForm } from '../../components/features/auth';
-import './auth.css';
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import authService from "../../services/authService";
+import { RegisterForm } from "../../components/features/auth";
+import "./auth.css";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -19,24 +19,25 @@ const RegisterPage = () => {
     setError(null);
 
     try {
-      console.log('Register attempt:', formData);
-      
-      const response = await authService. register(
+      console.log("Register attempt:", formData);
+
+      const response = await authService.register(
         formData.username,
         formData.password,
         formData.name
       );
-      
-      console.log('Register response:', response);
+
+      console.log("Register response:", response);
 
       // ✓ Registration success
-      alert('✓ Registrasi berhasil!  Silakan login.');
-      navigate('/login');
+      alert("✓ Registrasi berhasil!  Silakan login.");
+      navigate("/login");
     } catch (err) {
-      console.error('Register error:', err);
-      
+      console.error("Register error:", err);
+
       // Handle error
-      const errorMessage = err?.  message || 'Registrasi gagal. Silakan coba lagi.';
+      const errorMessage =
+        err?.message || "Registrasi gagal. Silakan coba lagi.";
       setError(errorMessage);
       if (setServerError) {
         setServerError(errorMessage);
@@ -47,32 +48,31 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="auth-container min-h-screen flex">
+    <div className="auth-container h-screen flex flex-col lg:flex-row bg-white overflow-hidden">
       {/* Left Side - Logo & Pattern */}
       <div className="auth-left hidden lg:flex flex-1 items-center justify-center">
-        <img 
-          src="/assets/images/Dicoding Login.png" 
+        <img
+          src="/assets/images/QuizMate.png"
           alt="Dicoding Logo"
           className="w-full h-full object-cover"
         />
       </div>
-
-      {/* Divider */}
-      <div className="auth-container h-screen flex flex-col lg:flex-row bg-white overflow-hidden"></div>
 
       {/* Right Side - Form */}
       <div className="auth-right flex-1 bg-white w-full lg:w-1/2 flex items-center justify-center">
         <div className="w-full max-w-md -translate-y-12">
           {/* Header */}
           <div className="text-center mb-10">
-            <div className="flex items-center justify-center mb-6">
-              <img 
-                src="/assets/images/logo-login.jpg" 
+            <div className="flex items-center justify-center ">
+              <img
+                src="/assets/images/QuizMate Icon.png"
                 alt="Number 9"
                 className="w-32 h-32 object-contain"
               />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Selamat Datang</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Selamat Datang
+            </h1>
             <p className="text-gray-600">Buat akun baru untuk memulai</p>
           </div>
 
@@ -86,27 +86,13 @@ const RegisterPage = () => {
           {/* Form */}
           <RegisterForm onSubmit={handleRegister} loading={loading} />
 
-          {/* Divider */}
-          <div className="flex items-center my-6">
-            <div className="flex-1 border-t border-gray-300"></div>
-            <span className="px-4 text-gray-500 text-sm">Or</span>
-            <div className="flex-1 border-t border-gray-300"></div>
-          </div>
-
-          {/* Google Sign In */}
-          <button className="w-full py-3 px-4 border-2 border-gray-300 rounded-lg text-gray-700 font-semibold hover:bg-gray-50 transition flex items-center justify-center gap-3">
-            <img 
-              src="/assets/images/logo google.png" 
-              alt="Google Logo"
-              className="w-5 h-5 object-contain"
-            />
-            Sign up with Google
-          </button>
-
           {/* Login Link */}
           <div className="mt-6 text-center text-sm text-gray-600">
-            Sudah punya akun? {' '}
-            <Link to="/login" className="text-blue-600 font-medium hover:underline">
+            Sudah punya akun?{" "}
+            <Link
+              to="/login"
+              className="text-blue-600 font-medium hover:underline"
+            >
               Login di sini
             </Link>
           </div>

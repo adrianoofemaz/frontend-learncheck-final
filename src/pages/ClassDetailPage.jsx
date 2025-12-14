@@ -1,4 +1,4 @@
-import React, { useEffect, useContext } from "react";
+import React, { useEffect, useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import LayoutWrapper from "../components/Layout/LayoutWrapper";
 import { useLearning } from "../hooks/useLearning";
@@ -32,7 +32,7 @@ const HeroSection = ({
   return (
     <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-20 pt-25">
       <div
-        className={`flex flex-col md:flex-row items-center mb-8 gap-10 p-10 drop-shadow-xl border-1 rounded-lg shadow-md transition-all duration-500 ease-in-out ${
+        className={`flex flex-col md:flex-row items-center mb-8 gap-10 p-10 drop-shadow-xl border-l rounded-lg shadow-md transition-all duration-500 ease-in-out ${
           preferences.theme === "dark"
             ? "text-white bg-gray-800 border-gray-800 shadow-gray-900"
             : "text-gray-900 bg-white border-gray-200"
@@ -151,7 +151,7 @@ const BenefitsSection = ({ benefits }) => {
             key={benefit.id}
             className={`flex flex-col h-full items-center text-center backdrop-blur rounded-xl shadow-sm p-4 sm:p-5 border-1 hover:shadow-xl transform duration-500 ease-in-out hover:scale-105 ${
               preferences.theme === "dark"
-                ? "text-white bg-gray-600 border-gray-700"
+                ? "text-white bg-gray-700 border-gray-700"
                 : "text-gray-900 border-gray-200 bg-white"
             }`}
           >
@@ -179,99 +179,188 @@ const BenefitsSection = ({ benefits }) => {
   );
 };
 
-// DescriptionSection: detail tentang kelas
+// DescriptionSection: detail tentang kelas dengan tabs navigation
 const DescriptionSection = ({ module }) => {
   const { preferences } = useContext(UserContext);
+  const [activeTab, setActiveTab] = useState("deskripsi");
+
   if (!module) return null;
 
+  const tabs = [
+    { id: "deskripsi", label: "Deskripsi Kelas" },
+    { id: "testimoni", label: "Testimoni" },
+    { id: "faq", label: "FAQ" },
+  ];
+
+  const contributors = [
+    {
+      id: 1,
+      name: "Dr. Rina Wijaya",
+      role: "Instruktur Utama",
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Rina",
+    },
+    {
+      id: 2,
+      name: "Prof. Eko Susanto",
+      role: "Reviewer Materi",
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Eko",
+    },
+    {
+      id: 3,
+      name: "Mira Amelia, M.Sc.",
+      role: "Asisten Instruktur",
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Mira",
+    },
+  ];
+  const isDark = preferences?.theme === "dark";
+
   return (
-    <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-20 my-10">
-      <h2
-        className={`text-2xl font-bold mb-6 ${
-          preferences.theme === "dark" ? "text-white" : "text-gray-900"
-        }`}
-      >
-        Tentang Kelas Ini
-      </h2>
-
-      <Card
-        className={`p-8 border ${
-          preferences.theme === "dark"
-            ? "text-gray-200 bg-gray-700 border-gray-900 rounded-2xl"
-            : "text-gray-900 bg-white border-gray-200 rounded-2xl"
-        }`}
-      >
-        <div className="space-y-6 leading-relaxed">
-          <p className="text-lg">
-            {module.description ||
-              "Pelajari fundamental Artificial Intelligence dengan materi interaktif dan quiz"}
-          </p>
-
-          {/* Apa yang dipelajari */}
-          <div>
-            <h3
-              className={`text-xl font-bold mb-2 flex items-center gap-3 ${
-                preferences.theme === "dark" ? "text-white" : "text-gray-900"
+    <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-20 py-12 ">
+      {/* Tabs Navigation */}
+      <div className="mb-8">
+        <div
+          className={`flex justify-center gap-0 rounded-lg p-1 max-w-20xl mx-auto ${
+            isDark ? "bg-gray-700 " : "bg-gray-200"
+          }`}
+        >
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex-1 py-3 px-6 font-medium transition-all rounded-md ${
+                activeTab === tab.id
+                  ? isDark
+                    ? "bg-gray-800 text-white shadow-md"
+                    : "bg-white text-gray-900 shadow-sm"
+                  : isDark
+                  ? "text-gray-300 hover:text-white"
+                  : "text-gray-500 hover:text-gray-700"
               }`}
             >
-              <span className="w-6 h-6 bg-blue-100 rounded flex items-center justify-center text-blue-600 text-lg">
-                ▶
-              </span>
-              Apa yang akan kamu pelajari?
-            </h3>
-            <ul className="space-y-2 ml-8">
-              {[
-                "Konsep dasar Artificial Intelligence",
-                "Machine Learning dan penerapannya",
-                "Data Science fundamentals",
-                "Best practices dalam AI development",
-                "Real-world use cases dan applications",
-              ].map((item) => (
-                <li key={item} className="flex items-start gap-2">
-                  <span className="text-blue-600 font-bold">•</span>
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Prasyarat */}
-          <div>
-            <h3
-              className={`text-xl font-bold mb-2 flex items-center gap-2 ${
-                preferences.theme === "dark" ? "text-white" : "text-gray-900"
-              }`}
-            >
-              <span className="w-6 h-6 bg-yellow-100 rounded flex items-center justify-center text-yellow-600 text-lg">
-                ⚠
-              </span>
-              Prasyarat
-            </h3>
-            <p className="ml-8">
-              Tidak ada prasyarat khusus. Kelas ini dirancang untuk pemula yang
-              ingin belajar tentang Artificial Intelligence.
-            </p>
-          </div>
-
-          {/* Target peserta */}
-          <div>
-            <h3
-              className={`text-xl font-bold mb-2 flex items-center gap-2 ${
-                preferences.theme === "dark" ? "text-white" : "text-gray-900"
-              }`}
-            >
-              <span className="w-6 h-6 bg-green-100 rounded flex items-center justify-center text-green-600 text-lg">
-                ✓
-              </span>
-              Target Peserta
-            </h3>
-            <p className="ml-8">
-              Kelas ini cocok untuk siapa saja yang tertarik mempelajari AI,
-              baik dari latar belakang teknis maupun non-teknis.
-            </p>
-          </div>
+              {tab.label}
+            </button>
+          ))}
         </div>
-      </Card>
+      </div>
+
+      {/* Content */}
+      <div className="mb-12">
+        {/* Tab: Deskripsi Kelas */}
+        {activeTab === "deskripsi" && (
+          <div>
+            <h2
+              className={`text-2xl font-bold mb-6 ${
+                isDark ? "text-white" : "text-gray-900"
+              }`}
+            >
+              Deskripsi
+            </h2>
+
+            <div
+              className={`space-y-4 ${
+                isDark ? "text-gray-300" : "text-gray-700"
+              }`}
+            >
+              <p>
+                Selamat datang di kelas 'Belajar Dasar AI', kursus komprehensif
+                yang dirancang untuk memperkenalkan Anda pada dunia kecerdasan
+                buatan dari nol. Kursus ini sangat cocok untuk pemula yang ingin
+                memahami konsep dasar, algoritma, dan aplikasi AI modern tanpa
+                memerlukan latar belakang teknis yang mendalam.
+              </p>
+
+              <p>
+                Materi dirancang menjadi yang terstruktur, Anda akan belajar:
+              </p>
+
+              <ul className="list-none space-y-2 ml-4">
+                <li>• Konsep dasar Artificial Intelligence</li>
+                <li>• Machine Learning dan penerapannya</li>
+                <li>• Data Science fundamental</li>
+                <li>• Best practices dalam AI development</li>
+                <li>• Real-world use cases dan applications</li>
+              </ul>
+            </div>
+          </div>
+        )}
+
+        {/* Tab: Testimoni */}
+        {activeTab === "testimoni" && (
+          <div>
+            <h2
+              className={`text-2xl font-bold mb-6 ${
+                isDark ? "text-white" : "text-gray-900"
+              }`}
+            >
+              Testimoni
+            </h2>
+            <p className={isDark ? "text-gray-400" : "text-gray-500"}>
+              Belum ada testimoni tersedia.
+            </p>
+          </div>
+        )}
+
+        {/* Tab: FAQ */}
+        {activeTab === "faq" && (
+          <div>
+            <h2
+              className={`text-2xl font-bold mb-6 ${
+                isDark ? "text-white" : "text-gray-900"
+              }`}
+            >
+              FAQ
+            </h2>
+            <p className={isDark ? "text-gray-400" : "text-gray-500"}>
+              Belum ada FAQ tersedia.
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Kontributor Kelas */}
+      <section>
+        <h2
+          className={`text-2xl font-bold mb-6 ${
+            isDark ? "text-white" : "text-gray-900"
+          }`}
+        >
+          Kontributor Kelas
+        </h2>
+        <div className="flex flex-col md:flex-row gap-6">
+          {contributors.map((contributor) => (
+            <div
+              key={contributor.id}
+              className={`flex items-center gap-4 hover:shadow-md p-4 rounded-lg transition-all duration-300 cursor-pointer border flex-1 group ${
+                isDark
+                  ? "bg-gray-700 hover:bg-gray-800 border-gray-600  hover:border-gray-500"
+                  : "bg-white hover:bg-gray-50 hover:border-gray-300 border-gray-200"
+              }`}
+            >
+              <img
+                src={contributor.avatar}
+                alt={contributor.name}
+                className="w-16 h-16 rounded-full bg-gray-200 group-hover:scale-110 transition-transform duration-300"
+              />
+              <div>
+                <h3
+                  className={`font-semibold  group-hover:text-blue-600 transition-colors ${
+                    isDark ? "text-white" : "text-gray-900"
+                  }`}
+                >
+                  {contributor.name}
+                </h3>
+                <p
+                  className={`text-sm ${
+                    isDark ? "text-gray-400" : "text-gray-600"
+                  }`}
+                >
+                  {contributor.role}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 };
@@ -369,7 +458,6 @@ const ClassDetailPage = () => {
   ];
 
   return (
-    // Bungkus semua konten dengan LayoutWrapper agar konsisten (theme/bg/navbar/footer)
     <LayoutWrapper>
       {currentModule && (
         <>
