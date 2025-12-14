@@ -10,6 +10,8 @@ import LayoutWrapper from "../components/Layout/LayoutWrapper";
 import ModuleSidebar from "../components/Layout/ModuleSidebar";
 import BottomBarTwoActions from "../components/Layout/BottomBarTwoActions";
 import { buildSidebarItems, buildChain } from "../utils/navigationChain";
+import { quizDone } from "../utils/accessControl";
+import { getUserKey } from "../utils/storage";
 
 const QuizIntroPage = () => {
   const navigate = useNavigate();
@@ -17,7 +19,8 @@ const QuizIntroPage = () => {
   const [searchParams] = useSearchParams();
   const embed = searchParams.get("embed") === "1";
 
-  const storageKey = tutorialId ? `quiz-progress-${tutorialId}` : null;
+  const userKey = getUserKey();
+  const storageKey = tutorialId ? `${userKey}:quiz-progress-${tutorialId}` : null;
 
   const { questions, loading: quizLoading /*, fetchQuestions*/ } = useQuiz();
   const { tutorials, currentTutorial, selectTutorial, fetchTutorials, loading: learningLoading } = useLearning();
@@ -63,20 +66,13 @@ const QuizIntroPage = () => {
     navigate(`/quiz/${tutorialId}`);
   };
 
-  const quizDone = (tid) => {
-    if (typeof window === "undefined") return false;
-    try {
-      return !!localStorage.getItem(`quiz-result-${tid}`);
-    } catch {
-      return false;
-    }
-  };
-
   const handleSelectSidebar = (item) => {
     if (item.type === "tutorial") {
       navigate(`/learning/${item.id}`);
     } else if (item.type === "quiz-sub") {
-      const target = quizDone(item.id) ? `/quiz-results-player/${item.id}` : `/quiz-intro/${item.id}`;
+      const target = getTutorialProgress(item.id) && quizDone(item.id)
+        ? `/quiz-results-player/${item.id}`
+        : `/quiz-intro/${item.id}`;
       navigate(target);
     } else if (item.type === "quiz-final") {
       navigate("/quiz-final-intro");
@@ -146,14 +142,14 @@ const QuizIntroPage = () => {
               <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 mb-6">
                 <h2 className="text-xl font-semibold text-center text-gray-900 mb-4">{currentTutorial?.title || "Quiz Submodul"}</h2>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-                  <div className="flex items-center gap-3">
+                  <div className="flex itemsCenter gap-3">
                     <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-50 text-blue-600 text-lg font-semibold">≡</span>
                     <div>
                       <p className="text-sm text-gray-600">Jumlah Soal</p>
                       <p className="text-lg font-bold text-gray-900">{totalQuestions} Soal</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex itemsCenter gap-3">
                     <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-50 text-blue-600 text-lg font-semibold">⏱</span>
                     <div>
                       <p className="text-sm text-gray-600">Durasi</p>

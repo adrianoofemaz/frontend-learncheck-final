@@ -2,12 +2,11 @@
  * LoginPage
  * User login page dengan split layout - Responsive
  */
-
-import React from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
-import { LoginForm } from '../../components/features/auth';
-import './auth.css';
+import React from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+import { LoginForm } from "../../components/features/auth";
+import "./auth.css";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -15,17 +14,16 @@ const LoginPage = () => {
 
   const handleLogin = async (formData, setServerError) => {
     try {
-      const response = await login(formData.  username, formData.password);
-      console.log('Login response:', response);
-      
-      // REDIRECT KE HOME SETELAH LOGIN BERHASIL
+      const response = await login(formData.username, formData.password);
+      console.log("Login response:", response);
+
       if (response && response.token) {
-        console.log('Redirecting to /home...');
-        navigate('/home', { replace: true });
+        // Reload ke /home supaya state/context/storage segar untuk akun baru
+        window.location.replace("/home");
       }
     } catch (err) {
-      console.error('Login error:', err);
-      setServerError(err?.  error || 'Login gagal.   Silakan coba lagi.');
+      console.error("Login error:", err);
+      setServerError(err?.error || "Login gagal. Silakan coba lagi.");
     }
   };
 
@@ -33,8 +31,8 @@ const LoginPage = () => {
     <div className="auth-container h-screen flex flex-col lg:flex-row bg-white overflow-hidden">
       {/* Left Side - Logo & Pattern - FULL */}
       <div className="hidden lg:flex lg:flex-1 items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 overflow-hidden">
-        <img 
-          src="/assets/images/Dicoding Login.png" 
+        <img
+          src="/assets/images/Dicoding Login.png"
           alt="Dicoding Logo"
           className="w-full h-full object-cover"
         />
@@ -49,14 +47,18 @@ const LoginPage = () => {
           {/* Header */}
           <div className="text-center mb-6 sm:mb-8">
             <div className="flex items-center justify-center mb-4 sm:mb-6">
-              <img 
-                src="/assets/images/logo-login.jpg" 
+              <img
+                src="/assets/images/logo-login.jpg"
                 alt="Logo"
                 className="w-20 sm:w-28 h-20 sm:h-28 object-contain"
               />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Selamat Datang Kembali</h1>
-            <p className="text-xs sm:text-sm text-gray-600">Masukkan username dan password untuk login</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+              Selamat Datang Kembali
+            </h1>
+            <p className="text-xs sm:text-sm text-gray-600">
+              Masukkan username dan password untuk login
+            </p>
           </div>
 
           {/* Auth Error */}
@@ -78,7 +80,7 @@ const LoginPage = () => {
 
           {/* Register Link */}
           <div className="mt-4 sm:mt-6 text-center text-xs sm:text-sm text-gray-600">
-            Belum punya akun? {' '}
+            Belum punya akun?{" "}
             <Link to="/register" className="text-blue-600 font-medium hover:underline">
               Register
             </Link>

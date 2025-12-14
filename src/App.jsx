@@ -14,7 +14,7 @@ import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
 
 // Pages - Main
-import ClassDetailPage from "./pages/ClassDetailPage";
+import ClassDetailPage from "./pages/HomePage";
 import LearningPage from "./pages/LearningPage";
 import QuizIntroPage from "./pages/QuizIntroPage";
 import QuizPage from "./pages/QuizPage";           // PLAYER (iframe-capable)

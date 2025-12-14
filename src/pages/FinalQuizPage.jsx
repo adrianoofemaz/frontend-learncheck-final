@@ -5,63 +5,53 @@ import { QuizTimer } from "../components/features/quiz";
 import { Alert } from "../components/common";
 import Button from "../components/common/Button";
 import Loading from "../components/common/Loading";
+import finalQuizService from "../services/finalQuizService";
+import { getUserKey } from "../utils/storage";
 
-// TODO: Ganti dengan fetch API backend (10 soal final)
-const buildMockQuestions = () =>
-  Array.from({ length: 10 }).map((_, i) => ({
-    id: `final-${i + 1}`,
-    assessment: `Tahapan awal dalam AI Workflow ... disebut: (Soal ${i + 1})`,
-    multiple_choice: [
-      { option: "Digitalise & Collect", correct: i % 4 === 0 },
-      { option: "Transform", correct: i % 4 === 1 },
-      { option: "Train", correct: i % 4 === 2 },
-      { option: "Execute", correct: i % 4 === 3 },
-    ],
-  }));
-
-// Versi tampilan tanpa flag correct (hindari feedback instan)
-const sanitizeQuestion = (q) =>
-  !q
-    ? q
-    : {
-        id: q.id,
-        assessment: q.assessment,
-        multiple_choice: (q.multiple_choice || []).map((opt) => ({
-          option: opt.option || opt.answer || "",
-        })),
-      };
+const FINAL_RESULT_KEY = (userKey) => `${userKey}:quiz-final-result`;
 
 const QuizFinalPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const embed = searchParams.get("embed") === "1";
+  const userKey = getUserKey();
 
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(null);
+  const [submitError, setSubmitError] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState({}); // object: idx -> selectedIndex
+  const [answers, setAnswers] = useState({}); // idx -> selectedIndex (0-3)
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState(null);
   const [isTimerActive, setIsTimerActive] = useState(true);
 
   const durationSeconds = 10 * 60; // 10 menit total
-  const timerRef = useRef(null);
   const startTimeRef = useRef(null);
 
-  useEffect(() => {
+  // Fetch 10 soal final
+  const loadQuestions = useCallback(async () => {
     setLoading(true);
-    setTimeout(() => {
-      setQuestions(buildMockQuestions());
-      setLoading(false);
+    setFetchError(null);
+    try {
+      const qs = await finalQuizService.getFinalQuestions();
+      setQuestions(qs);
+      setCurrentQuestionIndex(0);
+      setAnswers({});
       startTimeRef.current = Date.now();
-    }, 120);
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
+    } catch (err) {
+      const msg = err?.response?.data?.message || err?.message || "Gagal memuat soal final.";
+      setFetchError(msg);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
+  useEffect(() => {
+    loadQuestions();
+  }, [loadQuestions]);
+
   const totalQuestions = questions.length || 10;
-  const currentQuestion = sanitizeQuestion(questions[currentQuestionIndex]);
+  const currentQuestion = questions[currentQuestionIndex] || null;
   const currentAnswer = answers[currentQuestionIndex];
   const isFirst = currentQuestionIndex === 0;
   const isLast = currentQuestionIndex >= totalQuestions - 1;
@@ -78,44 +68,104 @@ const QuizFinalPage = () => {
     setCurrentQuestionIndex(idx);
   };
 
-  const handleSubmit = useCallback(() => {
-    if (isSubmitting) return;
-    setIsSubmitting(true);
-    setIsTimerActive(false);
+  const validateAnswers = () => {
+    const firstUnanswered = questions.findIndex((_, idx) => answers[idx] === undefined);
+    if (firstUnanswered >= 0) {
+      console.log("answers state:", answers); // debug
+      console.log("payload:", buildSubmissionPayload()); // debug
+      setSubmitError(`Soal ${firstUnanswered + 1} belum dijawab. Silakan lengkapi semua soal.`);
+      setCurrentQuestionIndex(firstUnanswered); // lompat ke soal yang belum tercatat
+      return false;
+    }
+    return true;
+  };
 
-    const rawQuestions = questions;
-    let correctCount = 0;
-
-    // Bangun array jawaban untuk AnswerReview
-    const answersArr = rawQuestions.map((q, idx) => {
+  const buildSubmissionPayload = () =>
+    questions.map((q, idx) => {
       const ansIdx = answers[idx];
-      const selected = q?.multiple_choice?.[ansIdx];
-      const correct = !!selected?.correct;
-      if (correct) correctCount += 1;
+      const optionKey =
+        ansIdx === undefined || ansIdx === null ? "" : String(ansIdx + 1); // API expects "1"-"4"
       return {
-        questionId: q.id,
-        selectedIndex: ansIdx ?? null,
-        selectedOption: selected?.option || selected?.answer || "",
-        correct,
+        question_id: q.id,
+        answer: optionKey,
       };
     });
 
-    const score = Number(((correctCount / totalQuestions) * 100).toFixed(2));
-    const durationSec = startTimeRef.current
-      ? Math.max(0, Math.round((Date.now() - startTimeRef.current) / 1000))
-      : 0;
+  const handleSubmit = useCallback(async () => {
+    if (isSubmitting) return;
+    if (!validateAnswers()) return; // 🔒 cegah submit kalau masih ada yang kosong
 
-    navigate("http://localhost:5173/quiz-final-result", {
-      state: {
+    setIsSubmitting(true);
+    setIsTimerActive(false);
+    setSubmitError(null);
+
+    try {
+      const payload = buildSubmissionPayload();
+      console.log("Submitting final answers payload:", payload); // debug, cek di Network Payload
+      const res = await finalQuizService.submitFinalAnswers(payload);
+
+      const results = res?.results || [];
+      const correctCount = results.filter((r) => r.is_true).length;
+      const total = results.length || totalQuestions;
+      const score = Number(((correctCount / (total || 1)) * 100).toFixed(2));
+      const durationSec = startTimeRef.current
+        ? Math.max(0, Math.round((Date.now() - startTimeRef.current) / 1000))
+        : 0;
+
+      // Bangun data questions + answers untuk review
+      const enrichedQuestions = results.map((r) => {
+        const opts = r.options || {};
+        return {
+          id: r.question_id,
+          assessment: r.question,
+          multiple_choice: ["1", "2", "3", "4"].map((key) => ({
+            id: Number(key),
+            option: opts[key] || "",
+            correct: r.correct_answer?.toString() === key,
+          })),
+        };
+      });
+
+      const answersArr = results.map((r) => {
+        const opts = r.options || {};
+        return {
+          soal_id: r.question_id,
+          correct: !!r.is_true,
+          user_answer: opts[r.user_answer] || r.user_answer || "",
+          answer: opts[r.correct_answer] || r.correct_answer || "",
+          explanation: r.explanation_user || "",
+        };
+      });
+
+      const resultPayload = {
+        success: true,
         score,
         correct: correctCount,
-        total: totalQuestions,
+        total,
         duration: durationSec,
-        answers: answersArr,      // <— array, bukan object
-        questions: rawQuestions,  // tetap bawa raw (punya flag correct)
-      },
-    });
-  }, [answers, questions, totalQuestions, navigate, isSubmitting]);
+        lama_mengerjakan: `${durationSec} detik`,
+        answers: answersArr,
+        detail: answersArr,
+        questions: enrichedQuestions,
+        rawResults: results,
+      };
+
+      // Simpan lokal untuk fallback
+      localStorage.setItem(FINAL_RESULT_KEY(userKey), JSON.stringify(resultPayload));
+
+      navigate("/quiz-final-result", { state: resultPayload });
+    } catch (err) {
+      const msg =
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        err?.message ||
+        "Gagal mengirim jawaban. Silakan coba lagi.";
+      setSubmitError(msg);
+      setIsTimerActive(true);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [isSubmitting, questions, totalQuestions, navigate, userKey, answers]);
 
   const handleTimeUp = useCallback(() => {
     handleSubmit();
@@ -125,6 +175,24 @@ const QuizFinalPage = () => {
     return (
       <LayoutWrapper showNavbar={!embed} showFooter={false} embed={embed} contentClassName="pb-16">
         <Loading fullScreen text="Memuat quiz final..." />
+      </LayoutWrapper>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <LayoutWrapper showNavbar={!embed} showFooter={false} embed={embed} contentClassName="pb-16">
+        <div className="max-w-xl mx-auto pt-20">
+          <Alert type="error" title="Gagal memuat soal" message={fetchError} dismissible={false} />
+          <div className="mt-4 flex gap-3">
+            <Button variant="secondary" className="cursor-pointer" onClick={() => navigate("/quiz-final-intro")}>
+              Kembali
+            </Button>
+            <Button variant="primary" className="cursor-pointer" onClick={loadQuestions}>
+              Coba Lagi
+            </Button>
+          </div>
+        </div>
       </LayoutWrapper>
     );
   }

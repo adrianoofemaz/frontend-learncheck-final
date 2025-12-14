@@ -9,6 +9,17 @@ import { buildSidebarItems, buildChain } from "../utils/navigationChain";
 import ResultCard from "../components/Features/feedback/ResultCard";
 import AnswerReview from "../components/Features/feedback/AnswerReview";
 import Button from "../components/common/Button";
+import { getUserKey } from "../utils/storage";
+import { quizDone } from "../utils/accessControl";
+
+// helper: pastikan nilai aman dirender sebagai string
+const toText = (val) => {
+  if (!val) return "";
+  if (typeof val === "string") return val;
+  if (Array.isArray(val)) return val.filter(Boolean).join(" ");
+  if (typeof val === "object") return Object.values(val || {}).filter(Boolean).join(" ");
+  return String(val);
+};
 
 const ResultsPage = () => {
   const { tutorialId } = useParams();
@@ -23,7 +34,8 @@ const ResultsPage = () => {
   const [showReview, setShowReview] = useState(false);
   const reviewRef = useRef(null);
 
-  const storageKey = tutorialId ? `quiz-progress-${tutorialId}` : null;
+  const userKey = getUserKey();
+  const storageKey = tutorialId ? `${userKey}:quiz-progress-${tutorialId}` : null;
   const clearProgress = () => {
     if (!storageKey) return;
     try {
@@ -45,7 +57,7 @@ const ResultsPage = () => {
   const stateResult = location.state?.result;
   const localResult = (() => {
     try {
-      const raw = localStorage.getItem(`quiz-result-${tutorialId}`);
+      const raw = localStorage.getItem(`${userKey}:quiz-result-${tutorialId}`);
       return raw ? JSON.parse(raw) : null;
     } catch {
       return null;
@@ -59,10 +71,10 @@ const ResultsPage = () => {
   const duration = resultData?.lama_mengerjakan ?? resultData?.duration ?? "";
 
   const feedback = resultData?.feedback || {};
-  const ringkasan = feedback.summary || "";
-  const analisis = feedback.analysis || "";
-  const saran = feedback.advice || "";
-  const rekomendasi = feedback.recommendation || "";
+  const ringkasan = toText(feedback.summary);
+  const analisis = toText(feedback.analysis);
+  const saran = toText(feedback.advice);
+  const rekomendasi = toText(feedback.recommendation);
 
   const answers = resultData?.detail || resultData?.answers || [];
   const questions = resultData?.questions || [];
@@ -70,15 +82,6 @@ const ResultsPage = () => {
   const currentId = parseInt(tutorialId, 10);
   const sidebarItems = useMemo(() => buildSidebarItems(tutorials, getTutorialProgress), [tutorials, getTutorialProgress]);
   const chain = buildChain(tutorials, currentId);
-
-  const quizDone = (tid) => {
-    if (typeof window === "undefined") return false;
-    try {
-      return !!localStorage.getItem(`quiz-result-${tid}`);
-    } catch {
-      return false;
-    }
-  };
 
   const goBackChain = () => {
     // Kembali dulu ke learning submodul yang sama (hindari lompat ke submodul sebelumnya)
@@ -136,7 +139,9 @@ const ResultsPage = () => {
             if (item.type === "tutorial") {
               navigate(`/learning/${item.id}`);
             } else if (item.type === "quiz-sub") {
-              const target = quizDone(item.id) ? `/quiz-results-player/${item.id}` : `/quiz-intro/${item.id}`;
+              const target = getTutorialProgress(item.id) && quizDone(item.id)
+                ? `/quiz-results-player/${item.id}`
+                : `/quiz-intro/${item.id}`;
               navigate(target);
             } else if (item.type === "quiz-final") {
               navigate("/quiz-final-intro");

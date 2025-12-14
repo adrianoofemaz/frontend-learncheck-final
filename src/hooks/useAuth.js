@@ -1,16 +1,16 @@
 /**
  * useAuth Hook
  */
-
 import { useState, useCallback, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import authService from '../services/authService';
 import { AuthContext } from '../context/AuthContext';
+import { saveAuth, clearAuth } from '../utils/authStorage';
 
 export const useAuth = () => {
   const navigate = useNavigate();
   const authContext = useContext(AuthContext);
-  
+
   if (!authContext) {
     throw new Error('useAuth must be used within AuthProvider');
   }
@@ -19,51 +19,32 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const login = useCallback(async (email, password) => {
-    setLoading(true);
-    setError(null);
+  const login = useCallback(
+    async (email, password) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await authService.login(email, password);
+        const userData = response.user || response.data?.user;
+        const tokenData = response.user?.token || response.token || response.data?.token;
+        if (!tokenData) throw new Error('Token tidak ditemukan di response');
 
-    try {
-      console.log('Calling authService.login.. .');
-      
-      const response = await authService. login(email, password);
-      console.log('Login response:', response);
-
-      // Extract user & token from response
-      // Token bisa di: response.user.token, response.token, atau response.data.token
-      const userData = response.user || response.data?. user;
-      const tokenData = response.user?.token || response.token || response.data?.token;
-
-      console.log('User data:', userData);
-      console. log('Token:', tokenData);
-
-      if (! tokenData) {
-        throw new Error('Token tidak ditemukan di response');
+        saveAuth(userData, tokenData); // simpan & hapus legacy
+        setToken(tokenData);
+        setUser(userData || {});
+        return { user: userData, token: tokenData };
+      } catch (err) {
+        setError(err.message || 'Login gagal');
+        throw err;
+      } finally {
+        setLoading(false);
       }
-
-      // Save to sessionStorage
-      sessionStorage.setItem('token', tokenData);
-      sessionStorage.setItem('user', JSON. stringify(userData));
-
-      // Save to context
-      setToken(tokenData);
-      setUser(userData || {});
-
-      console.log('✓ Login successful');
-      return { user: userData, token: tokenData };
-    } catch (err) {
-      console.error('Login error:', err);
-      const errorMessage = err.message || 'Login gagal';
-      setError(errorMessage);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [setUser, setToken]);
+    },
+    [setUser, setToken]
+  );
 
   const logout = useCallback(() => {
-    sessionStorage.removeItem('token');
-    sessionStorage.removeItem('user');
+    clearAuth();          // hapus STORAGE_KEYS.* + legacy token/user
     setUser(null);
     setToken(null);
     navigate('/login');

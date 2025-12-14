@@ -12,15 +12,7 @@ import Card from "../components/common/Card";
 import Loading from "../components/common/Loading";
 import { UserContext } from "../context/UserContext";
 import { buildSidebarItems, buildChain } from "../utils/navigationChain";
-
-const quizDone = (tid) => {
-  if (typeof window === "undefined") return false;
-  try {
-    return !!localStorage.getItem(`quiz-result-${tid}`);
-  } catch {
-    return false;
-  }
-};
+import { quizDone } from "../utils/accessControl";
 
 const LearningPage = () => {
   const { id } = useParams();
@@ -44,6 +36,9 @@ const LearningPage = () => {
     }
   }, [id, selectTutorial]);
 
+  // Selesai jika progres backend true dan ada hasil kuis lokal
+  const isSubmoduleCompleted = (tid) => !!getTutorialProgress(tid) && quizDone(tid);
+
   const sidebarItems = useMemo(
     () => buildSidebarItems(tutorials, getTutorialProgress),
     [tutorials, getTutorialProgress]
@@ -65,7 +60,9 @@ const LearningPage = () => {
   const goNextChain = () => {
     if (!currentTutorial) return;
     const tid = currentTutorial.id;
-    const target = quizDone(tid) ? `/quiz-results-player/${tid}` : `/quiz-intro/${tid}`;
+    const target = isSubmoduleCompleted(tid)
+      ? `/quiz-results-player/${tid}`
+      : `/quiz-intro/${tid}`;
     navigate(target);
   };
 
@@ -73,7 +70,9 @@ const LearningPage = () => {
     if (item.type === "tutorial") {
       navigate(`/learning/${item.id}`);
     } else if (item.type === "quiz-sub") {
-      const target = quizDone(item.id) ? `/quiz-results-player/${item.id}` : `/quiz-intro/${item.id}`;
+      const target = isSubmoduleCompleted(item.id)
+        ? `/quiz-results-player/${item.id}`
+        : `/quiz-intro/${item.id}`;
       navigate(target);
     } else if (item.type === "quiz-final") {
       navigate("/quiz-final-intro");
@@ -108,7 +107,7 @@ const LearningPage = () => {
   if (!currentTutorial) {
     return (
       <LayoutWrapper fullHeight embed={embed} showFooter={false}>
-        <div className="flex items-center justify-center min-h-screen">
+        <div className="flex items-center justifyCenter min-h-screen">
           <div className="max-w-md text-center">
             <Alert type="warning" title="Materi belum tersedia" message="Silakan kembali ke beranda atau pilih submodul lain." />
             <Button onClick={() => navigate("/home")} variant="primary" className="mt-4 cursor-pointer">

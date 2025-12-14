@@ -9,26 +9,26 @@ import { Alert } from "../components/common";
 import Button from "../components/common/Button";
 import Loading from "../components/common/Loading";
 import { getMockQuestions, DEFAULT_MOCK_FEEDBACK } from "../constants/mockQuestions";
+import { getUserKey } from "../utils/storage";
+import { useProgress } from "../context/ProgressContext";
 
-const SUBMODULE_RESULT_KEY = "submodule-results";
-
-const loadSubmoduleResults = () => {
+const submoduleResultKey = (uid) => `${uid}:submodule-results`;
+const loadSubmoduleResults = (uid) => {
   try {
-    const raw = localStorage.getItem(SUBMODULE_RESULT_KEY);
+    const raw = localStorage.getItem(submoduleResultKey(uid));
     return raw ? JSON.parse(raw) : [];
   } catch {
     return [];
   }
 };
-
-const saveSubmoduleResult = (tutorialId, name, score, correct, total, durationSec) => {
-  const existing = loadSubmoduleResults();
+const saveSubmoduleResult = (uid, tutorialId, name, score, correct, total, durationSec) => {
+  const existing = loadSubmoduleResults(uid);
   const idx = existing.findIndex((e) => String(e.id) === String(tutorialId));
   const attempts = idx >= 0 ? (existing[idx].attempts || 0) + 1 : 1;
   const entry = { id: tutorialId, name: name || `Submodul ${tutorialId}`, score, correct, total, durationSec, attempts };
   if (idx >= 0) existing[idx] = entry;
   else existing.push(entry);
-  localStorage.setItem(SUBMODULE_RESULT_KEY, JSON.stringify(existing));
+  localStorage.setItem(submoduleResultKey(uid), JSON.stringify(existing));
 };
 
 const QuizPage = () => {
@@ -36,8 +36,9 @@ const QuizPage = () => {
   const { tutorialId } = useParams();
   const [searchParams] = useSearchParams();
   const embed = searchParams.get("embed") === "1";
+  const userKey = getUserKey();
 
-  const storageKey = tutorialId ? `quiz-progress-${tutorialId}` : null;
+  const storageKey = tutorialId ? `${userKey}:quiz-progress-${tutorialId}` : null;
 
   const { questions, loading, error, assessmentId, fetchQuestions, submitAnswers, setMockQuestions } = useQuiz();
   const {
@@ -49,6 +50,7 @@ const QuizPage = () => {
     nextQuestion,
     initializeQuiz,
   } = useQuizProgress();
+  const { updateTutorialProgress } = useProgress();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
@@ -173,6 +175,7 @@ const QuizPage = () => {
     };
 
     saveSubmoduleResult(
+      userKey,
       tutorialId,
       result?.tutorial_key || `Submodul ${tutorialId}`,
       result.score,
@@ -192,8 +195,10 @@ const QuizPage = () => {
         result,
       };
       localStorage.setItem(storageKey, JSON.stringify(saved));
-      localStorage.setItem(`quiz-result-${tutorialId}`, JSON.stringify(result));
+      localStorage.setItem(`${userKey}:quiz-result-${tutorialId}`, JSON.stringify(result));
     }
+    updateTutorialProgress?.(tutorialId, true);
+
     try {
       window.parent.postMessage({ type: "quiz-submitted", tutorialId, result }, "*");
     } catch (e) {
@@ -201,7 +206,18 @@ const QuizPage = () => {
     }
 
     goToResults(result);
-  }, [answers, currentQuestionIndex, lockedAnswers, questions, startTime, storageKey, tutorialId, goToResults]);
+  }, [
+    answers,
+    currentQuestionIndex,
+    lockedAnswers,
+    questions,
+    startTime,
+    storageKey,
+    tutorialId,
+    goToResults,
+    userKey,
+    updateTutorialProgress,
+  ]);
 
   const handleSubmitQuiz = useCallback(async () => {
     if (isSubmitting) return;
@@ -224,7 +240,6 @@ const QuizPage = () => {
 
       const result = await submitAnswers(parseInt(tutorialId, 10), assessmentId, answersData);
 
-      // Enrich result dengan detail + questions jika backend tidak mengirim
       const detail =
         result?.detail ||
         result?.answers ||
@@ -249,6 +264,7 @@ const QuizPage = () => {
       };
 
       saveSubmoduleResult(
+        userKey,
         tutorialId,
         resultEnriched?.tutorial_key || `Submodul ${tutorialId}`,
         resultEnriched?.score ?? 0,
@@ -268,8 +284,9 @@ const QuizPage = () => {
           result: resultEnriched,
         };
         localStorage.setItem(storageKey, JSON.stringify(saved));
-        localStorage.setItem(`quiz-result-${tutorialId}`, JSON.stringify(resultEnriched));
+        localStorage.setItem(`${userKey}:quiz-result-${tutorialId}`, JSON.stringify(resultEnriched));
       }
+      updateTutorialProgress?.(tutorialId, true);
 
       try {
         window.parent.postMessage({ type: "quiz-submitted", tutorialId, result: resultEnriched }, "*");
@@ -296,6 +313,8 @@ const QuizPage = () => {
     isMock,
     handleSubmitMock,
     goToResults,
+    userKey,
+    updateTutorialProgress,
   ]);
 
   const handleTimeUp = useCallback(() => {

@@ -42,12 +42,12 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-16">
           {/* LOGO */}
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate('/home')}
             className="text-2xl font-bold transition-colors"
           >
             QuizMate
           </button>
-
+          
           {/* DESKTOP MENU */}
           <div className="hidden md:flex items-center gap-6 relative">
             {/* THEME TOGGLE */}
