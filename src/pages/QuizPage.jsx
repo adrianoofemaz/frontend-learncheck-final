@@ -405,7 +405,7 @@ const QuizPage = () => {
         embed={embed}
         contentClassName="pb-16"
       >
-        <Loading fullScreen text="Memuat kuis..." />
+        <Loading fullScreen text="Memuat kuis..." useImage />
       </LayoutWrapper>
     );
   }

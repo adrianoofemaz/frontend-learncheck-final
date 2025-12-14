@@ -1,37 +1,64 @@
 /**
  * Loading Component
- * Loading spinner
+ * Loading spinner or image with background image
  */
 
-import React from 'react';
+import React from "react";
 
 const Loading = ({
-  size = 'md', // sm, md, lg
-  text = 'Memuat...',
+  size = "md", // sm, md, lg
+  text = "Memuat...",
   fullScreen = false,
+  useImage = false,
+  imageSrc = "/assets/images/QuizMate Icon.png",
+  imageAlt = "Loading",
+  bgImage = "/assets/images/bg-pattern.svg",
 }) => {
-  const sizes = {
-    sm: 'h-6 w-6',
-    md: 'h-12 w-12',
-    lg: 'h-16 w-16',
+  const imageSizes = {
+    sm: "h-16 w-16",
+    md: "h-40 w-40",
+    lg: "h-20 w-20",
   };
 
-  const spinner = (
-    <div className="flex flex-col items-center justify-center gap-4">
-      <div className={`animate-spin rounded-full border-4 border-gray-300 border-t-blue-600 ${sizes[size] || sizes.md}`} />
-      {text && <p className="text-gray-600 text-center">{text}</p>}
+  const loader = (
+    <div className="relative z-10 flex flex-col items-center justify-center gap-6">
+      {useImage && (
+        <img
+          src={imageSrc}
+          alt={imageAlt}
+          className={`${
+            imageSizes[size] || imageSizes.md
+          } object-contain animate-spin`}
+          draggable={false}
+        />
+      )}
+
+      {text && (
+        <p className="text-gray-700 text-center text-base font-medium">
+          {text}
+        </p>
+      )}
     </div>
   );
 
   if (fullScreen) {
     return (
-      <div className="fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-40">
-        {spinner}
+      <div className="fixed inset-0 z-40 flex items-center justify-center overflow-hidden">
+        {/* Background image */}
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-5"
+          style={{ backgroundImage: `url(${bgImage})` }}
+        />
+
+        {/* Card */}
+        <div className="relative z-10 bg-white rounded-3xl shadow-2xl px-20 py-15">
+          {loader}
+        </div>
       </div>
     );
   }
 
-  return spinner;
+  return loader;
 };
 
 export default Loading;

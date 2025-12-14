@@ -43,7 +43,8 @@ export const UserProvider = ({ children }) => {
   const updatePreferences = useCallback(
     async (newPreferences) => {
       if (updatingRef.current) return;
-      if (JSON.stringify(newPreferences) === JSON.stringify(preferences)) return;
+      if (JSON.stringify(newPreferences) === JSON.stringify(preferences))
+        return;
 
       updatingRef.current = true;
       setLoading(true);
@@ -73,7 +74,8 @@ export const UserProvider = ({ children }) => {
   );
 
   const changeFontSize = useCallback(
-    async (fontSize) => updatePreferences({ ...preferences, font_size: fontSize }),
+    async (fontSize) =>
+      updatePreferences({ ...preferences, font_size: fontSize }),
     [preferences, updatePreferences]
   );
 

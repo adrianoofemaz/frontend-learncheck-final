@@ -41,11 +41,12 @@ const Navbar = () => {
       <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-20">
         <div className="flex justify-between items-center h-16">
           {/* LOGO */}
-          <button
-            onClick={() => navigate("/")}
-            className="text-2xl font-bold transition-colors"
-          >
-            QuizMate
+          <button onClick={() => navigate("/home")}>
+            <img
+              src="/public/assets/images/QuizMate Header.png"
+              className="w-52 h-44 cursor-pointer"
+              alt="logo-header"
+            />
           </button>
 
           {/* DESKTOP MENU */}
