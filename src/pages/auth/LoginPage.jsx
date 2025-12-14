@@ -49,13 +49,13 @@ const LoginPage = () => {
               <img
                 src="/assets/images/QuizMate Icon.png"
                 alt="Logo"
-                className="w-96 h-96 sm:w-28 sm:h-28 object-contain "
+                className="w-52 h-52 object-contain "
               />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
               Selamat Datang Kembali
             </h1>
-            <p className="text-xs sm:text-sm text-gray-600">
+            <p className=" text-gray-600">
               Masukkan username dan password untuk login
             </p>
           </div>

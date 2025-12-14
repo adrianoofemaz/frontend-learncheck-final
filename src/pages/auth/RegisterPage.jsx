@@ -67,7 +67,7 @@ const RegisterPage = () => {
               <img
                 src="/assets/images/QuizMate Icon.png"
                 alt="Number 9"
-                className="w-32 h-32 object-contain"
+                className="w-52 h-52 object-contain"
               />
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
