@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import LayoutWrapper from "../components/Layout/LayoutWrapper";
 import { QuizTimer } from "../components/features/quiz";
-import { Alert } from "../components/common";
+import { Alert } from "../components/Common";
 import Button from "../components/common/Button";
 import Loading from "../components/common/Loading";
 import finalQuizService from "../services/finalQuizService";
@@ -39,7 +39,10 @@ const QuizFinalPage = () => {
       setAnswers({});
       startTimeRef.current = Date.now();
     } catch (err) {
-      const msg = err?.response?.data?.message || err?.message || "Gagal memuat soal final.";
+      const msg =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Gagal memuat soal final.";
       setFetchError(msg);
     } finally {
       setLoading(false);
@@ -69,11 +72,17 @@ const QuizFinalPage = () => {
   };
 
   const validateAnswers = () => {
-    const firstUnanswered = questions.findIndex((_, idx) => answers[idx] === undefined);
+    const firstUnanswered = questions.findIndex(
+      (_, idx) => answers[idx] === undefined
+    );
     if (firstUnanswered >= 0) {
       console.log("answers state:", answers); // debug
       console.log("payload:", buildSubmissionPayload()); // debug
-      setSubmitError(`Soal ${firstUnanswered + 1} belum dijawab. Silakan lengkapi semua soal.`);
+      setSubmitError(
+        `Soal ${
+          firstUnanswered + 1
+        } belum dijawab. Silakan lengkapi semua soal.`
+      );
       setCurrentQuestionIndex(firstUnanswered); // lompat ke soal yang belum tercatat
       return false;
     }
@@ -151,7 +160,10 @@ const QuizFinalPage = () => {
       };
 
       // Simpan lokal untuk fallback
-      localStorage.setItem(FINAL_RESULT_KEY(userKey), JSON.stringify(resultPayload));
+      localStorage.setItem(
+        FINAL_RESULT_KEY(userKey),
+        JSON.stringify(resultPayload)
+      );
 
       navigate("/quiz-final-result", { state: resultPayload });
     } catch (err) {
@@ -173,7 +185,12 @@ const QuizFinalPage = () => {
 
   if (loading) {
     return (
-      <LayoutWrapper showNavbar={!embed} showFooter={false} embed={embed} contentClassName="pb-16">
+      <LayoutWrapper
+        showNavbar={!embed}
+        showFooter={false}
+        embed={embed}
+        contentClassName="pb-16"
+      >
         <Loading fullScreen text="Memuat quiz final..." />
       </LayoutWrapper>
     );
@@ -181,14 +198,32 @@ const QuizFinalPage = () => {
 
   if (fetchError) {
     return (
-      <LayoutWrapper showNavbar={!embed} showFooter={false} embed={embed} contentClassName="pb-16">
+      <LayoutWrapper
+        showNavbar={!embed}
+        showFooter={false}
+        embed={embed}
+        contentClassName="pb-16"
+      >
         <div className="max-w-xl mx-auto pt-20">
-          <Alert type="error" title="Gagal memuat soal" message={fetchError} dismissible={false} />
+          <Alert
+            type="error"
+            title="Gagal memuat soal"
+            message={fetchError}
+            dismissible={false}
+          />
           <div className="mt-4 flex gap-3">
-            <Button variant="secondary" className="cursor-pointer" onClick={() => navigate("/quiz-final-intro")}>
+            <Button
+              variant="secondary"
+              className="cursor-pointer"
+              onClick={() => navigate("/quiz-final-intro")}
+            >
               Kembali
             </Button>
-            <Button variant="primary" className="cursor-pointer" onClick={loadQuestions}>
+            <Button
+              variant="primary"
+              className="cursor-pointer"
+              onClick={loadQuestions}
+            >
               Coba Lagi
             </Button>
           </div>
@@ -216,7 +251,9 @@ const QuizFinalPage = () => {
         <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-4 lg:gap-6">
           {/* Navigator soal di kiri */}
           <div className="bg-white/90 backdrop-blur rounded-2xl shadow-md border border-gray-100 p-4 h-fit">
-            <p className="text-sm font-semibold text-gray-800 mb-3">Pilih Soal</p>
+            <p className="text-sm font-semibold text-gray-800 mb-3">
+              Pilih Soal
+            </p>
             <div className="grid grid-cols-5 sm:grid-cols-6 lg:grid-cols-4 gap-2">
               {Array.from({ length: totalQuestions }).map((_, idx) => {
                 const answered = answers[idx] !== undefined;
@@ -226,8 +263,16 @@ const QuizFinalPage = () => {
                     key={idx}
                     onClick={() => goToQuestion(idx)}
                     className={`w-11 h-11 rounded-full text-sm font-semibold border transition
-                      ${active ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-700 border-gray-200"}
-                      ${answered && !active ? "ring-2 ring-offset-1 ring-green-200" : ""}
+                      ${
+                        active
+                          ? "bg-blue-600 text-white border-blue-600"
+                          : "bg-white text-gray-700 border-gray-200"
+                      }
+                      ${
+                        answered && !active
+                          ? "ring-2 ring-offset-1 ring-green-200"
+                          : ""
+                      }
                     `}
                   >
                     {idx + 1}
@@ -242,7 +287,9 @@ const QuizFinalPage = () => {
             <div className="bg-gradient-to-r from-[#1e7bff] to-[#0a5bff] text-white rounded-2xl shadow-lg px-6 py-5">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
-                  <p className="text-sm font-semibold uppercase tracking-wide opacity-90">Quiz Final</p>
+                  <p className="text-sm font-semibold uppercase tracking-wide opacity-90">
+                    Quiz Final
+                  </p>
                   <p className="text-lg font-bold">
                     Soal {currentQuestionIndex + 1} dari {totalQuestions}
                   </p>
@@ -288,18 +335,28 @@ const QuizFinalPage = () => {
                           key={idx}
                           onClick={() => handleSelectAnswer(idx)}
                           className={`w-full text-left rounded-2xl border px-4 py-3 transition
-                            ${isSelected ? "border-blue-500 bg-blue-50 text-blue-800" : "border-gray-200 bg-white text-gray-900"}
+                            ${
+                              isSelected
+                                ? "border-blue-500 bg-blue-50 text-blue-800"
+                                : "border-gray-200 bg-white text-gray-900"
+                            }
                           `}
                         >
                           <div className="flex items-center gap-3">
                             <span
                               className={`w-5 h-5 rounded-full border ${
-                                isSelected ? "border-blue-500 bg-blue-500" : "border-gray-300"
+                                isSelected
+                                  ? "border-blue-500 bg-blue-500"
+                                  : "border-gray-300"
                               } flex items-center justify-center`}
                             >
-                              {isSelected && <span className="w-2 h-2 bg-white rounded-full" />}
+                              {isSelected && (
+                                <span className="w-2 h-2 bg-white rounded-full" />
+                              )}
                             </span>
-                            <span className="text-base">{opt.option || opt.answer}</span>
+                            <span className="text-base">
+                              {opt.option || opt.answer}
+                            </span>
                           </div>
                         </button>
                       );
@@ -307,7 +364,11 @@ const QuizFinalPage = () => {
                   </div>
                 </div>
               ) : (
-                <Alert type="info" title="Soal tidak ditemukan" message="Silakan kembali ke dashboard." />
+                <Alert
+                  type="info"
+                  title="Soal tidak ditemukan"
+                  message="Silakan kembali ke dashboard."
+                />
               )}
 
               <div className="mt-8 flex flex-wrap justify-between items-center gap-3">

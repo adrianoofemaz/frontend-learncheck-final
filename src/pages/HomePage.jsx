@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 import LayoutWrapper from "../components/Layout/LayoutWrapper";
 import { useLearning } from "../hooks/useLearning";
 import { useProgress } from "../context/ProgressContext";
-import Button from "../components/common/Button";
+import Button from "../components/Common/Button";
 import Card from "../components/common/Card";
 import Loading from "../components/common/Loading";
-import { Alert } from "../components/common";
+import { Alert } from "../components/Common";
 import { UserContext } from "../context/UserContext";
 
 // ============ SECTION COMPONENTS ============

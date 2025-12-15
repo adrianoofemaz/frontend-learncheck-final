@@ -3,7 +3,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useQuiz } from "../hooks/useQuiz";
 import { useLearning } from "../hooks/useLearning";
 import { useProgress } from "../context/ProgressContext";
-import Button from "../components/common/Button";
+import Button from "../components/Common/Button";
 import Loading from "../components/common/Loading";
 import { Alert } from "../components/common";
 import LayoutWrapper from "../components/Layout/LayoutWrapper";
@@ -20,10 +20,18 @@ const QuizIntroPage = () => {
   const embed = searchParams.get("embed") === "1";
 
   const userKey = getUserKey();
-  const storageKey = tutorialId ? `${userKey}:quiz-progress-${tutorialId}` : null;
+  const storageKey = tutorialId
+    ? `${userKey}:quiz-progress-${tutorialId}`
+    : null;
 
   const { questions, loading: quizLoading /*, fetchQuestions*/ } = useQuiz();
-  const { tutorials, currentTutorial, selectTutorial, fetchTutorials, loading: learningLoading } = useLearning();
+  const {
+    tutorials,
+    currentTutorial,
+    selectTutorial,
+    fetchTutorials,
+    loading: learningLoading,
+  } = useLearning();
   const { getTutorialProgress } = useProgress();
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -33,8 +41,14 @@ const QuizIntroPage = () => {
 
   const totalQuestions = questions.length || 3; // fallback
   const timePerQuestion = 30;
-  const sidebarItems = useMemo(() => buildSidebarItems(tutorials, getTutorialProgress), [tutorials, getTutorialProgress]);
-  const chain = useMemo(() => buildChain(tutorials, currentTutorial?.id), [tutorials, currentTutorial?.id]);
+  const sidebarItems = useMemo(
+    () => buildSidebarItems(tutorials, getTutorialProgress),
+    [tutorials, getTutorialProgress]
+  );
+  const chain = useMemo(
+    () => buildChain(tutorials, currentTutorial?.id),
+    [tutorials, currentTutorial?.id]
+  );
 
   useEffect(() => {
     if (!tutorialsFetched && tutorialId) {
@@ -48,7 +62,9 @@ const QuizIntroPage = () => {
     if (isNaN(parsedId)) return;
     if (selectedRef.current === parsedId) return;
     selectedRef.current = parsedId;
-    selectTutorial(parsedId).catch((err) => console.error("Error selecting tutorial:", err));
+    selectTutorial(parsedId).catch((err) =>
+      console.error("Error selecting tutorial:", err)
+    );
   }, [tutorialId, tutorials.length, selectTutorial]);
 
   const clearProgress = () => {
@@ -70,9 +86,10 @@ const QuizIntroPage = () => {
     if (item.type === "tutorial") {
       navigate(`/learning/${item.id}`);
     } else if (item.type === "quiz-sub") {
-      const target = getTutorialProgress(item.id) && quizDone(item.id)
-        ? `/quiz-results-player/${item.id}`
-        : `/quiz-intro/${item.id}`;
+      const target =
+        getTutorialProgress(item.id) && quizDone(item.id)
+          ? `/quiz-results-player/${item.id}`
+          : `/quiz-intro/${item.id}`;
       navigate(target);
     } else if (item.type === "quiz-final") {
       navigate("/quiz-final-intro");
@@ -83,7 +100,12 @@ const QuizIntroPage = () => {
 
   if (loading) {
     return (
-      <LayoutWrapper showNavbar={!embed} showFooter={false} embed={embed} fullHeight>
+      <LayoutWrapper
+        showNavbar={!embed}
+        showFooter={false}
+        embed={embed}
+        fullHeight
+      >
         <Loading fullScreen text="Mempersiapkan kuis..." />
       </LayoutWrapper>
     );
@@ -91,11 +113,19 @@ const QuizIntroPage = () => {
 
   if (!currentTutorial) {
     return (
-      <LayoutWrapper showNavbar={!embed} showFooter={false} embed={embed} fullHeight>
+      <LayoutWrapper showNavbar={!embed} showFooter={false} embed={embed}>
         <div className="flex items-center justify-center min-h-screen">
-          <div className="max-w-md text-center">
-            <Alert type="warning" title="Materi belum tersedia" message="Silakan kembali atau pilih submodul lain." />
-            <Button onClick={() => navigate(-1)} variant="primary" className="mt-4 cursor-pointer">
+          <div className="max-w-md text-center justify-center item-center">
+            <Alert
+              type="warning"
+              title="Materi belum tersedia"
+              message="Silakan kembali atau pilih submodul lain."
+            />
+            <Button
+              onClick={() => navigate(-1)}
+              variant="primary"
+              className="mt-4 cursor-pointer"
+            >
               Kembali
             </Button>
           </div>
@@ -109,7 +139,9 @@ const QuizIntroPage = () => {
       showNavbar={!embed}
       showFooter={false}
       embed={embed}
-      contentClassName={`pt-28 pb-25 ${!embed && sidebarOpen ? "pr-80" : ""} transition-all duration-300`}
+      contentClassName={`pt-28 pb-25 ${
+        !embed && sidebarOpen ? "pr-80" : ""
+      } transition-all duration-300`}
       sidePanel={
         !embed ? (
           <ModuleSidebar
@@ -124,7 +156,12 @@ const QuizIntroPage = () => {
       }
       bottomBar={
         !embed ? (
-          <BottomBarTwoActions leftLabel="← Submodul" rightLabel="Mulai Kuis →" onLeft={() => navigate(-1)} onRight={handleStartQuiz} />
+          <BottomBarTwoActions
+            leftLabel="← Submodul"
+            rightLabel="Mulai Kuis →"
+            onLeft={() => navigate(-1)}
+            onRight={handleStartQuiz}
+          />
         ) : null
       }
     >
@@ -134,33 +171,53 @@ const QuizIntroPage = () => {
             <div className="h-12 bg-gradient-to-r from-[#1e7bff] to-[#0f5eff]" />
             <div className="py-6 px-6">
               <div className="flex justify-center mb-4">
-                <span className="px-4 py-2 bg-blue-50 text-blue-700 text-sm font-semibold rounded-full shadow">Quiz Submodul</span>
+                <span className="px-4 py-2 bg-blue-50 text-blue-700 text-sm font-semibold rounded-full shadow">
+                  Quiz Submodul
+                </span>
               </div>
-              <h1 className="text-3xl font-extrabold text-center text-gray-900 mb-2">LearnCheck!</h1>
-              <p className="text-center text-gray-600 italic mb-6">“Let’s have some fun and test your understanding!”</p>
+              <h1 className="text-3xl font-extrabold text-center text-gray-900 mb-2">
+                LearnCheck!
+              </h1>
+              <p className="text-center text-gray-600 italic mb-6">
+                “Let’s have some fun and test your understanding!”
+              </p>
 
               <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 mb-6">
-                <h2 className="text-xl font-semibold text-center text-gray-900 mb-4">{currentTutorial?.title || "Quiz Submodul"}</h2>
+                <h2 className="text-xl font-semibold text-center text-gray-900 mb-4">
+                  {currentTutorial?.title || "Quiz Submodul"}
+                </h2>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
                   <div className="flex itemsCenter gap-3">
-                    <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-50 text-blue-600 text-lg font-semibold">≡</span>
+                    <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-50 text-blue-600 text-lg font-semibold">
+                      ≡
+                    </span>
                     <div>
                       <p className="text-sm text-gray-600">Jumlah Soal</p>
-                      <p className="text-lg font-bold text-gray-900">{totalQuestions} Soal</p>
+                      <p className="text-lg font-bold text-gray-900">
+                        {totalQuestions} Soal
+                      </p>
                     </div>
                   </div>
                   <div className="flex itemsCenter gap-3">
-                    <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-50 text-blue-600 text-lg font-semibold">⏱</span>
+                    <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-50 text-blue-600 text-lg font-semibold">
+                      ⏱
+                    </span>
                     <div>
                       <p className="text-sm text-gray-600">Durasi</p>
-                      <p className="text-lg font-bold text-gray-900">{timePerQuestion} detik/soal</p>
+                      <p className="text-lg font-bold text-gray-900">
+                        {timePerQuestion} detik/soal
+                      </p>
                     </div>
                   </div>
                 </div>
               </div>
 
               <div className="flex justify-center">
-                <Button onClick={handleStartQuiz} variant="primary" className="px-10 py-3 text-base cursor-pointer">
+                <Button
+                  onClick={handleStartQuiz}
+                  variant="primary"
+                  className="px-10 py-3 text-base cursor-pointer"
+                >
                   Mulai Kuis
                 </Button>
               </div>

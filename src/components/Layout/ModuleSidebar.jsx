@@ -8,10 +8,6 @@ import {
 import { UserContext } from "../../context/UserContext";
 import { quizDone } from "../../utils/accessControl";
 
-/**
- * ModuleSidebar dengan struktur NESTED (hierarki modul-submodul)
- * Bisa menerima flat items (backward compatible) atau nested structure
- */
 const ModuleSidebar = ({
   items = [], // Flat items dari buildSidebarItems lama
   modules, // Optional: nested modules structure
@@ -162,10 +158,14 @@ const ModuleSidebar = ({
         onClick={(e) => handleQuizClick(quiz, e)}
         className={`py-2 px-3 ml-12 rounded cursor-pointer transition-all flex items-center gap-2 ${
           quiz.isLocked
-            ? "opacity-60 cursor-not-allowed"
+            ? "opacity-50 cursor-not-allowed"
             : isActive
-            ? "bg-blue-50 text-blue-600"
-            : "hover:bg-gray-50 text-gray-600"
+            ? isDark
+              ? "bg-blue-900 text-blue-300"
+              : "bg-blue-50 text-blue-600"
+            : isDark
+            ? "hover:bg-gray-700 text-gray-300"
+            : "hover:bg-gray-100 text-gray-600"
         }`}
       >
         <p
@@ -291,7 +291,7 @@ const ModuleSidebar = ({
         >
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <span className="text-xl font-bold">
-              {isActive ? "▶" : item.progressAllowed ? "●" : "○"}
+              {isActive ? "" : item.progressAllowed ? "●" : "○"}
             </span>
             <div className="flex-1 min-w-0">
               <p
