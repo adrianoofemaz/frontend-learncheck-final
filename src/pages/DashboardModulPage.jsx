@@ -78,7 +78,6 @@ const getSubmoduleName = (s, i) => {
   return `Submodul ${i + 1}`;
 };
 
-// Parse durasi dari data submodule (durationSec) atau teks lama_mengerjakan/duration
 const coerceDurationSec = (s) => {
   if (s.durationSec !== undefined && s.durationSec !== null) return s.durationSec;
   const raw = s.lama_mengerjakan || s.duration;
@@ -86,7 +85,6 @@ const coerceDurationSec = (s) => {
   return Number.isFinite(parsed) ? parsed : 0;
 };
 
-// Ambil hasil quiz submodul dari localStorage quiz-result-<id>
 const getQuizResultFromLocal = (id) => {
   try {
     const raw = localStorage.getItem(`${getUserKey()}:quiz-result-${id}`);
@@ -97,39 +95,34 @@ const getQuizResultFromLocal = (id) => {
   }
 };
 
-// Palet lembut agar selaras dengan tema (biru-putih)
 const PALETTE = {
   green: "#e6f7ec",
   yellow: "#fff7da",
   orange: "#ffe6d9",
 };
 
-// Ambang score: tinggi/menengah/rendah
 const colorScore = (score) => {
   if (score >= 85) return PALETTE.green;
   if (score >= 60) return PALETTE.yellow;
   return PALETTE.orange;
 };
 
-// Ambang waktu (detik): singkat/menengah/lama
 const colorTime = (sec) => {
   if (sec <= 55) return PALETTE.green;
   if (sec <= 75) return PALETTE.yellow;
   return PALETTE.orange;
 };
 
-// Ambang percobaan: sedikit/sedang/banyak
+
 const colorAttempts = (att) => {
   if (att <= 1) return PALETTE.green;
   if (att === 2) return PALETTE.yellow;
   return PALETTE.orange;
 };
 
-// Build rekomendasi dari submodul & kesalahan final quiz
+
 const buildRecommendations = ({ submodules, finalAnswers }) => {
   const recs = [];
-
-  // Submodul paling lemah (skor rendah / durasi tinggi / percobaan banyak)
   const weakSubs = [...submodules]
     .sort((a, b) => {
       const sa = a.score ?? 0;
@@ -151,7 +144,6 @@ const buildRecommendations = ({ submodules, finalAnswers }) => {
     );
   });
 
-  // Kesalahan di quiz final dikelompokkan per submodul
   if (Array.isArray(finalAnswers) && finalAnswers.length) {
     const group = finalAnswers
       .filter((a) => a && a.correct === false)
@@ -212,7 +204,6 @@ const DashboardModulPage = ({ data }) => {
       ? payload.submodules
       : localSubs || [];
 
-  // Normalisasi + backfill skor/durasi dari quiz-result jika field kosong
   const submodules = (Array.isArray(submodulesRaw) ? submodulesRaw : []).map((s, i) => {
     const qr = getQuizResultFromLocal(s.id) || {};
     const durLocal = coerceDurationSec(s);
@@ -241,7 +232,6 @@ const DashboardModulPage = ({ data }) => {
   const finalScore = payload.finalScore ?? finalLocal?.score ?? state?.score ?? 0;
   const pass = computePassStatus({ submodules, finalScore });
 
-  // Total waktu belajar: jumlah durasi submodul; fallback 0 jika tidak ada
   const totalLearningSeconds = submodules.reduce((acc, s) => acc + (s.durationSec || 0), 0);
 
   const sidebarItems = useMemo(
@@ -255,7 +245,6 @@ const DashboardModulPage = ({ data }) => {
   const passIconBg = pass ? "bg-green-50 text-green-600" : "bg-amber-50 text-amber-600";
   const passText = pass ? "Lulus" : "Belum Lulus";
 
-  // --- Enrich final answers dengan tutorial_id dari rawQuestions jika kosong (supaya tidak "Submodul ?") ---
   const rawQuestionsMap = (() => {
     const qlist =
       finalLocal?.rawQuestions ||
@@ -284,7 +273,7 @@ const DashboardModulPage = ({ data }) => {
   return (
     <LayoutWrapper
       embed={embed}
-      showFooter={false} // footer disembunyikan di dashboard modul
+      showFooter={false}
       contentClassName={`pt-20 pb-24 ${sidebarOpen ? "pr-80" : ""} transition-all duration-300`}
       sidePanel={
         !embed ? (
@@ -418,7 +407,6 @@ const DashboardModulPage = ({ data }) => {
             </table>
           </div>
 
-          {/* Rekomendasi kontekstual */}
           <div className="mt-4 text-sm text-gray-700 leading-relaxed bg-white border border-blue-100 rounded-xl p-4 shadow-sm space-y-2">
             <p className="font-semibold text-gray-800">Rekomendasi belajar</p>
             <ul className="list-disc pl-5 space-y-1">

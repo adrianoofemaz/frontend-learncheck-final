@@ -6,8 +6,8 @@ import BottomBarTwoActions from "../components/Layout/BottomBarTwoActions";
 import { useLearning } from "../hooks/useLearning";
 import { useProgress } from "../context/ProgressContext";
 import { buildSidebarItems } from "../utils/navigationChain";
-import ResultCard from "../components/Features/feedback/ResultCard";
-import AnswerReview from "../components/Features/feedback/AnswerReview";
+import ResultCard from "../components/features/Feedback/ResultCard";
+import AnswerReview from "../components/features/Feedback/AnswerReview";
 import { getUserKey } from "../utils/storage";
 import { finalQuizDone, quizDone } from "../utils/accessControl";
 
@@ -90,7 +90,7 @@ const FinalQuizResultPage = () => {
   return (
     <LayoutWrapper
       embed={embed}
-      showFooter={false} // ⬅️ hilangkan footer di halaman hasil final
+      showFooter={false} 
       contentClassName={`pt-20 pb-24 ${sidebarOpen ? "pr-80" : ""} transition-all duration-300`}
       sidePanel={
         !embed ? (

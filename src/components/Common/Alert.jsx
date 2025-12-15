@@ -1,13 +1,9 @@
-/**
- * Alert Component
- * Alert/notification messages
- */
 
 import React from 'react';
 import { XMarkIcon, CheckCircleIcon, ExclamationTriangleIcon, InformationCircleIcon } from '@heroicons/react/24/solid';
 
 const Alert = ({
-  type = 'info', // success, error, warning, info
+  type = 'info',
   title,
   message,
   onClose,

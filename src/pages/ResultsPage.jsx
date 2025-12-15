@@ -6,13 +6,12 @@ import BottomBarTwoActions from "../components/Layout/BottomBarTwoActions";
 import { useLearning } from "../hooks/useLearning";
 import { useProgress } from "../context/ProgressContext";
 import { buildSidebarItems, buildChain } from "../utils/navigationChain";
-import ResultCard from "../components/Features/feedback/ResultCard";
-import AnswerReview from "../components/Features/feedback/AnswerReview";
+import ResultCard from "../components/features/Feedback/ResultCard";
+import AnswerReview from "../components/features/Feedback/AnswerReview";
 import Button from "../components/common/Button";
 import { getUserKey } from "../utils/storage";
-import { quizDone } from "../utils/accessControl"; // finalQuizDone tidak dipakai lagi di sini
+import { quizDone } from "../utils/accessControl"; 
 
-// helper: pastikan nilai aman dirender sebagai string
 const toText = (val) => {
   if (!val) return "";
   if (typeof val === "string") return val;
@@ -120,7 +119,7 @@ const ResultsPage = () => {
   };
 
   const handleRetry = () => {
-    clearProgress(); // pastikan attempt baru
+    clearProgress(); 
     const target = `/quiz-intro/${tutorialId}`;
     if (isIframe) postNavToParent(target);
     else navigate(target);

@@ -1,8 +1,3 @@
-/**
- * RegisterForm Component
- * Form untuk registrasi
- */
-
 import React, { useState } from 'react';
 import { validateRegisterForm } from '../../../utils/validators';
 import Button from '../../common/Button';
@@ -68,8 +63,7 @@ const RegisterForm = ({ onSubmit, loading = false }) => {
         />
       )}
 
-      {/* Name Field */}
-      <div>
+\      <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Nama Lengkap
         </label>
@@ -89,8 +83,7 @@ const RegisterForm = ({ onSubmit, loading = false }) => {
         )}
       </div>
 
-      {/* Username Field */}
-      <div>
+\      <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Username
         </label>
@@ -110,8 +103,7 @@ const RegisterForm = ({ onSubmit, loading = false }) => {
         )}
       </div>
 
-      {/* Password Field */}
-      <div>
+\      <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Password
         </label>
@@ -131,8 +123,7 @@ const RegisterForm = ({ onSubmit, loading = false }) => {
         )}
       </div>
 
-      {/* Confirm Password Field */}
-      <div>
+\      <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Konfirmasi Password
         </label>
@@ -152,8 +143,7 @@ const RegisterForm = ({ onSubmit, loading = false }) => {
         )}
       </div>
 
-      {/* Submit Button */}
-      <Button
+\      <Button
         type="submit"
         variant="primary"
         fullWidth

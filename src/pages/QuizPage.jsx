@@ -50,8 +50,6 @@ const saveSubmoduleResult = (
   localStorage.setItem(submoduleResultKey(uid), JSON.stringify(existing));
 };
 
-// Parse durasi: ambil dari result.duration (angka detik) atau lama_mengerjakan ("22 detik")
-// fallback hitung dari startTime jika ada
 const toDurationSec = (result, startTime) => {
   const numDur = Number(result?.duration);
   if (Number.isFinite(numDur) && numDur > 0) return numDur;
@@ -116,7 +114,7 @@ const QuizPage = () => {
 
   const goToResults = useCallback(
     (result) => {
-      const url = `/quiz-results-player/${tutorialId}`; // tanpa embed=1 agar sidebar/bottom muncul
+      const url = `/quiz-results-player/${tutorialId}`; 
       navigate(url, { state: { result } });
     },
     [navigate, tutorialId]
@@ -340,7 +338,6 @@ const QuizPage = () => {
           };
         });
 
-      // Hitung durasi detik dari hasil backend atau dari startTime jika tidak ada
       const durationSec = toDurationSec(result, startTime);
 
       const resultEnriched = {
@@ -359,7 +356,7 @@ const QuizPage = () => {
         resultEnriched?.score ?? 0,
         resultEnriched?.benar ?? 0,
         resultEnriched?.total ?? questions.length,
-        durationSec // <-- simpan detik agar dashboard bisa baca
+        durationSec 
       );
 
       if (storageKey) {
@@ -411,7 +408,7 @@ const QuizPage = () => {
     goToResults,
     userKey,
     updateTutorialProgress,
-    startTime, // <-- tambahkan dependency karena dipakai untuk hitung durasi
+    startTime, 
   ]);
 
   const handleTimeUp = useCallback(() => {

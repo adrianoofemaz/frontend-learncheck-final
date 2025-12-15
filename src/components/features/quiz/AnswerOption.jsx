@@ -1,7 +1,4 @@
-/**
- * AnswerOption Component
- * Single answer option
- */
+
 
 import React from 'react';
 
@@ -20,7 +17,6 @@ const AnswerOption = ({
         : 'border-gray-200 hover:border-gray-300 bg-white';
     }
 
-    // After submission
     if (isCorrect) {
       return 'border-green-500 bg-green-50';
     }

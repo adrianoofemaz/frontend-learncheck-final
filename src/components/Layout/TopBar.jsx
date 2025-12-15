@@ -40,7 +40,6 @@ const Navbar = () => {
     >
       <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-20">
         <div className="flex justify-between items-center h-16">
-          {/* LOGO */}
           <button onClick={() => navigate("/home")}>
             <img
               src="/public/assets/images/QuizMate Header.png"
@@ -49,15 +48,12 @@ const Navbar = () => {
             />
           </button>
 
-          {/* DESKTOP MENU */}
           <div className="hidden md:flex items-center gap-6 relative">
-            {/* THEME TOGGLE */}
             <ThemeToggle
               isDark={preferences.theme === "dark"}
               onToggle={handleThemeToggle}
             />
 
-            {/* USER SECTION */}
             {isAuthenticated && (
               <div className="relative">
                 <button
@@ -83,7 +79,6 @@ const Navbar = () => {
                   </div>
                 </button>
 
-                {/* PROFILE DROPDOWN */}
                 {profileOpen && (
                   <div
                     className={`absolute right-0 mt-2 w-48 rounded-xl shadow-lg border ${
@@ -110,7 +105,6 @@ const Navbar = () => {
               </div>
             )}
 
-            {/* SETTINGS ICON */}
             <button
               onClick={() => {
                 setSettingsOpen(!settingsOpen);
@@ -126,7 +120,6 @@ const Navbar = () => {
               <span className="text-xs"></span>
             </button>
 
-            {/* SETTINGS DROPDOWN */}
             {settingsOpen && (
               <div
                 className={`absolute right-1 top-12 w-70 rounded-xl shadow-lg border p-4 z-50 ${
@@ -140,7 +133,6 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* MOBILE MENU TOGGLE */}
           <div className="md:hidden">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -155,7 +147,6 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* MOBILE MENU */}
         {mobileMenuOpen && (
           <div className="md:hidden pt-4 pb-4 border-t border-gray-300 dark:border-gray-700 space-y-3">
             <ThemeToggle

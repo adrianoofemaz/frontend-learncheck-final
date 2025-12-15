@@ -34,9 +34,7 @@ export const DEFAULT_MOCK_QUESTIONS = [
   },
 ];
 
-// Jika mau beda per tutorial, isi di sini:
 export const MOCK_QUESTIONS_BY_TUTORIAL = {
-  // 35363: [...customQuestions],
 };
 
 export const getMockQuestions = (tutorialId) => {

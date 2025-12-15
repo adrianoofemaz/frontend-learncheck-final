@@ -18,7 +18,7 @@ api.interceptors.request.use((config) => {
 
 export const authService = {
   register: async (username, password, name) => {
-    clearAuth(); // bersihkan sisa kredensial lama
+    clearAuth(); 
     const response = await api.post(API_ENDPOINTS.REGISTER, { name, username, password });
     if (response.data.user?.token) {
       saveAuth(response.data.user, response.data.user.token);
@@ -27,7 +27,7 @@ export const authService = {
   },
 
   login: async (username, password) => {
-    clearAuth(); // pastikan kredensial lama hilang
+    clearAuth(); 
     const response = await api.post(API_ENDPOINTS.LOGIN, { username, password });
     if (response.data.user?.token) {
       saveAuth(response.data.user, response.data.user.token);
@@ -37,7 +37,7 @@ export const authService = {
 
   logout: () => {
     clearAuth();
-    window.location.replace("/login"); // reload penuh agar state/reset storage bersih
+    window.location.replace("/login"); 
   },
 
   getToken: () => loadAuth().token,

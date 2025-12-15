@@ -43,7 +43,6 @@ export const useFinalQuiz = () => {
     setLoading(true);
     setError(null);
     try {
-      // Transform answers object -> array { question_id, answer }
       const payload = Object.entries(answers).map(([question_id, answer]) => ({
         question_id,
         answer: String(answer),

@@ -1,20 +1,11 @@
-/**
- * Tutorial Service
- * Handle tutorials/learning materials
- */
+
 import api from "./api";
 import { API_ENDPOINTS } from "../constants/apiEndpoints";
 import { MODULES_DATA } from "../constants/modulesData";
 
-/**
- * Satu sumber urutan submodul: MODULES_DATA
- */
+
 const BASE_SUBMODULES = MODULES_DATA[0]?.submodules ?? [];
 
-/**
- * Mock singkat untuk fallback (jika backend 404/down).
- * Urutan diselaraskan dengan backend.
- */
 const MOCK_TUTORIALS = BASE_SUBMODULES.map((t) => ({
   id: t.id,
   title: t.title,

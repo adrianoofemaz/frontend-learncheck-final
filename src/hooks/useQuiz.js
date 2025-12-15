@@ -1,7 +1,4 @@
-/**
- * useQuiz Hook
- * Handle quiz questions & submission
- */
+
 import { useState, useCallback } from 'react';
 import quizService from '../services/quizService';
 
@@ -12,10 +9,7 @@ export const useQuiz = () => {
   const [submitLoading, setSubmitLoading] = useState(false);
   const [assessmentId, setAssessmentId] = useState(null);
 
-  /**
-   * Fetch questions untuk tutorial tertentu
-   * @param {number} tutorialId - Tutorial ID
-   */
+
   const fetchQuestions = useCallback(async (tutorialId) => {
     setLoading(true);
     setError(null);
@@ -24,7 +18,6 @@ export const useQuiz = () => {
       const response = await quizService.getQuestions(tutorialId);
       console.log('Questions response:', response);
 
-      // Batasi soal submodul ke 3 pertama (sisanya untuk final)
       const questionsData = (response.data || []).slice(0, 3);
       const assmtId = response.assessment_id || null;
 
@@ -42,24 +35,20 @@ export const useQuiz = () => {
       setError(friendly);
       setQuestions([]);
       setAssessmentId(null);
-      return null; // jangan lempar; biar caller tidak crash
+      return null; 
     } finally {
       setLoading(false);
     }
   }, []);
 
-  /**
-   * Set mock questions (fallback offline)
-   */
+
   const setMockQuestions = useCallback((mockQs = [], mockAssessmentId = 'mock') => {
     setQuestions(mockQs);
     setAssessmentId(mockAssessmentId);
     setError(null);
   }, []);
 
-  /**
-   * Submit quiz answers
-   */
+
   const submitAnswers = useCallback(async (tutorialId, assmtId, answers) => {
     setSubmitLoading(true);
     setError(null);
@@ -67,7 +56,7 @@ export const useQuiz = () => {
       console.log('Submitting answers:', { tutorialId, assessmentId: assmtId, answers });
       const response = await quizService.submitAnswers(tutorialId, assmtId, answers);
       console.log('ASUUUUU Submit response:', response);
-      //
+
       
       return response;
     } catch (err) {
@@ -79,9 +68,7 @@ export const useQuiz = () => {
     }
   }, []);
 
-  /**
-   * Reset progress
-   */
+
   const resetProgress = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -108,7 +95,7 @@ export const useQuiz = () => {
     fetchQuestions,
     submitAnswers,
     resetProgress,
-    setMockQuestions, // <-- baru
+    setMockQuestions, 
   };
 };
 

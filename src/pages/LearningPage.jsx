@@ -39,7 +39,6 @@ const LearningPage = () => {
     }
   }, [id, selectTutorial]);
 
-  // Selesai jika progres backend true dan ada hasil kuis lokal
   const isSubmoduleCompleted = (tid) =>
     !!getTutorialProgress(tid) && quizDone(tid);
 

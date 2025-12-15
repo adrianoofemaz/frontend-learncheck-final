@@ -11,9 +11,7 @@ import {
 
 const CHART_HEIGHT = 320;
 
-// >>> Atur batas panjang label yang ditampilkan di axis (default 14)
 const MAX_LABEL_LEN = 15;
-// >>> Atur rotasi label (derajat). 0 untuk lurus, negatif untuk miring ke kiri.
 const LABEL_ANGLE = -20;
 
 const truncateLabel = (value, maxLen = MAX_LABEL_LEN) => {
@@ -35,7 +33,7 @@ const CustomTick = ({ x, y, payload }) => {
         fill="#4b5563"
         fontSize={11}
         transform={`rotate(${LABEL_ANGLE})`}
-        title={full} // hover menampilkan teks penuh
+        title={full} 
       >
         {text}
       </text>
@@ -77,9 +75,7 @@ const SubmoduleScoreChart = ({ data = [] }) => {
             margin={{
               top: 10,
               right: 36,
-              // >>> Atur bottom margin jika label terpotong (default 45)
               bottom: 36,
-              // >>> Atur left margin jika label paling kiri terpotong (default 12)
               left: 12,
             }}
           >
@@ -92,7 +88,7 @@ const SubmoduleScoreChart = ({ data = [] }) => {
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
             <XAxis
               dataKey="name"
-              interval={0} // tampilkan semua tick
+              interval={0} 
               tick={<CustomTick />}
             />
             <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} />

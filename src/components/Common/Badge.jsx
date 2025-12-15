@@ -1,14 +1,9 @@
-/**
- * Badge Component
- * Small label/badge component
- */
-
 import React from 'react';
 
 const Badge = ({
   children,
-  variant = 'primary', // primary, secondary, success, danger, warning, info
-  size = 'md', // sm, md, lg
+  variant = 'primary', 
+  size = 'md', 
   className = '',
 }) => {
   const variants = {

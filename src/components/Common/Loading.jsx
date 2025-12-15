@@ -1,12 +1,8 @@
-/**
- * Loading Component
- * Loading spinner or image with background image
- */
 
 import React from "react";
 
 const Loading = ({
-  size = "md", // sm, md, lg
+  size = "md", 
   text = "Memuat...",
   fullScreen = false,
   useImage = false,
@@ -44,13 +40,6 @@ const Loading = ({
   if (fullScreen) {
     return (
       <div className="fixed inset-0 z-40 flex items-center justify-center overflow-hidden">
-        {/* Background image */}
-        {/* <div
-          className="absolute inset-0 bg-cover bg-center opacity-5"
-          style={{ backgroundImage: `url(${bgImage})` }}
-        /> */}
-
-        {/* Card */}
         <div className="relative z-10 bg-white rounded-3xl shadow-2xl px-20 py-15">
           {loader}
         </div>

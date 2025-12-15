@@ -2,9 +2,7 @@ import api from "./api";
 import { API_ENDPOINTS } from "../constants/apiEndpoints";
 import authService from "./authService";
 
-/**
- * Map backend final questions (option_1..4) ke bentuk multiple_choice standar
- */
+
 const mapFinalQuestions = (raw = []) =>
   raw.map((q) => ({
     id: q.id,
@@ -24,7 +22,6 @@ const finalQuizService = {
     if (!token) throw new Error("Silakan login terlebih dahulu");
 
     const res = await api.get(API_ENDPOINTS.QUESTIONS_FINAL);
-    // Backend: res.data = { success, data: [ {id, assessment, option_1..4} ] }
     const raw = res.data?.data || res.data || [];
     return mapFinalQuestions(raw);
   },
@@ -33,7 +30,6 @@ const finalQuizService = {
     const token = authService.getToken();
     if (!token) throw new Error("Silakan login terlebih dahulu");
 
-    // answers: [{ question_id, answer }]
     const res = await api.post(API_ENDPOINTS.SUBMIT_FINAL_ANSWERS, { answers });
     return res.data;
   },

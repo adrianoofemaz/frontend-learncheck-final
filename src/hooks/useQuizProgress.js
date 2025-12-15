@@ -1,7 +1,4 @@
-/**
- * useQuizProgress Hook
- * Handle quiz progress tracking during quiz
- */
+
 import { useState, useCallback } from 'react';
 
 export const useQuizProgress = () => {
@@ -21,7 +18,6 @@ export const useQuizProgress = () => {
 
   const getCurrentAnswer = useCallback(() => answers[currentQuestionIndex], [answers, currentQuestionIndex]);
 
-  // Clamp index supaya tidak melewati soal terakhir
   const nextQuestion = useCallback((totalQuestions) => {
     setCurrentQuestionIndex((prev) => {
       const maxIdx = Math.max(0, (totalQuestions || 1) - 1);

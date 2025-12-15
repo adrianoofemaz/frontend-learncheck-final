@@ -21,7 +21,6 @@ const QuizCard = ({ question, selectedAnswer, onSelectAnswer, questionNumber, to
           window.scrollTo({ top: target, behavior: 'smooth' });
         }
       };
-      // jalankan setelah layout selesai
       requestAnimationFrame(doScroll);
     }
   }, [reveal, selectedAnswer]);

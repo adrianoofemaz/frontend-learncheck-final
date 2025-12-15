@@ -1,7 +1,4 @@
-/**
- * ProgressContext
- * Manage user learning progress
- */
+
 import React, { createContext, useState, useCallback, useContext, useEffect, useRef } from 'react';
 import { STORAGE_KEYS } from '../constants/config';
 import { nsKey, getUserKey } from '../utils/storage';
@@ -26,11 +23,10 @@ export const ProgressProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Reload progress dari backend tiap userKey berubah; kosongkan state dulu
   useEffect(() => {
     const prevKey = prevUserKeyRef.current;
     if (prevKey !== userKey) {
-      setProgress({}); // hindari tampil progres user lama
+      setProgress({});
       prevUserKeyRef.current = userKey;
     }
 
@@ -39,7 +35,6 @@ export const ProgressProvider = ({ children }) => {
       setLoading(true);
       setError(null);
 
-      // Skip jika belum ada token (hindari 401 loop di login)
       const token = authService.getToken();
       if (!token) {
         setProgress(loadProgressLocal(userKey));
@@ -57,7 +52,6 @@ export const ProgressProvider = ({ children }) => {
       } catch (err) {
         if (!cancelled) {
           setError(err?.message || 'Gagal memuat progres');
-          // fallback ke progres lokal supaya tidak blank
           setProgress(loadProgressLocal(userKey));
         }
       } finally {
@@ -70,9 +64,7 @@ export const ProgressProvider = ({ children }) => {
     };
   }, [userKey]);
 
-  /**
-   * Update progress untuk tutorial tertentu
-   */
+
   const updateTutorialProgress = useCallback((tutorialId, status = true) => {
     try {
       setProgress((prev) => {
@@ -123,10 +115,7 @@ export const ProgressProvider = ({ children }) => {
   return <ProgressContext.Provider value={value}>{children}</ProgressContext.Provider>;
 };
 
-/**
- * Custom Hook: useProgress
- * Gunakan di komponen manapun untuk akses progress context
- */
+
 export const useProgress = () => {
   const context = useContext(ProgressContext);
   if (!context) {

@@ -1,16 +1,10 @@
-/**
- * User Service
- * Handle user profile, preferences
- */
 
 import api from "./api";
 import { API_ENDPOINTS } from "../constants/apiEndpoints";
 import { STORAGE_KEYS } from "../constants/config";
 
 export const userService = {
-  /**
-   * Get user profile
-   */
+
   getProfile: async () => {
     try {
       const response = await api.get(API_ENDPOINTS.USER_PROFILE);
@@ -20,14 +14,11 @@ export const userService = {
     }
   },
 
-  /**
-   * Get user preferences
-   */
+
   getPreferences: async () => {
     try {
       const response = await api.get(API_ENDPOINTS.USER_PREFERENCES);
 
-      // Simpan ke session storage
       sessionStorage.setItem(
         STORAGE_KEYS.preferences,
         JSON.stringify(response.data.preference)
@@ -39,10 +30,7 @@ export const userService = {
     }
   },
 
-  /**
-   * Update user preferences
-   * @param {object} preferences - { theme, font_size, font, layout_width }
-   */
+
   updatePreferences: async (preferences) => {
     try {
       const response = await api.patch(
@@ -50,7 +38,7 @@ export const userService = {
         preferences
       );
 
-      // Update sessionStorage
+
       sessionStorage.setItem(
         STORAGE_KEYS.preferences,
         JSON.stringify(response.data.preference)

@@ -30,7 +30,6 @@ const FinalQuizIntroPage = () => {
   const sidebarItems = useMemo(() => buildSidebarItems(tutorials, getTutorialProgress), [tutorials, getTutorialProgress]);
   const chain = useMemo(() => buildChain(tutorials, currentTutorial?.id), [tutorials, currentTutorial?.id]);
 
-  // Skip intro jika sudah ada hasil final
   useEffect(() => {
     if (finalQuizDone()) {
       navigate("/quiz-final-result", { replace: true });

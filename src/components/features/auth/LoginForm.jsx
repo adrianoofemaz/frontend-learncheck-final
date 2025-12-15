@@ -1,7 +1,3 @@
-/**
- * LoginForm Component
- * Form untuk login
- */
 
 import React, { useState } from 'react';
 import { validateLoginForm } from '../../../utils/validators';
@@ -55,7 +51,6 @@ const LoginForm = ({ onSubmit, loading = false }) => {
         />
       )}
 
-      {/* Username Field */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Username
@@ -76,7 +71,6 @@ const LoginForm = ({ onSubmit, loading = false }) => {
         )}
       </div>
 
-      {/* Password Field */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Password
@@ -97,7 +91,6 @@ const LoginForm = ({ onSubmit, loading = false }) => {
         )}
       </div>
 
-      {/* Submit Button */}
       <Button
         type="submit"
         variant="primary"
