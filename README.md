@@ -1,7 +1,34 @@
-
 # LearnCheck Frontend
 
 LearnCheck adalah aplikasi pembelajaran interaktif berbasis web yang membantu pengguna mempelajari materi, mengerjakan kuis, dan memantau progres belajar. Proyek ini dikembangkan menggunakan React, Vite, dan Tailwind CSS untuk memberikan pengalaman belajar yang modern, responsif, dan mudah digunakan.
+
+## 📝 Deskripsi Singkat Proyek
+LearnCheck merupakan platform edukasi berbasis web yang menyediakan materi pembelajaran terstruktur, kuis interaktif, serta fitur pemantauan progres belajar untuk pengguna.
+
+## ⚙️ Petunjuk Setup Environment
+1. **Clone repository:**
+    ```bash
+    git clone https://github.com/learncheck/frontend-learncheck-final.git
+    cd frontend-learncheck-final
+    ```
+2. **Install dependencies:**
+    ```bash
+    npm install
+    ```
+3. **Jalankan aplikasi:**
+    ```bash
+    npm run dev
+    ```
+4. **Akses di browser:**
+    Buka [http://localhost:5173](http://localhost:5173) untuk melihat aplikasi.
+
+## 🤖 Tautan Model ML (Jika Ada)
+Saat ini, aplikasi LearnCheck **tidak menggunakan model Machine Learning**. Jika di masa mendatang terdapat integrasi model ML, tautan unduh dan instruksi pemuatan akan ditambahkan di sini.
+
+## 🚀 Cara Menjalankan Aplikasi
+- Pastikan Node.js dan npm sudah terpasang di komputer Anda.
+- Ikuti langkah pada bagian **Petunjuk Setup Environment** di atas.
+- Setelah menjalankan `npm run dev`, akses aplikasi melalui browser di [http://localhost:5173](http://localhost:5173).
 
 ## ✨ Fitur Utama
 - **Autentikasi pengguna:** Login & Register dengan validasi.
@@ -12,13 +39,11 @@ LearnCheck adalah aplikasi pembelajaran interaktif berbasis web yang membantu pe
 - **Dashboard progres belajar:** Pantau perkembangan dan statistik belajar.
 - **Tema gelap/terang:** Pilihan mode tampilan sesuai preferensi pengguna.
 
-## 🚀 Teknologi yang Digunakan
-- [React](https://react.dev/) – Library UI utama
-- [Vite](https://vitejs.dev/) – Build tool modern
-- [Tailwind CSS](https://tailwindcss.com/) – Utility-first CSS framework
-- [React Router](https://reactrouter.com/) – Routing SPA
-- [Heroicons](https://heroicons.com/) – Ikon SVG
-- [Lottie](https://airbnb.io/lottie/) – Animasi interaktif
+## 🛠️ Pengembangan
+- Edit atau tambahkan komponen di `src/components/` untuk UI baru.
+- Tambah halaman baru di `src/pages/` sesuai kebutuhan fitur.
+- Ubah atau tambahkan data mock di `src/constants/` untuk pengujian.
+- Konfigurasi atau integrasi API di `src/services/`.
 
 ## 📁 Struktur Folder
 
@@ -38,29 +63,6 @@ frontend-learncheck-final/
 ├── package.json
 ├── vite.config.js
 └── README.md
-
-## ⚡️ Cara Instalasi & Menjalankan
-1. **Clone repository:**
-    ```bash
-    git clone https://github.com/learncheck/frontend-learncheck-final.git
-    cd frontend-learncheck-final
-    ```
-2. **Install dependencies:**
-    ```bash
-    npm install
-    ```
-3. **Jalankan aplikasi:**
-    ```bash
-    npm run dev
-    ```
-4. **Akses di browser:**
-    Buka [http://localhost:5173](http://localhost:5173) untuk melihat aplikasi.
-
-## 🛠️ Pengembangan
-- Edit atau tambahkan komponen di `src/components/` untuk UI baru.
-- Tambah halaman baru di `src/pages/` sesuai kebutuhan fitur.
-- Ubah atau tambahkan data mock di `src/constants/` untuk pengujian.
-- Konfigurasi atau integrasi API di `src/services/`.
 
 ## 📄 Contoh Penggunaan
 - **Login/register:** Buat akun atau masuk untuk mulai belajar.
