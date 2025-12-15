@@ -1,18 +1,75 @@
-# React + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# LearnCheck Frontend
 
-Currently, two official plugins are available:
+LearnCheck adalah aplikasi pembelajaran interaktif berbasis web yang membantu pengguna mempelajari materi, mengerjakan kuis, dan memantau progres belajar. Proyek ini dikembangkan menggunakan React, Vite, dan Tailwind CSS untuk memberikan pengalaman belajar yang modern, responsif, dan mudah digunakan.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Fitur Utama
+- **Autentikasi pengguna:** Login & Register dengan validasi.
+- **Daftar modul & submodul:** Navigasi materi terstruktur.
+- **Materi interaktif:** Konten belajar dengan gambar, animasi, dan video.
+- **Kuis per submodul & kuis akhir:** Soal pilihan ganda, skor otomatis.
+- **Review hasil kuis & feedback:** Lihat jawaban benar/salah dan penjelasan.
+- **Dashboard progres belajar:** Pantau perkembangan dan statistik belajar.
+- **Tema gelap/terang:** Pilihan mode tampilan sesuai preferensi pengguna.
 
-## React Compiler
+## 🚀 Teknologi yang Digunakan
+- [React](https://react.dev/) – Library UI utama
+- [Vite](https://vitejs.dev/) – Build tool modern
+- [Tailwind CSS](https://tailwindcss.com/) – Utility-first CSS framework
+- [React Router](https://reactrouter.com/) – Routing SPA
+- [Heroicons](https://heroicons.com/) – Ikon SVG
+- [Lottie](https://airbnb.io/lottie/) – Animasi interaktif
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+## 📁 Struktur Folder
 
-Note: This will impact Vite dev & build performances.
+frontend-learncheck-final/
+├── public/                # File statis & aset (ikon, favicon, dsb)
+├── src/
+│   ├── assets/            # Gambar, animasi, video
+│   ├── components/        # Komponen UI reusable (Navbar, Button, Card, dsb)
+│   ├── constants/         # Konstanta, data mock, konfigurasi
+│   ├── context/           # Context API (auth, theme, dsb)
+│   ├── hooks/             # Custom hooks (useAuth, useTheme, dsb)
+│   ├── pages/             # Halaman utama (Home, Login, Dashboard, dsb)
+│   ├── services/          # API service (fetch data, auth, dsb)
+│   ├── types/             # Tipe data TypeScript
+│   └── utils/             # Utility functions (helper, formatter, dsb)
+├── index.html
+├── package.json
+├── vite.config.js
+└── README.md
 
-## Expanding the ESLint configuration
+## ⚡️ Cara Instalasi & Menjalankan
+1. **Clone repository:**
+    ```bash
+    git clone https://github.com/learncheck/frontend-learncheck-final.git
+    cd frontend-learncheck-final
+    ```
+2. **Install dependencies:**
+    ```bash
+    npm install
+    ```
+3. **Jalankan aplikasi:**
+    ```bash
+    npm run dev
+    ```
+4. **Akses di browser:**
+    Buka [http://localhost:5173](http://localhost:5173) untuk melihat aplikasi.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🛠️ Pengembangan
+- Edit atau tambahkan komponen di `src/components/` untuk UI baru.
+- Tambah halaman baru di `src/pages/` sesuai kebutuhan fitur.
+- Ubah atau tambahkan data mock di `src/constants/` untuk pengujian.
+- Konfigurasi atau integrasi API di `src/services/`.
+
+## 📄 Contoh Penggunaan
+- **Login/register:** Buat akun atau masuk untuk mulai belajar.
+- **Pilih submodul:** Telusuri daftar materi, baca penjelasan, dan pelajari konten interaktif.
+- **Kerjakan kuis:** Jawab soal, dapatkan skor, dan review hasil.
+- **Pantau progres:** Lihat statistik belajar dan progres di dashboard.
+
+## 🙌 Kontribusi
+Pull request & issue sangat terbuka untuk pengembangan lebih lanjut! Silakan fork repo, buat branch baru, dan ajukan perubahan.
+
+© 2025 LearnCheck Team
+
