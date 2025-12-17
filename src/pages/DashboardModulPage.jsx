@@ -8,7 +8,7 @@ import { useProgress } from "../context/ProgressContext";
 import { buildSidebarItems } from "../utils/navigationChain";
 import Card from "../components/common/Card";
 import Button from "../components/common/Button";
-import SubmoduleScoreChart from "../components/features/analytics/SubmoduleScoreCharts";
+import SubmoduleScoreChart from "../components/Features/analytics/SubmoduleScoreCharts";
 import { nsKey, getUserKey } from "../utils/storage";
 
 const SUBMODULE_RESULT_KEY = "submodule-results";
