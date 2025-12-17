@@ -4,10 +4,10 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import LayoutWrapper from "../components/Layout/LayoutWrapper";
 import { useQuizProgress } from "../hooks/useQuizProgress";
 import { useQuiz } from "../hooks/useQuiz";
-import { QuizCard, QuizTimer } from "../components/features/quiz";
 import Alert from "../components/common/Alert";
 import Button from "../components/common/Button";
 import Loading from "../components/common/Loading";
+import { QuizCard, QuizTimer } from "../components/Features/quiz";
 import {
   getMockQuestions,
   DEFAULT_MOCK_FEEDBACK,
