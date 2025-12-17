@@ -7,9 +7,6 @@ RUN npm install
 
 COPY . .
 
-# ✅ BUILD dulu (WAJIB)
-RUN npm run build
-
 EXPOSE 5173
 
 # ✅ SERVE hasil build, BUKAN dev
