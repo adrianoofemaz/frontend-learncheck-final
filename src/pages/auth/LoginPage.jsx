@@ -34,7 +34,7 @@ const LoginPage = () => {
       <div className="auth-left hidden lg:flex flex-1 items-center justify-center">
         <img
           src="/assets/images/QuizMate.png"
-          alt="Dicoding Logo"
+          alt="Quizmate Logo"
           className="w-full h-full object-cover"
         />
       </div>
@@ -47,8 +47,8 @@ const LoginPage = () => {
             <div className="flex items-center justify-center mb-4 sm:mb-6">
               <img
                 src="/assets/images/QuizMate Icon.png"
-                alt="Logo"
-                className="w-52 h-52 object-contain "
+                alt="icon Quizmate"
+                className="w-40 h-40 object-contain "
               />
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">

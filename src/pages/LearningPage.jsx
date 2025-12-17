@@ -122,22 +122,7 @@ const LearningPage = () => {
   if (!currentTutorial) {
     return (
       <LayoutWrapper fullHeight embed={embed} showFooter={false}>
-        <div className="flex items-center justifyCenter min-h-screen">
-          <div className="max-w-md text-center">
-            <Alert
-              type="warning"
-              title="Materi belum tersedia"
-              message="Silakan kembali ke beranda atau pilih submodul lain."
-            />
-            <Button
-              onClick={() => navigate("/home")}
-              variant="primary"
-              className="mt-4 cursor-pointer"
-            >
-              Kembali ke Beranda
-            </Button>
-          </div>
-        </div>
+        <div className="flex items-center justifyCenter min-h-screen"></div>
       </LayoutWrapper>
     );
   }

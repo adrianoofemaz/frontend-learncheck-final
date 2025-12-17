@@ -8,6 +8,7 @@ import { useNavigate, Link } from "react-router-dom";
 import authService from "../../services/authService";
 import { RegisterForm } from "../../components/features/auth";
 import "./auth.css";
+import Swal from "sweetalert2";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -29,19 +30,31 @@ const RegisterPage = () => {
 
       console.log("Register response:", response);
 
-      // ✓ Registration success
-      alert("✓ Registrasi berhasil!  Silakan login.");
-      navigate("/login");
+      Swal.fire({
+        icon: "success",
+        title: "Registrasi berhasil!",
+        text: "Silakan login.",
+        confirmButtonText: "OK",
+      }).then(() => {
+        navigate("/login"); // Setelah klik OK, navigasi ke halaman login
+      });
     } catch (err) {
       console.error("Register error:", err);
 
-      // Handle error
+      // Menangani error dan menampilkan pesan menggunakan SweetAlert
       const errorMessage =
         err?.message || "Registrasi gagal. Silakan coba lagi.";
       setError(errorMessage);
       if (setServerError) {
         setServerError(errorMessage);
       }
+
+      Swal.fire({
+        icon: "error",
+        title: "Gagal!",
+        text: errorMessage,
+        confirmButtonText: "Coba Lagi",
+      });
     } finally {
       setLoading(false);
     }
@@ -53,7 +66,7 @@ const RegisterPage = () => {
       <div className="auth-left hidden lg:flex flex-1 items-center justify-center">
         <img
           src="/assets/images/QuizMate.png"
-          alt="Dicoding Logo"
+          alt="Quizmate Logo"
           className="w-full h-full object-cover"
         />
       </div>
@@ -66,8 +79,8 @@ const RegisterPage = () => {
             <div className="flex items-center justify-center ">
               <img
                 src="/assets/images/QuizMate Icon.png"
-                alt="Number 9"
-                className="w-52 h-52 object-contain"
+                alt="icon Quizmate"
+                className="w-40 h-40 object-contain "
               />
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
