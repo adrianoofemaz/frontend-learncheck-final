@@ -63,7 +63,7 @@ const RegisterForm = ({ onSubmit, loading = false }) => {
         />
       )}
 
-\      <div>
+     <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Nama Lengkap
         </label>
@@ -83,7 +83,7 @@ const RegisterForm = ({ onSubmit, loading = false }) => {
         )}
       </div>
 
-\      <div>
+      <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Username
         </label>
@@ -103,7 +103,7 @@ const RegisterForm = ({ onSubmit, loading = false }) => {
         )}
       </div>
 
-\      <div>
+     <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Password
         </label>
@@ -123,7 +123,7 @@ const RegisterForm = ({ onSubmit, loading = false }) => {
         )}
       </div>
 
-\      <div>
+     <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Konfirmasi Password
         </label>
@@ -143,7 +143,7 @@ const RegisterForm = ({ onSubmit, loading = false }) => {
         )}
       </div>
 
-\      <Button
+     <Button
         type="submit"
         variant="primary"
         fullWidth
