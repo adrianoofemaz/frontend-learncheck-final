@@ -9,9 +9,9 @@ import { UserContext } from "../../context/UserContext";
 import { quizDone } from "../../utils/accessControl";
 
 const ModuleSidebar = ({
-  items = [],
-  modules,
-  extraItems,
+  items = [], // Flat items dari buildSidebarItems lama
+  modules, // Optional: nested modules structure
+  extraItems, // Optional: quiz final & dashboard
   currentId,
   currentType = "tutorial",
   onSelect,
@@ -24,11 +24,14 @@ const ModuleSidebar = ({
   const [expandedModules, setExpandedModules] = useState({});
   const [expandedSubmodules, setExpandedSubmodules] = useState({});
 
+  // Konversi flat items ke nested structure jika diperlukan
   const nestedData = useMemo(() => {
+    // Jika sudah ada modules & extraItems, gunakan itu
     if (modules && extraItems) {
       return { modules, extraItems };
     }
 
+    // Jika masih flat items, konversi ke nested
     const tutorialItems = items.filter((item) => item.type === "tutorial");
     const quizItems = items.filter((item) => item.type === "quiz-sub");
     const finalItems = items.filter(
@@ -144,6 +147,7 @@ const ModuleSidebar = ({
 
   const isDark = preferences?.theme === "dark";
 
+  // Render Quiz Item
   const renderQuizItem = (quiz) => {
     const isActive =
       currentType === "quiz-sub" && currentId === quiz.tutorialId;
@@ -178,6 +182,7 @@ const ModuleSidebar = ({
     );
   };
 
+  // Render Submodule
   const renderSubmodule = (submodule) => {
     const isSubmoduleExpanded = expandedSubmodules[submodule.id];
     const isActive =
@@ -226,6 +231,7 @@ const ModuleSidebar = ({
     );
   };
 
+  // Render Module
   const renderModule = (module) => {
     const isModuleExpanded = expandedModules[module.id];
 
@@ -262,6 +268,7 @@ const ModuleSidebar = ({
     );
   };
 
+  // Render Extra Items (Quiz Final & Dashboard)
   const renderExtraItem = (item) => {
     const isActive =
       item.type === currentType &&
@@ -313,9 +320,10 @@ const ModuleSidebar = ({
 
   return (
     <>
+      {/* Toggle Button */}
       <div
         onClick={onToggle}
-        className={`fixed top-24 z-200 p-2 bg-blue-900 w-8 text-2xl cursor-pointer rounded-full transition-all duration-300 ${
+        className={`fixed top-24 z-30 p-2 bg-blue-900 w-8 text-2xl cursor-pointer rounded-full transition-all duration-300 ${
           isOpen ? "right-80 translate-x-4" : "-right-3 rounded-r translate-x-0"
         }`}
       >
@@ -326,6 +334,7 @@ const ModuleSidebar = ({
         )}
       </div>
 
+      {/* Overlay for mobile */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-transparent z-30 lg:hidden"
@@ -334,11 +343,13 @@ const ModuleSidebar = ({
         />
       )}
 
+      {/* Sidebar Container */}
       <div
         className={`fixed h-full top-0 right-0 w-80 pt-32 px-6 overflow-y-auto z-20 transform transition-transform duration-300 ease-in-out ${
           isDark ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
         } ${isOpen ? "translate-x-0" : "translate-x-120"}`}
       >
+        {/* Header */}
         <div className="mb-2 pt-8 lg:pt-0">
           <h3
             className={`text-lg font-bold ${
@@ -349,10 +360,12 @@ const ModuleSidebar = ({
           </h3>
         </div>
 
+        {/* Module List */}
         <div className="space-y-1 pb-6">
           {nestedData.modules.map((module) => renderModule(module))}
         </div>
 
+        {/* Extra Items (Quiz Final & Dashboard) */}
         {nestedData.extraItems && nestedData.extraItems.length > 0 && (
           <div className="border-t border-gray-200 pt-4 space-y-2 pb-20">
             {nestedData.extraItems.map((item) => renderExtraItem(item))}
