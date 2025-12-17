@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import LayoutWrapper from "../components/Layout/LayoutWrapper";
-import { QuizTimer } from "../components/features/quiz";
 import { Alert } from "../components/common";
 import Button from "../components/common/Button";
 import Loading from "../components/common/Loading";
+import { QuizTimer } from "../components/Features/quiz";
 import finalQuizService from "../services/finalQuizService";
 import { getUserKey } from "../utils/storage";
 

@@ -6,9 +6,9 @@ import BottomBarTwoActions from "../components/Layout/BottomBarTwoActions";
 import { useLearning } from "../hooks/useLearning";
 import { useProgress } from "../context/ProgressContext";
 import { buildSidebarItems, buildChain } from "../utils/navigationChain";
-import ResultCard from "../components/features/Feedback/ResultCard";
-import AnswerReview from "../components/features/Feedback/AnswerReview";
 import Button from "../components/common/Button";
+import ResultCard from "../components/Features/Feedback/ResultCard";
+import AnswerReview from "../components/Features/Feedback/AnswerReview";
 import { getUserKey } from "../utils/storage";
 import { quizDone } from "../utils/accessControl"; 
 
