@@ -1,8 +1,3 @@
-/**
- * Modal Component
- * Reusable modal dialog
- */
-
 import React from 'react';
 import { XMarkIcon } from '@heroicons/react/24/solid';
 
@@ -11,7 +6,7 @@ const Modal = ({
   onClose,
   title,
   children,
-  size = 'md', // sm, md, lg, xl
+  size = 'md', 
   showCloseButton = true,
   ... props
 }) => {
@@ -37,7 +32,6 @@ const Modal = ({
       {...props}
     >
       <div className={`bg-white rounded-lg shadow-xl ${sizes[size] || sizes.md} w-full`}>
-        {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-xl font-bold text-gray-900">{title}</h2>
           {showCloseButton && (
@@ -50,7 +44,6 @@ const Modal = ({
           )}
         </div>
 
-        {/* Content */}
         <div className="p-6">
           {children}
         </div>

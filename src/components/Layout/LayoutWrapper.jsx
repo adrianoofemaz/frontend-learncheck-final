@@ -47,7 +47,6 @@ const LayoutWrapper = ({
       }`}
       style={{ backgroundColor: bgColor }}
     >
-      {/* Background pattern full height */}
       <img
         src="/assets/images/bg-pattern.svg"
         alt="bg-pattern"
@@ -73,7 +72,6 @@ const LayoutWrapper = ({
         </div>
       </div>
 
-      {/* Footer only shows if showFooter is true */}
       {!embed && showFooter && <Footer />}
       {!hideChrome && bottomBar}
     </div>

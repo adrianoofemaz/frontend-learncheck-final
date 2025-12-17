@@ -1,14 +1,10 @@
-/**
- * Button Component
- * Reusable button dengan berbagai variants
- */
 
 import React from 'react';
 
 const Button = ({
   children,
-  variant = 'primary', // primary, secondary, danger, success
-  size = 'md', // sm, md, lg
+  variant = 'primary', 
+  size = 'md',
   fullWidth = false,
   disabled = false,
   type = 'button',

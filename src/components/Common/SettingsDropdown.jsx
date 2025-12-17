@@ -5,7 +5,6 @@ const SettingsDropdown = () => {
   const { preferences, changeFont, changeFontSize, changeLayoutWidth } =
     useContext(UserContext);
 
-  // Mapping font UI → value backend
   const FONT_OPTIONS = [
     { key: "poppins", label: "Poppins (Default)", server: "sans" },
     { key: "serif", label: "Serif", server: "serif" },
@@ -14,7 +13,6 @@ const SettingsDropdown = () => {
 
   return (
     <div className="flex flex-col gap-4 h-auto w-full max-w-xs overflow-hidden p-4 rounded-lg">
-      {/* FONT STYLE */}
       <div>
         <p className="text-sm font-semibold mb-1">Jenis Font</p>
         <div className="flex flex-col gap-1">
@@ -34,7 +32,6 @@ const SettingsDropdown = () => {
         </div>
       </div>
 
-      {/* FONT SIZE */}
       <div>
         <p className="text-sm font-semibold mb-1">Ukuran Font</p>
         <div className="flex gap-2">
@@ -56,7 +53,6 @@ const SettingsDropdown = () => {
         </div>
       </div>
 
-      {/* LAYOUT WIDTH */}
       <div>
         <p className="text-sm font-semibold mb-1">Lebar Bacaan</p>
         <div className="flex gap-2">

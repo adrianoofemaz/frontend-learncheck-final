@@ -1,15 +1,10 @@
-/**
- * Quiz Service
- * Handle quiz/assessment operations
- */
+
 
 import api from "./api";
 import { API_ENDPOINTS } from "../constants/apiEndpoints";
 
 export const quizService = {
-  /**
-   * Get questions untuk tutorial tertentu
-   */
+
   getQuestions: async (tutorialId) => {
     try {
       const url = API_ENDPOINTS.ASSESSMENT(tutorialId);
@@ -20,9 +15,6 @@ export const quizService = {
     }
   },
 
-  /**
-   * Get assessment by assessmentId (opsional)
-   */
   getAssessmentById: async (assessmentId) => {
     try {
       const url = API_ENDPOINTS.ASSESSMENT_BY_ID(assessmentId);
@@ -33,9 +25,7 @@ export const quizService = {
     }
   },
 
-  /**
-   * Submit quiz answers
-   */
+
   submitAnswers: async (tutorialId, assessmentId, answers) => {
     try {
       const cleanAssessmentId = assessmentId.includes(":")
@@ -50,9 +40,7 @@ export const quizService = {
     }
   },
 
-  /**
-   * Reset progress
-   */
+
   resetProgress: async () => {
     try {
       const response = await api.get(API_ENDPOINTS.PROGRESS_RESET);

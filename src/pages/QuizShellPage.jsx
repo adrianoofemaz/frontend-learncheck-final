@@ -8,14 +8,12 @@ const QuizShellPage = () => {
   const [iframeSrc, setIframeSrc] = useState(`/quiz-player/${tutorialId}?embed=1`);
 
   useEffect(() => {
-    // URL parent saat mulai: player shell
     window.history.replaceState({}, "", `/quiz/${tutorialId}`);
 
     const handler = (event) => {
       const data = event.data;
       if (!data) return;
 
-      // Quiz selesai: simpan result dan keluar shell ke player results (tanpa embed)
       if (data.type === "quiz-submitted" && data.tutorialId?.toString() === tutorialId?.toString()) {
         if (data.result) {
           localStorage.setItem(`quiz-result-${tutorialId}`, JSON.stringify(data.result));
@@ -24,7 +22,6 @@ const QuizShellPage = () => {
         return;
       }
 
-      // Navigasi keluar iframe yang diminta child (misal dari ResultsPage onNext/onBack)
       if (data.type === "nav-parent" && data.route) {
         navigate(data.route, { replace: true });
       }

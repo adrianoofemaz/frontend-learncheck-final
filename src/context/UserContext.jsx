@@ -1,7 +1,4 @@
-/**
- * UserContext
- * Manage user profile & preferences
- */
+
 import React, { createContext, useState, useCallback, useRef } from "react";
 import userService from "../services/userService";
 import { STORAGE_KEYS } from "../constants/config";
@@ -22,7 +19,6 @@ export const UserProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const updatingRef = useRef(false);
 
-  // Fetch user preferences
   const fetchPreferences = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -37,7 +33,6 @@ export const UserProvider = ({ children }) => {
     }
   }, []);
 
-  // Update preferences with guards (prevent duplicate calls / same payload)
   const updatePreferences = useCallback(
     async (newPreferences) => {
       if (updatingRef.current) return;

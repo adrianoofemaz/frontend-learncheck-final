@@ -50,6 +50,27 @@ const saveSubmoduleResult = (
   localStorage.setItem(submoduleResultKey(uid), JSON.stringify(existing));
 };
 
+const toDurationSec = (result, startTime) => {
+  const numDur = Number(result?.duration);
+  if (Number.isFinite(numDur) && numDur > 0) return numDur;
+
+  const parsedFromText = parseInt(
+    String(result?.lama_mengerjakan || "")
+      .replace(/[^0-9]/g, "")
+      .trim(),
+    10
+  );
+  if (Number.isFinite(parsedFromText) && parsedFromText > 0) return parsedFromText;
+
+  if (startTime instanceof Date) {
+    return Math.max(
+      0,
+      Math.round((Date.now() - startTime.getTime()) / 1000)
+    );
+  }
+  return 0;
+};
+
 const QuizPage = () => {
   const navigate = useNavigate();
   const { tutorialId } = useParams();
@@ -93,7 +114,7 @@ const QuizPage = () => {
 
   const goToResults = useCallback(
     (result) => {
-      const url = `/quiz-results-player/${tutorialId}`; // tanpa embed=1 agar sidebar/bottom muncul
+      const url = `/quiz-results-player/${tutorialId}`; 
       navigate(url, { state: { result } });
     },
     [navigate, tutorialId]
@@ -317,8 +338,12 @@ const QuizPage = () => {
           };
         });
 
+      const durationSec = toDurationSec(result, startTime);
+
       const resultEnriched = {
         ...result,
+        duration: durationSec,
+        lama_mengerjakan: result?.lama_mengerjakan || `${durationSec} detik`,
         detail,
         answers: result.answers || detail,
         questions: result.questions || questions,
@@ -331,7 +356,7 @@ const QuizPage = () => {
         resultEnriched?.score ?? 0,
         resultEnriched?.benar ?? 0,
         resultEnriched?.total ?? questions.length,
-        resultEnriched?.duration ?? 0
+        durationSec 
       );
 
       if (storageKey) {
@@ -383,6 +408,7 @@ const QuizPage = () => {
     goToResults,
     userKey,
     updateTutorialProgress,
+    startTime, 
   ]);
 
   const handleTimeUp = useCallback(() => {

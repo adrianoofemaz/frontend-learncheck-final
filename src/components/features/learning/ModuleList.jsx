@@ -1,7 +1,4 @@
-/**
- * ModuleList Component
- * List dari semua modules/tutorials
- */
+
 
 import React from "react";
 import { CheckCircleIcon } from "@heroicons/react/24/solid";

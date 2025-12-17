@@ -6,13 +6,12 @@ import BottomBarTwoActions from "../components/Layout/BottomBarTwoActions";
 import { useLearning } from "../hooks/useLearning";
 import { useProgress } from "../context/ProgressContext";
 import { buildSidebarItems, buildChain } from "../utils/navigationChain";
-import ResultCard from "../components/Features/feedback/ResultCard";
-import AnswerReview from "../components/Features/feedback/AnswerReview";
+import ResultCard from "../components/features/Feedback/ResultCard";
+import AnswerReview from "../components/features/Feedback/AnswerReview";
 import Button from "../components/common/Button";
 import { getUserKey } from "../utils/storage";
-import { quizDone } from "../utils/accessControl";
+import { quizDone } from "../utils/accessControl"; 
 
-// helper: pastikan nilai aman dirender sebagai string
 const toText = (val) => {
   if (!val) return "";
   if (typeof val === "string") return val;
@@ -36,6 +35,15 @@ const ResultsPage = () => {
 
   const userKey = getUserKey();
   const storageKey = tutorialId ? `${userKey}:quiz-progress-${tutorialId}` : null;
+
+  const hasFinalResult = useMemo(() => {
+    try {
+      return !!localStorage.getItem(`${userKey}:quiz-final-result`);
+    } catch {
+      return false;
+    }
+  }, [userKey]);
+
   const clearProgress = () => {
     if (!storageKey) return;
     try {
@@ -84,13 +92,9 @@ const ResultsPage = () => {
   const chain = buildChain(tutorials, currentId);
 
   const goBackChain = () => {
-    // Kembali dulu ke learning submodul yang sama (hindari lompat ke submodul sebelumnya)
     const target = `/learning/${currentId}`;
-    if (isIframe) {
-      postNavToParent(target);
-    } else {
-      navigate(target);
-    }
+    if (isIframe) postNavToParent(target);
+    else navigate(target);
   };
 
   const goNextChain = () => {
@@ -99,13 +103,10 @@ const ResultsPage = () => {
       const next = tutorials[chain.idx + 1];
       target = `/learning/${next.id}`;
     } else {
-      target = "/quiz-final-intro";
+      target = hasFinalResult ? "/quiz-final-result" : "/quiz-final-intro";
     }
-    if (isIframe) {
-      postNavToParent(target);
-    } else {
-      navigate(target);
-    }
+    if (isIframe) postNavToParent(target);
+    else navigate(target);
   };
 
   const isPass = total > 0 ? (correct / total) * 100 >= 60 : false;
@@ -118,7 +119,7 @@ const ResultsPage = () => {
   };
 
   const handleRetry = () => {
-    clearProgress(); // pastikan attempt baru
+    clearProgress(); 
     const target = `/quiz-intro/${tutorialId}`;
     if (isIframe) postNavToParent(target);
     else navigate(target);
@@ -139,12 +140,14 @@ const ResultsPage = () => {
             if (item.type === "tutorial") {
               navigate(`/learning/${item.id}`);
             } else if (item.type === "quiz-sub") {
-              const target = getTutorialProgress(item.id) && quizDone(item.id)
-                ? `/quiz-results-player/${item.id}`
-                : `/quiz-intro/${item.id}`;
+              const target =
+                getTutorialProgress(item.id) && quizDone(item.id)
+                  ? `/quiz-results-player/${item.id}`
+                  : `/quiz-intro/${item.id}`;
               navigate(target);
             } else if (item.type === "quiz-final") {
-              navigate("/quiz-final-intro");
+              const target = hasFinalResult ? "/quiz-final-result" : "/quiz-final-intro";
+              navigate(target);
             } else if (item.type === "dashboard") {
               navigate("/dashboard-modul");
             }

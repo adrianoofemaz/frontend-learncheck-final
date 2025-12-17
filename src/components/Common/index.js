@@ -1,7 +1,3 @@
-/**
- * Common Components Index
- * Export semua common components
- */
 
 export { default as Button } from './Button';
 export { default as Card } from './Card';

@@ -22,7 +22,7 @@ const QuizIntroPage = () => {
   const userKey = getUserKey();
   const storageKey = tutorialId ? `${userKey}:quiz-progress-${tutorialId}` : null;
 
-  const { questions, loading: quizLoading /*, fetchQuestions*/ } = useQuiz();
+  const { questions, loading: quizLoading } = useQuiz();
   const { tutorials, currentTutorial, selectTutorial, fetchTutorials, loading: learningLoading } = useLearning();
   const { getTutorialProgress } = useProgress();
 
@@ -31,7 +31,7 @@ const QuizIntroPage = () => {
   const selectedRef = useRef(null);
   const loading = quizLoading || learningLoading;
 
-  const totalQuestions = questions.length || 3; // fallback
+  const totalQuestions = questions.length || 3; 
   const timePerQuestion = 30;
   const sidebarItems = useMemo(() => buildSidebarItems(tutorials, getTutorialProgress), [tutorials, getTutorialProgress]);
   const chain = useMemo(() => buildChain(tutorials, currentTutorial?.id), [tutorials, currentTutorial?.id]);
@@ -62,7 +62,7 @@ const QuizIntroPage = () => {
 
   const handleStartQuiz = () => {
     if (!tutorialId) return;
-    clearProgress(); // bersihkan attempt lama
+    clearProgress(); 
     navigate(`/quiz/${tutorialId}`);
   };
 

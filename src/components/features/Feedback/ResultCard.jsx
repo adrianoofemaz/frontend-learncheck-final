@@ -32,8 +32,8 @@ const ResultCard = ({
   isPass = false,
   onRetry,
   onReview,
-  onDashboard,              // optional: tampilkan tombol Dashboard di samping Review
-  title = "Quiz Submodul",  // default submodul; final modul override di caller
+  onDashboard,              
+  title = "Quiz Submodul",  
   subtitle = "Penerapan AI dalam Dunia Nyata",
   dashboardLabel = "Dashboard",
   reviewLabel = "Review Soal",

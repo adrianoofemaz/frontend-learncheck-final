@@ -11,18 +11,12 @@ import { useProgress } from "../context/ProgressContext";
 import { buildSidebarItems, buildChain } from "../utils/navigationChain";
 import { finalQuizDone } from "../utils/accessControl";
 
-const QuizFinalIntroPage = () => {
+const FinalQuizIntroPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const embed = searchParams.get("embed") === "1";
 
-  const {
-    tutorials,
-    currentTutorial,
-    selectTutorial,
-    fetchTutorials,
-    loading: learningLoading,
-  } = useLearning();
+  const { tutorials, currentTutorial, selectTutorial, fetchTutorials, loading: learningLoading } = useLearning();
   const { getTutorialProgress } = useProgress();
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -33,14 +27,14 @@ const QuizFinalIntroPage = () => {
   const totalQuestions = 10;
   const totalDuration = "10 menit";
 
-  const sidebarItems = useMemo(
-    () => buildSidebarItems(tutorials, getTutorialProgress),
-    [tutorials, getTutorialProgress]
-  );
-  const chain = useMemo(
-    () => buildChain(tutorials, currentTutorial?.id),
-    [tutorials, currentTutorial?.id]
-  );
+  const sidebarItems = useMemo(() => buildSidebarItems(tutorials, getTutorialProgress), [tutorials, getTutorialProgress]);
+  const chain = useMemo(() => buildChain(tutorials, currentTutorial?.id), [tutorials, currentTutorial?.id]);
+
+  useEffect(() => {
+    if (finalQuizDone()) {
+      navigate("/quiz-final-result", { replace: true });
+    }
+  }, [navigate]);
 
   useEffect(() => {
     if (!tutorialsFetched) {
@@ -54,12 +48,14 @@ const QuizFinalIntroPage = () => {
     if (!firstId) return;
     if (selectedRef.current === firstId) return;
     selectedRef.current = firstId;
-    selectTutorial(firstId).catch((err) =>
-      console.error("Error selecting tutorial:", err)
-    );
+    selectTutorial(firstId).catch((err) => console.error("Error selecting tutorial:", err));
   }, [tutorials, selectTutorial]);
 
   const handleStartQuiz = () => {
+    if (finalQuizDone()) {
+      navigate("/quiz-final-result");
+      return;
+    }
     navigate("/quiz-final");
   };
 
@@ -72,14 +68,21 @@ const QuizFinalIntroPage = () => {
     } else if (item.type === "dashboard") navigate("/dashboard-modul");
   };
 
+  const handleBack = () => {
+    if (finalQuizDone()) {
+      navigate("/quiz-final-result");
+      return;
+    }
+    try {
+      navigate(-1);
+    } catch {
+      navigate("/home");
+    }
+  };
+
   if (loading) {
     return (
-      <LayoutWrapper
-        showNavbar={!embed}
-        showFooter={false}
-        embed={embed}
-        fullHeight
-      >
+      <LayoutWrapper showNavbar={!embed} showFooter={false} embed={embed} fullHeight>
         <Loading fullScreen text="Mempersiapkan kuis akhir..." />
       </LayoutWrapper>
     );
@@ -90,9 +93,7 @@ const QuizFinalIntroPage = () => {
       showNavbar={!embed}
       showFooter={false}
       embed={embed}
-      contentClassName={`pt-28 pb-25 ${
-        !embed && sidebarOpen ? "pr-80" : ""
-      } transition-all duration-300`}
+      contentClassName={`pt-28 pb-25 ${!embed && sidebarOpen ? "pr-80" : ""} transition-all duration-300`}
       sidePanel={
         !embed ? (
           <ModuleSidebar
@@ -108,9 +109,9 @@ const QuizFinalIntroPage = () => {
       bottomBar={
         !embed ? (
           <BottomBarTwoActions
-            leftLabel="← Dashboard"
+            leftLabel="← Kembali"
             rightLabel="Mulai Kuis →"
-            onLeft={() => navigate("/dashboard-modul")}
+            onLeft={handleBack}
             onRight={handleStartQuiz}
           />
         ) : null
@@ -134,41 +135,27 @@ const QuizFinalIntroPage = () => {
               </p>
 
               <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 mb-6">
-                <h2 className="text-xl font-semibold text-center text-gray-900 mb-4">
-                  Evaluasi Akhir Modul
-                </h2>
+                <h2 className="text-xl font-semibold text-center text-gray-900 mb-4">Evaluasi Akhir Modul</h2>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
                   <div className="flex items-center gap-3">
-                    <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-50 text-blue-600 text-lg font-semibold">
-                      ≡
-                    </span>
+                    <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-50 text-blue-600 text-lg font-semibold">≡</span>
                     <div>
                       <p className="text-sm text-gray-600">Jumlah Soal</p>
-                      <p className="text-lg font-bold text-gray-900">
-                        {totalQuestions} Soal
-                      </p>
+                      <p className="text-lg font-bold text-gray-900">{totalQuestions} Soal</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-50 text-blue-600 text-lg font-semibold">
-                      ⏱
-                    </span>
+                    <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-50 text-blue-600 text-lg font-semibold">⏱</span>
                     <div>
                       <p className="text-sm text-gray-600">Durasi</p>
-                      <p className="text-lg font-bold text-gray-900">
-                        {totalDuration}
-                      </p>
+                      <p className="text-lg font-bold text-gray-900">{totalDuration}</p>
                     </div>
                   </div>
                 </div>
               </div>
 
               <div className="flex justify-center">
-                <Button
-                  onClick={handleStartQuiz}
-                  variant="primary"
-                  className="px-10 py-3 text-base cursor-pointer"
-                >
+                <Button onClick={handleStartQuiz} variant="primary" className="px-10 py-3 text-base cursor-pointer">
                   Mulai Kuis
                 </Button>
               </div>
@@ -190,4 +177,4 @@ const QuizFinalIntroPage = () => {
   );
 };
 
-export default QuizFinalIntroPage;
+export default FinalQuizIntroPage;

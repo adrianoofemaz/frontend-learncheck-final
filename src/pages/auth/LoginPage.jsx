@@ -1,7 +1,4 @@
-/**
- * LoginPage
- * User login page dengan split layout - Responsive
- */
+
 
 import React from "react";
 import { useNavigate, Link } from "react-router-dom";
@@ -19,7 +16,6 @@ const LoginPage = () => {
       console.log("Login response:", response);
 
       if (response && response.token) {
-        // Reload ke /home supaya state/context/storage segar untuk akun baru
         window.location.replace("/home");
       }
     } catch (err) {
@@ -30,7 +26,6 @@ const LoginPage = () => {
 
   return (
     <div className="auth-container h-screen flex flex-col lg:flex-row bg-white overflow-hidden">
-      {/* Left Side - Logo & Pattern - FULL */}
       <div className="auth-left hidden lg:flex flex-1 items-center justify-center">
         <img
           src="/assets/images/QuizMate.png"
@@ -39,10 +34,8 @@ const LoginPage = () => {
         />
       </div>
 
-      {/* Right Side - Form */}
       <div className="auth-right flex-1 bg-white w-full lg:w-1/2 flex items-center justify-center">
         <div className="w-full max-w-md -translate-y-12">
-          {/* Header */}
           <div className="text-center mb-10">
             <div className="flex items-center justify-center mb-4 sm:mb-6">
               <img
@@ -59,17 +52,14 @@ const LoginPage = () => {
             </p>
           </div>
 
-          {/* Auth Error */}
           {authError && (
             <div className="mb-3 p-2 sm:p-3 bg-red-100 text-red-700 rounded-lg text-xs sm:text-sm">
               {authError}
             </div>
           )}
 
-          {/* Form */}
           <LoginForm onSubmit={handleLogin} loading={loading} />
 
-          {/* Register Link */}
           <div className="mt-4 sm:mt-6 text-center text-xs sm:text-sm text-gray-600">
             Belum punya akun?{" "}
             <Link

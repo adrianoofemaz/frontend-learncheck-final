@@ -1,7 +1,4 @@
-/**
- * QuizContext
- * Manage quiz state during quiz session
- */
+
 
 import React, { createContext, useState, useCallback } from 'react';
 import quizService from '../services/quizService';
@@ -22,9 +19,7 @@ export const QuizProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const [feedback, setFeedback] = useState(null);
 
-  /**
-   * Fetch all questions
-   */
+
   const fetchQuestions = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -38,9 +33,7 @@ export const QuizProvider = ({ children }) => {
     }
   }, []);
 
-  /**
-   * Record answer untuk question
-   */
+
   const recordAnswer = useCallback((questionIndex, answer) => {
     setAnswers((prev) => ({
       ...prev,
@@ -48,9 +41,7 @@ export const QuizProvider = ({ children }) => {
     }));
   }, []);
 
-  /**
-   * Submit quiz answers
-   */
+
   const submitQuiz = useCallback(async (tutorialId, assessmentId, answersData) => {
     setSubmitLoading(true);
     setError(null);
@@ -74,9 +65,7 @@ export const QuizProvider = ({ children }) => {
     }
   }, []);
 
-  /**
-   * Reset quiz
-   */
+
   const resetQuiz = useCallback(() => {
     setCurrentQuestionIndex(0);
     setAnswers({});
@@ -89,17 +78,13 @@ export const QuizProvider = ({ children }) => {
     setError(null);
   }, []);
 
-  /**
-   * Initialize quiz
-   */
+
   const initializeQuiz = useCallback(() => {
     setStartTime(new Date());
     resetQuiz();
   }, [resetQuiz]);
 
-  /**
-   * Move to next question
-   */
+
   const nextQuestion = useCallback(() => {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex((prev) => prev + 1);
@@ -107,9 +92,7 @@ export const QuizProvider = ({ children }) => {
     }
   }, [currentQuestionIndex, questions.length]);
 
-  /**
-   * Move to previous question
-   */
+
   const previousQuestion = useCallback(() => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex((prev) => prev - 1);

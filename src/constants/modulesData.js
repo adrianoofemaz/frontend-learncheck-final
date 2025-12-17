@@ -1,7 +1,4 @@
-/**
- * Static Modules Data
- * Hanya "Belajar Dasar AI" (Module #9) yang aktif
- */
+
 export const MODULES_DATA = [
   {
     id: 1,

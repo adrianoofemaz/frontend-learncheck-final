@@ -1,7 +1,3 @@
-/**
- * LearningContext
- * Manage learning materials & state
- */
 
 import React, { createContext, useState, useCallback } from 'react';
 import tutorialService from '../services/tutorialService';
@@ -16,9 +12,7 @@ export const LearningProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const [completedTutorials, setCompletedTutorials] = useState([]);
 
-  /**
-   * Fetch all tutorials
-   */
+
   const fetchTutorials = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -27,7 +21,6 @@ export const LearningProvider = ({ children }) => {
       const tutorialList = response.data?. tutorials || [];
       setTutorials(tutorialList);
 
-      // Set first tutorial as current
       if (tutorialList.length > 0) {
         setCurrentTutorial(tutorialList[0]);
       }
@@ -38,9 +31,7 @@ export const LearningProvider = ({ children }) => {
     }
   }, []);
 
-  /**
-   * Fetch tutorial detail by ID
-   */
+
   const selectTutorial = useCallback(async (id) => {
     setLoading(true);
     setError(null);
@@ -62,9 +53,7 @@ export const LearningProvider = ({ children }) => {
     }
   }, [tutorials]);
 
-  /**
-   * Mark tutorial as completed
-   */
+
   const markTutorialCompleted = useCallback((tutorialId) => {
     setCompletedTutorials((prev) => {
       if (! prev.includes(tutorialId)) {
@@ -74,9 +63,7 @@ export const LearningProvider = ({ children }) => {
     });
   }, []);
 
-  /**
-   * Go to next tutorial
-   */
+
   const goToNextTutorial = useCallback(() => {
     if (currentTutorialIndex < tutorials.length - 1) {
       const nextTutorial = tutorials[currentTutorialIndex + 1];
@@ -84,9 +71,7 @@ export const LearningProvider = ({ children }) => {
     }
   }, [currentTutorialIndex, tutorials, selectTutorial]);
 
-  /**
-   * Go to previous tutorial
-   */
+
   const goToPreviousTutorial = useCallback(() => {
     if (currentTutorialIndex > 0) {
       const prevTutorial = tutorials[currentTutorialIndex - 1];

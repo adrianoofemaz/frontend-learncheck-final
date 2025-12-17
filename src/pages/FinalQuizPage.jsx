@@ -21,14 +21,13 @@ const QuizFinalPage = () => {
   const [submitError, setSubmitError] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState({}); // idx -> selectedIndex (0-3)
+  const [answers, setAnswers] = useState({}); 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isTimerActive, setIsTimerActive] = useState(true);
 
-  const durationSeconds = 10 * 60; // 10 menit total
+  const durationSeconds = 10 * 60; 
   const startTimeRef = useRef(null);
 
-  // Fetch 10 soal final
   const loadQuestions = useCallback(async () => {
     setLoading(true);
     setFetchError(null);
@@ -71,10 +70,10 @@ const QuizFinalPage = () => {
   const validateAnswers = () => {
     const firstUnanswered = questions.findIndex((_, idx) => answers[idx] === undefined);
     if (firstUnanswered >= 0) {
-      console.log("answers state:", answers); // debug
-      console.log("payload:", buildSubmissionPayload()); // debug
+      console.log("answers state:", answers); 
+      console.log("payload:", buildSubmissionPayload()); 
       setSubmitError(`Soal ${firstUnanswered + 1} belum dijawab. Silakan lengkapi semua soal.`);
-      setCurrentQuestionIndex(firstUnanswered); // lompat ke soal yang belum tercatat
+      setCurrentQuestionIndex(firstUnanswered); 
       return false;
     }
     return true;
@@ -83,8 +82,7 @@ const QuizFinalPage = () => {
   const buildSubmissionPayload = () =>
     questions.map((q, idx) => {
       const ansIdx = answers[idx];
-      const optionKey =
-        ansIdx === undefined || ansIdx === null ? "" : String(ansIdx + 1); // API expects "1"-"4"
+      const optionKey = ansIdx === undefined || ansIdx === null ? "" : String(ansIdx + 1); 
       return {
         question_id: q.id,
         answer: optionKey,
@@ -93,7 +91,7 @@ const QuizFinalPage = () => {
 
   const handleSubmit = useCallback(async () => {
     if (isSubmitting) return;
-    if (!validateAnswers()) return; // 🔒 cegah submit kalau masih ada yang kosong
+    if (!validateAnswers()) return; 
 
     setIsSubmitting(true);
     setIsTimerActive(false);
@@ -101,7 +99,7 @@ const QuizFinalPage = () => {
 
     try {
       const payload = buildSubmissionPayload();
-      console.log("Submitting final answers payload:", payload); // debug, cek di Network Payload
+      console.log("Submitting final answers payload:", payload); 
       const res = await finalQuizService.submitFinalAnswers(payload);
 
       const results = res?.results || [];
@@ -112,12 +110,14 @@ const QuizFinalPage = () => {
         ? Math.max(0, Math.round((Date.now() - startTimeRef.current) / 1000))
         : 0;
 
-      // Bangun data questions + answers untuk review
+      const tutorialByQuestion = new Map(questions.map((q) => [q.id, q.tutorial_id]));
+
       const enrichedQuestions = results.map((r) => {
         const opts = r.options || {};
         return {
           id: r.question_id,
           assessment: r.question,
+          tutorial_id: tutorialByQuestion.get(r.question_id) || r.tutorial_id || null,
           multiple_choice: ["1", "2", "3", "4"].map((key) => ({
             id: Number(key),
             option: opts[key] || "",
@@ -130,6 +130,7 @@ const QuizFinalPage = () => {
         const opts = r.options || {};
         return {
           soal_id: r.question_id,
+          tutorial_id: tutorialByQuestion.get(r.question_id) || r.tutorial_id || null,
           correct: !!r.is_true,
           user_answer: opts[r.user_answer] || r.user_answer || "",
           answer: opts[r.correct_answer] || r.correct_answer || "",
@@ -148,9 +149,9 @@ const QuizFinalPage = () => {
         detail: answersArr,
         questions: enrichedQuestions,
         rawResults: results,
+        rawQuestions: questions, 
       };
 
-      // Simpan lokal untuk fallback
       localStorage.setItem(FINAL_RESULT_KEY(userKey), JSON.stringify(resultPayload));
 
       navigate("/quiz-final-result", { state: resultPayload });
@@ -214,7 +215,6 @@ const QuizFinalPage = () => {
         }}
       >
         <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-4 lg:gap-6">
-          {/* Navigator soal di kiri */}
           <div className="bg-white/90 backdrop-blur rounded-2xl shadow-md border border-gray-100 p-4 h-fit">
             <p className="text-sm font-semibold text-gray-800 mb-3">Pilih Soal</p>
             <div className="grid grid-cols-5 sm:grid-cols-6 lg:grid-cols-4 gap-2">
@@ -238,7 +238,6 @@ const QuizFinalPage = () => {
           </div>
 
           <div className="space-y-5">
-            {/* Header biru dengan timer & progress bar */}
             <div className="bg-gradient-to-r from-[#1e7bff] to-[#0a5bff] text-white rounded-2xl shadow-lg px-6 py-5">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
@@ -266,7 +265,6 @@ const QuizFinalPage = () => {
               </div>
             </div>
 
-            {/* Card soal tanpa feedback instan */}
             <div className="bg-white/95 backdrop-blur rounded-3xl shadow-lg border border-gray-100 p-6 sm:p-8">
               <div className="flex items-start justify-between mb-4">
                 <p className="text-sm font-semibold text-blue-700">

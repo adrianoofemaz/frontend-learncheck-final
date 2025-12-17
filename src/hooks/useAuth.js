@@ -1,6 +1,4 @@
-/**
- * useAuth Hook
- */
+
 import { useState, useCallback, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import authService from '../services/authService';
@@ -29,7 +27,7 @@ export const useAuth = () => {
         const tokenData = response.user?.token || response.token || response.data?.token;
         if (!tokenData) throw new Error('Token tidak ditemukan di response');
 
-        saveAuth(userData, tokenData); // simpan & hapus legacy
+        saveAuth(userData, tokenData); 
         setToken(tokenData);
         setUser(userData || {});
         return { user: userData, token: tokenData };
@@ -44,7 +42,7 @@ export const useAuth = () => {
   );
 
   const logout = useCallback(() => {
-    clearAuth();          // hapus STORAGE_KEYS.* + legacy token/user
+    clearAuth();         
     setUser(null);
     setToken(null);
     navigate('/login');

@@ -1,16 +1,11 @@
-/**
- * ProgressBar Component
- * Progress visualization
- */
-
 import React from 'react';
 
 const ProgressBar = ({
-  value = 0, // 0-100
+  value = 0, 
   showLabel = true,
   animated = true,
-  variant = 'primary', // primary, success, warning, danger
-  size = 'md', // sm, md, lg
+  variant = 'primary', 
+  size = 'md', 
   label,
   className = '',
 }) => {
