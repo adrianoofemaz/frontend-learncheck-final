@@ -3,7 +3,7 @@
 import React from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
-import { LoginForm } from "../../components/features/auth";
+import { LoginForm } from "../../components/Features/auth";
 import "./auth.css";
 
 const LoginPage = () => {

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import authService from "../../services/authService";
-import { RegisterForm } from "../../components/features/auth";
+import { RegisterForm } from "../../components/Features/auth";
 import "./auth.css";
 import Swal from "sweetalert2";
 
