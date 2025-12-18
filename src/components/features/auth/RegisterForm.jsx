@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
-import { validateRegisterForm } from '../../../utils/validators';
-import Button from '../../common/Button';
-import Alert from '../../common/Alert';
+import React, { useState } from "react";
+import { validateRegisterForm } from "../../../utils/validators";
+import Button from "../../common/Button";
+import Alert from "../../common/Alert";
 
 const RegisterForm = ({ onSubmit, loading = false }) => {
   const [formData, setFormData] = useState({
-    name: '',
-    username: '',
-    password: '',
-    confirmPassword: '',
+    name: "",
+    username: "",
+    password: "",
+    confirmPassword: "",
   });
   const [errors, setErrors] = useState({});
   const [serverError, setServerError] = useState(null);
@@ -34,7 +34,7 @@ const RegisterForm = ({ onSubmit, loading = false }) => {
 
     if (formData.password !== formData.confirmPassword) {
       setErrors({
-        confirmPassword: 'Password tidak cocok',
+        confirmPassword: "Password tidak cocok",
       });
       return;
     }
@@ -63,7 +63,7 @@ const RegisterForm = ({ onSubmit, loading = false }) => {
         />
       )}
 
-\      <div>
+      <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Nama Lengkap
         </label>
@@ -74,7 +74,7 @@ const RegisterForm = ({ onSubmit, loading = false }) => {
           onChange={handleInputChange}
           placeholder="Masukkan nama lengkap"
           className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-            errors.name ? 'border-red-500' : 'border-gray-300'
+            errors.name ? "border-red-500" : "border-gray-300"
           }`}
           disabled={loading}
         />
@@ -83,7 +83,7 @@ const RegisterForm = ({ onSubmit, loading = false }) => {
         )}
       </div>
 
-\      <div>
+      <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Username
         </label>
@@ -94,7 +94,7 @@ const RegisterForm = ({ onSubmit, loading = false }) => {
           onChange={handleInputChange}
           placeholder="Masukkan username"
           className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-            errors.username ? 'border-red-500' : 'border-gray-300'
+            errors.username ? "border-red-500" : "border-gray-300"
           }`}
           disabled={loading}
         />
@@ -103,7 +103,7 @@ const RegisterForm = ({ onSubmit, loading = false }) => {
         )}
       </div>
 
-\      <div>
+      <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Password
         </label>
@@ -114,27 +114,27 @@ const RegisterForm = ({ onSubmit, loading = false }) => {
           onChange={handleInputChange}
           placeholder="Masukkan password"
           className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-            errors.password ? 'border-red-500' : 'border-gray-300'
+            errors.password ? "border-red-500" : "border-gray-300"
           }`}
           disabled={loading}
         />
         {errors.password && (
-          <p className="mt-1 text-sm text-red-600">{errors. password}</p>
+          <p className="mt-1 text-sm text-red-600">{errors.password}</p>
         )}
       </div>
 
-\      <div>
+      <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Konfirmasi Password
         </label>
         <input
           type="password"
           name="confirmPassword"
-          value={formData. confirmPassword}
+          value={formData.confirmPassword}
           onChange={handleInputChange}
           placeholder="Konfirmasi password"
           className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-            errors. confirmPassword ? 'border-red-500' : 'border-gray-300'
+            errors.confirmPassword ? "border-red-500" : "border-gray-300"
           }`}
           disabled={loading}
         />
@@ -143,14 +143,14 @@ const RegisterForm = ({ onSubmit, loading = false }) => {
         )}
       </div>
 
-\      <Button
+      <Button
         type="submit"
         variant="primary"
         fullWidth
         disabled={loading}
         className="mt-6"
       >
-        {loading ?  'Sedang mendaftar...' : 'Daftar'}
+        {loading ? "Sedang mendaftar..." : "Daftar"}
       </Button>
     </form>
   );
