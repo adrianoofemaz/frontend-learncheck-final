@@ -352,3 +352,149 @@ body {
     display: none !important;
   }
 }
+
+/* =========================================================
+   EMBED MODE OPTIMIZATIONS
+   ========================================================= */
+
+/* Embed mode class untuk optimize tampilan di iframe */
+body.embed-mode {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  /* Override background untuk embed - ensure light theme */
+  background: var(--color-bg-body) !important;
+}
+
+/* Pastikan tidak ada scroll horizontal di embed */
+.embed-mode * {
+  box-sizing: border-box;
+}
+
+/* Optimasi spacing untuk embed mode */
+body.embed-mode .py-14 {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+body.embed-mode .py-10 {
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+}
+
+body.embed-mode .mt-10 {
+  margin-top: 1.5rem;
+}
+
+body.embed-mode .mt-12 {
+  margin-top: 1.5rem;
+}
+
+/* Reduce spacing in space-y utilities untuk embed */
+body.embed-mode .space-y-5 > * + * {
+  margin-top: 1rem;
+}
+
+body.embed-mode .space-y-8 > * + * {
+  margin-top: 1.5rem;
+}
+
+/* Optimasi untuk iframe dengan height terbatas */
+@media (max-height: 600px) {
+  body.embed-mode .py-14 {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+  
+  body.embed-mode .py-10 {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+  
+  body.embed-mode .space-y-5 > * + * {
+    margin-top: 0.75rem;
+  }
+  
+  body.embed-mode .space-y-8 > * + * {
+    margin-top: 1rem;
+  }
+  
+  /* Reduce padding di cards */
+  body.embed-mode .p-6 {
+    padding: 1rem;
+  }
+  
+  body.embed-mode .p-7 {
+    padding: 1rem;
+  }
+  
+  body.embed-mode .p-8 {
+    padding: 1.25rem;
+  }
+  
+  /* Reduce header sizes */
+  body.embed-mode h1 {
+    font-size: 1.75rem;
+  }
+  
+  body.embed-mode h2 {
+    font-size: 1.5rem;
+  }
+  
+  body.embed-mode h3 {
+    font-size: 1.25rem;
+  }
+  
+  /* Compact rounded boxes */
+  body.embed-mode .rounded-2xl {
+    border-radius: 1rem;
+  }
+}
+
+/* Optimasi untuk mobile di embed */
+@media (max-width: 640px) {
+  body.embed-mode .px-4 {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  
+  body.embed-mode .p-6 {
+    padding: 0.875rem;
+  }
+  
+  body.embed-mode .p-8 {
+    padding: 1rem;
+  }
+  
+  body.embed-mode .sm\:p-7 {
+    padding: 1rem;
+  }
+  
+  body.embed-mode .sm\:p-8 {
+    padding: 1rem;
+  }
+}
+
+/* Remove max-width constraints in embed for full width */
+body.embed-mode .max-w-4xl {
+  max-width: 100%;
+}
+
+/* Ensure smooth scrolling in embed */
+body.embed-mode {
+  scroll-behavior: smooth;
+}
+
+/* Remove unnecessary shadows in embed untuk cleaner look */
+body.embed-mode .shadow-lg {
+  box-shadow: 0 4px 12px rgba(16, 24, 40, 0.08);
+}
+
+/* Optimasi button spacing di embed */
+body.embed-mode .mt-6 {
+  margin-top: 1rem;
+}
+
+body.embed-mode .mt-4 {
+  margin-top: 0.75rem;
+}

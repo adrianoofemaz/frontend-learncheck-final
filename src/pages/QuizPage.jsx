@@ -78,6 +78,52 @@ const QuizPage = () => {
   const embed = searchParams.get("embed") === "1";
   const userKey = getUserKey();
 
+  // ========== EMBED USER HANDLING (TAMBAHAN BARU) ==========
+  const embedUserId = searchParams.get("user"); // User ID dari Dicoding LMS
+
+  // Effect untuk handle embed user tracking
+  useEffect(() => {
+    if (embed && embedUserId) {
+      console.log("[QuizPage] Loaded in embed mode for user:", embedUserId);
+      console.log("[QuizPage] Tutorial ID:", tutorialId);
+      
+      // Store untuk analytics atau tracking (opsional)
+      try {
+        sessionStorage.setItem("embed_user_id", embedUserId);
+        sessionStorage.setItem("embed_mode", "true");
+        sessionStorage.setItem("embed_tutorial_id", tutorialId || "");
+      } catch (e) {
+        console.warn("[QuizPage] Cannot access sessionStorage in embed mode:", e);
+      }
+    }
+    
+    // Cleanup on unmount
+    return () => {
+      if (embed) {
+        try {
+          sessionStorage.removeItem("embed_mode");
+        } catch (e) {
+          // Silent fail untuk cross-origin restrictions
+        }
+      }
+    };
+  }, [embed, embedUserId, tutorialId]);
+
+  // Apply embed mode class to body
+  useEffect(() => {
+    if (embed) {
+      document.body.classList.add('embed-mode');
+      console.log("[QuizPage] Embed mode activated - body class applied");
+    } else {
+      document.body.classList.remove('embed-mode');
+    }
+    
+    return () => {
+      document.body.classList.remove('embed-mode');
+    };
+  }, [embed]);
+  // ========== END EMBED USER HANDLING ==========
+
   const storageKey = tutorialId
     ? `${userKey}:quiz-progress-${tutorialId}`
     : null;

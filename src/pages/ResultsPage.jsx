@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState, useEffect } from "react";
 import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import LayoutWrapper from "../components/Layout/LayoutWrapper";
 import ModuleSidebar from "../components/Layout/ModuleSidebar";
@@ -24,6 +24,41 @@ const ResultsPage = () => {
   const { tutorialId } = useParams();
   const [searchParams] = useSearchParams();
   const embed = searchParams.get("embed") === "1";
+
+  // ========== EMBED USER HANDLING (TAMBAHAN BARU) ==========
+  const embedUserId = searchParams.get("user"); // User ID dari Dicoding LMS
+
+  // Effect untuk handle embed user tracking di results page
+  useEffect(() => {
+    if (embed && embedUserId) {
+      console.log("[ResultsPage] Loaded in embed mode for user:", embedUserId);
+      console.log("[ResultsPage] Tutorial ID:", tutorialId);
+      
+      // Store untuk analytics atau tracking (opsional)
+      try {
+        sessionStorage.setItem("embed_user_id", embedUserId);
+        sessionStorage.setItem("embed_mode", "true");
+        sessionStorage.setItem("embed_tutorial_id", tutorialId || "");
+      } catch (e) {
+        console.warn("[ResultsPage] Cannot access sessionStorage in embed mode:", e);
+      }
+    }
+  }, [embed, embedUserId, tutorialId]);
+
+  // Apply embed mode class to body
+  useEffect(() => {
+    if (embed) {
+      document.body.classList.add('embed-mode');
+      console.log("[ResultsPage] Embed mode activated - body class applied");
+    } else {
+      document.body.classList.remove('embed-mode');
+    }
+    
+    return () => {
+      document.body.classList.remove('embed-mode');
+    };
+  }, [embed]);
+  // ========== END EMBED USER HANDLING ==========
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -128,41 +163,45 @@ const ResultsPage = () => {
   return (
     <LayoutWrapper
       embed={embed}
-      showNavbar={true}
+      showNavbar={!embed}
       showFooter={false}
-      contentClassName={`pt-14 pb-24 ${sidebarOpen ? "pr-80" : ""}`}
+      contentClassName={`pt-14 pb-24 ${!embed && sidebarOpen ? "pr-80" : ""}`}
       sidePanel={
-        <ModuleSidebar
-          items={sidebarItems}
-          currentId={currentId}
-          currentType="quiz-sub"
-          onSelect={(item) => {
-            if (item.type === "tutorial") {
-              navigate(`/learning/${item.id}`);
-            } else if (item.type === "quiz-sub") {
-              const target =
-                getTutorialProgress(item.id) && quizDone(item.id)
-                  ? `/quiz-results-player/${item.id}`
-                  : `/quiz-intro/${item.id}`;
-              navigate(target);
-            } else if (item.type === "quiz-final") {
-              const target = hasFinalResult ? "/quiz-final-result" : "/quiz-final-intro";
-              navigate(target);
-            } else if (item.type === "dashboard") {
-              navigate("/dashboard-modul");
-            }
-          }}
-          isOpen={sidebarOpen}
-          onToggle={() => setSidebarOpen((p) => !p)}
-        />
+        !embed ? (
+          <ModuleSidebar
+            items={sidebarItems}
+            currentId={currentId}
+            currentType="quiz-sub"
+            onSelect={(item) => {
+              if (item.type === "tutorial") {
+                navigate(`/learning/${item.id}`);
+              } else if (item.type === "quiz-sub") {
+                const target =
+                  getTutorialProgress(item.id) && quizDone(item.id)
+                    ? `/quiz-results-player/${item.id}`
+                    : `/quiz-intro/${item.id}`;
+                navigate(target);
+              } else if (item.type === "quiz-final") {
+                const target = hasFinalResult ? "/quiz-final-result" : "/quiz-final-intro";
+                navigate(target);
+              } else if (item.type === "dashboard") {
+                navigate("/dashboard-modul");
+              }
+            }}
+            isOpen={sidebarOpen}
+            onToggle={() => setSidebarOpen((p) => !p)}
+          />
+        ) : null
       }
       bottomBar={
-        <BottomBarTwoActions
-          leftLabel="← Kembali"
-          rightLabel={chain.idx < chain.total - 1 ? "Lanjut →" : "Quiz Final →"}
-          onLeft={goBackChain}
-          onRight={goNextChain}
-        />
+        !embed ? (
+          <BottomBarTwoActions
+            leftLabel="← Kembali"
+            rightLabel={chain.idx < chain.total - 1 ? "Lanjut →" : "Quiz Final →"}
+            onLeft={goBackChain}
+            onRight={goNextChain}
+          />
+        ) : null
       }
     >
       <div className="min-h-screen py-10 px-4">

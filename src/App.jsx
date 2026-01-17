@@ -31,6 +31,9 @@ import DashboardModulPage from "./pages/DashboardModulPage";
 import QuizShellPage from "./pages/QuizShellPage";
 import QuizResultsShellPage from "./pages/QuizResultsShellPage";
 
+// TAMBAHAN BARU: Embed redirect page
+import EmbedRedirectPage from "./pages/Embedredirectpage";
+
 // Routes
 import { ROUTES } from "./constants/routes";
 
@@ -48,6 +51,10 @@ function App() {
 
                 {/* Redirect root */}
                 <Route path="/" element={<Navigate to={ROUTES.LOGIN} replace />} />
+
+                {/* TAMBAHAN BARU: Embed route untuk Dicoding LMS */}
+                {/* Harus di atas routes lain untuk prioritas matching */}
+                <Route path={ROUTES.EMBED_SOAL} element={<EmbedRedirectPage />} />
 
                 {/* Main */}
                 <Route path={ROUTES.HOME} element={<ClassDetailPage />} />
