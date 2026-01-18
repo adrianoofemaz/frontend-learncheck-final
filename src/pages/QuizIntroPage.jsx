@@ -89,21 +89,6 @@ const QuizIntroPage = () => {
     );
   }
 
-  if (!currentTutorial) {
-    return (
-      <LayoutWrapper showNavbar={!embed} showFooter={false} embed={embed} fullHeight>
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="max-w-md text-center">
-            <Alert type="warning" title="Materi belum tersedia" message="Silakan kembali atau pilih submodul lain." />
-            <Button onClick={() => navigate(-1)} variant="primary" className="mt-4 cursor-pointer">
-              Kembali
-            </Button>
-          </div>
-        </div>
-      </LayoutWrapper>
-    );
-  }
-
   return (
     <LayoutWrapper
       showNavbar={!embed}
