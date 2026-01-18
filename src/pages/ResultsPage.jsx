@@ -153,11 +153,32 @@ const ResultsPage = () => {
     }, 50);
   };
 
+  // UPDATED: handleRetry dengan embed support
   const handleRetry = () => {
-    clearProgress(); 
-    const target = `/quiz-intro/${tutorialId}`;
-    if (isIframe) postNavToParent(target);
-    else navigate(target);
+    clearProgress();
+    
+    // NEW: Preserve embed and user params when retrying
+    if (embed) {
+      const params = new URLSearchParams({ embed: "1" });
+      if (embedUserId) params.append("user", embedUserId);
+      
+      // Navigate to quiz intro in embed mode
+      const target = `/quiz-intro/${tutorialId}?${params.toString()}`;
+      
+      if (isIframe) {
+        postNavToParent(target);
+      } else {
+        navigate(target);
+      }
+    } else {
+      // Normal mode: navigate to quiz intro
+      const target = `/quiz-intro/${tutorialId}`;
+      if (isIframe) {
+        postNavToParent(target);
+      } else {
+        navigate(target);
+      }
+    }
   };
 
   return (

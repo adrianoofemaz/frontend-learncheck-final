@@ -6,9 +6,11 @@ import Loading from "../components/common/Loading";
  * EmbedRedirectPage
  * 
  * Komponen ini menangani redirect dari format embed Dicoding LMS
- * Format: /embed/soal?tutorial={tutorial_id}&user={user_id}
+ * Format: /embed/soal?tutorial={tutorial_id}&user={user_id}&start={intro|quiz}
  * 
- * Redirect ke: /quiz-player/{tutorial_id}?embed=1&user={user_id}
+ * Redirect options:
+ * - start=intro → /quiz-intro/{tutorial_id}?embed=1&user={user_id}
+ * - start=quiz (default) → /quiz-player/{tutorial_id}?embed=1&user={user_id}
  */
 const EmbedRedirectPage = () => {
   const [searchParams] = useSearchParams();
@@ -16,11 +18,12 @@ const EmbedRedirectPage = () => {
   // Ambil parameter dari URL Dicoding
   const tutorial = searchParams.get("tutorial");
   const user = searchParams.get("user");
+  const startFrom = searchParams.get("start"); // NEW: 'intro' or 'quiz' (default)
 
   // Log untuk debugging (bisa dihapus di production)
   useEffect(() => {
-    console.log("[EmbedRedirect] Received params:", { tutorial, user });
-  }, [tutorial, user]);
+    console.log("[EmbedRedirect] Received params:", { tutorial, user, startFrom });
+  }, [tutorial, user, startFrom]);
 
   // Validasi: Jika tidak ada tutorial ID, redirect ke home
   if (!tutorial) {
@@ -35,9 +38,18 @@ const EmbedRedirectPage = () => {
     return <Navigate to="/home" replace />;
   }
 
-  // Konstruksi URL target
-  // Format: /quiz-player/{tutorialId}?embed=1&user={userId}
-  const targetUrl = `/quiz-player/${tutorialId}?embed=1${user ? `&user=${user}` : ""}`;
+  // Konstruksi URL target berdasarkan startFrom parameter
+  let targetUrl;
+  
+  if (startFrom === "intro") {
+    // Start from quiz intro page
+    targetUrl = `/quiz-intro/${tutorialId}?embed=1${user ? `&user=${user}` : ""}`;
+    console.log("[EmbedRedirect] Starting from INTRO");
+  } else {
+    // Default: start directly from quiz
+    targetUrl = `/quiz-player/${tutorialId}?embed=1${user ? `&user=${user}` : ""}`;
+    console.log("[EmbedRedirect] Starting from QUIZ");
+  }
   
   console.log("[EmbedRedirect] Redirecting to:", targetUrl);
 
